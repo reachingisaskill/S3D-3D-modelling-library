@@ -23,7 +23,7 @@ namespace S3D
 ////////////////////////////////////////////////////////////////////////////////
 
 
-  // TODO : Compiler flags for MULTITHREADED LIST!!!
+  // TODO : Compiler flags for MULTITHREADED LIST
   // typedef stdexts::dll< object_base* > BasePointerContainerT;
   typedef std::set< object_base* > BasePointerContainerT;
   typedef std::map< int, BasePointerContainerT > PointersMapT;
@@ -79,6 +79,7 @@ namespace S3D
 ////////////////////////////////////////////////////////////////////////////////
 
 
+  // TODO: remove these functions - will cause problems!
   template < class T >
   T* addObject( T* obj, int layer = 0 )
   {
@@ -87,6 +88,7 @@ namespace S3D
     return obj;
   }
 
+  // TODO: remove these functions - will cause problems!
   template < class T >
   void removeObject( T* obj )
   {

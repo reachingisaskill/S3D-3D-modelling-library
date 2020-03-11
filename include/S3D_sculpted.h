@@ -55,13 +55,14 @@ namespace S3D
       stdexts::sharedPtr< cylindricalBool_map > _fieldMap;
 
     public:
-      sculptedCylinder( threeVector, threeVector, double, double, cylindricalBool_map* );
+      sculptedCylinder( threeVector, rotation, double, double, cylindricalBool_map* );
       sculptedCylinder( cylindricalBool_map* );
 
       virtual bool contains( threeVector pt ) const { return _fieldMap->live( pt ); }
       virtual bool Contains( threeVector pt ) const { return _fieldMap->live( pt ); }
 
-      virtual print_base* _print() const;
+  // print_base classes don't exist - left over from another library
+//      virtual print_base* _print() const;
   };
   
 }

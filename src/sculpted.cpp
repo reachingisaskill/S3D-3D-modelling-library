@@ -179,31 +179,32 @@ namespace S3D
 ////////////////////////////////////////////////////////////////////////////////
 
   sculptedCylinder::sculptedCylinder( cylindricalBool_map* map ) :
-    cylinder( map->center(), unit_threeVector_z, map->radius(), map->length() ),
+    cylinder( map->radius(), map->length(), map->center() ),
     _fieldMap( map )
   {
   }
 
-  sculptedCylinder::sculptedCylinder( threeVector pos, threeVector dir, double rad, double len, cylindricalBool_map* map ) :
-    cylinder( pos, dir, rad, len ),
+  sculptedCylinder::sculptedCylinder( threeVector pos, rotation rot, double rad, double len, cylindricalBool_map* map ) :
+    cylinder( rad, len, pos, rot ),
     _fieldMap( map )
   {
   }
 
-  print_base* sculptedCylinder::_print() const
-  {
-    print_primitive* newShape = new print_primitive( "Cylinder" );
-    
-    newShape->addParam( "radius",  stdexts::stringConvert( radius() ) );
-    newShape->addParam( "height",  stdexts::stringConvert( height() ) );
-    newShape->addParam( "side",  "TRUE" );
-    newShape->addParam( "bottom",  "TRUE" );
-    newShape->addParam( "top",  "TRUE" );
-    newShape->setPosition( this->center() );
-    newShape->setRotation( 1.0, 0.0, 0.0, 1.570796 );
-
-    return newShape;
-  }
+  // print_base classes don't exist - left over from another library
+//  print_base* sculptedCylinder::_print() const
+//  {
+//    print_primitive* newShape = new print_primitive( "Cylinder" );
+//    
+//    newShape->addParam( "radius",  stdexts::stringConvert( radius() ) );
+//    newShape->addParam( "height",  stdexts::stringConvert( height() ) );
+//    newShape->addParam( "side",  "TRUE" );
+//    newShape->addParam( "bottom",  "TRUE" );
+//    newShape->addParam( "top",  "TRUE" );
+//    newShape->setPosition( this->center() );
+//    newShape->setRotation( 1.0, 0.0, 0.0, 1.570796 );
+//
+//    return newShape;
+//  }
 
 }
 

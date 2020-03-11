@@ -31,8 +31,6 @@
 #
 ############################################################################################
 
-# Directory Structure Head
-HEAD_VARIABLE = TITCH_DEV
 
 # File Locations
 INC_DIR = include
@@ -50,8 +48,8 @@ LIB_NAME = S3D
 
 
 # Includes and Libraries
-INC_FLAGS += -I${INC_DIR} -I${HEAD}/include
-LIB_FLAGS += -lstdexts -ltestass -L${HEAD}/lib
+INC_FLAGS += -I${INC_DIR}
+LIB_FLAGS += -lstdexts -ltestass -llogtastic
 
 
 # Compile-Time Definitions
@@ -68,9 +66,6 @@ CCC = g++ -g  -Wall -Wextra -pedantic ${DEFINES}
 
 
 ##############################################################################################
-
-# Find the Head Environment Variable
-HEAD = $(${HEAD_VARIABLE})
 
 
 # Extra Compile Flags to Create Library
@@ -115,17 +110,6 @@ all : check_head intro directories ${LIBRARY} ${PROGRAMS}
 ${PROGNAMES} : % : single_intro ${BIN_DIR}/% 
 	@echo "Make Completed Successfully"
 	@echo
-
-
-#check_head :
-#	@if [ -z "${HEAD}" ] ; then                                       \
-#		echo                                                           ;\
-#		echo "The Environment Variable: "${HEAD_VARIABLE}" is not set.";\
-#		echo "Please Source the setup script before attempting to"     ;\
-#		echo "run make."                                               ;\
-#		echo                                                           ;\
-#		exit 1                                                         ;\
-#	fi
 
 
 intro :

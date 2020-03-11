@@ -99,7 +99,7 @@ namespace S3D
 
   void manager::addObject( object_base* obj, int layer )
   {
-    if ( this )
+    if ( this->isAlive() )
     {
       if ( obj->_isOwned ) // See if it's alread been set!
       {
@@ -116,7 +116,7 @@ namespace S3D
 
   void manager::removeObject( object_base* obj )
   {
-    if ( this )
+    if ( this->isAlive() )
     {
       int layerNum = obj->getLayer();
       BasePointerContainerT::iterator found = _pointers[ layerNum ].find( obj );
@@ -134,7 +134,7 @@ namespace S3D
 
   void manager::initObject( object_base* obj ) const
   {
-    if ( this )
+    if ( this->isAlive() )
       obj->_colour = getDefaultColour( obj->_layer );
   }
 

@@ -7,6 +7,7 @@
 #include "S3D_rotation.h"
 #include "S3D_base.h"
 
+#include "logtastic.h"
 #include "stdexts.h"
 
 
