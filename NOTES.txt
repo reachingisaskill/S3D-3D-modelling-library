@@ -1,0 +1,17 @@
+
+
+FUNCTION inFront : 
+  Does NOT count touching the surface!
+
+FUNCTION InFront :
+  Does include touching the surface!
+
+
+FUNCTION contains :
+  Does include touching the surface
+
+FUNCTION Contains :
+  Does NOT include touching the surface
+
+
+

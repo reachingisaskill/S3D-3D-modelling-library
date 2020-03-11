@@ -1,0 +1,110 @@
+
+#ifndef __S3D__VOLUME_H__
+#define __S3D__VOLUME_H__
+
+
+#include "S3D_global.h"
+#include "S3D_defs.h"
+
+#include "S3D_allSurfaces.h"
+
+
+namespace S3D
+{
+
+  class volume_base : public object_base
+  {
+    private:
+      threeVector _normal;
+      double _outerRad;
+      double _outerRadSq;
+
+    protected:
+      const double& setOuter() const { return _outerRad; }
+      const double& setOuterSq() const { return _outerRadSq; }
+
+    public:
+      volume_base( double, threeVector, rotation );
+      virtual ~volume_base() {}
+
+      virtual const threeVector& getDirection() const { return _normal; }
+
+      bool contains( threeVector ) const;
+      bool Contains( threeVector ) const;
+      virtual bool contains( const threeVector* ) const = 0;
+      virtual bool Contains( const threeVector* ) const = 0;
+      virtual bool crosses( const line* ) const = 0;
+      virtual bool crosses( const ray* ) const = 0;
+      virtual double distance( const line* ) const = 0;
+      virtual stdexts::fifo< double > distances( const line* ) const = 0;
+      virtual threeVector intersect( const line* ) const = 0;
+
+      virtual void rotate( rotation );
+      virtual void rotateAbout( rotation, threeVector );
+
+      const double& getOuter() const { return _outerRad; }
+      const double& getOuterSq() const { return _outerRadSq; }
+  };
+
+
+  class simple_shape : public volume_base
+  {
+    private:
+      unsigned int _numSurfaces;
+
+      virtual void makeSurfaces() = 0;
+
+    protected:
+      surface** _surfaces;
+
+      simple_shape();
+      simple_shape( unsigned int, double, threeVector = threeVector( 0.0 ), rotation = rotation() );
+
+      virtual bool _crossesSurfaces( const line* ) const;
+      
+    public:
+      virtual ~simple_shape();
+
+      virtual bool contains( const threeVector* pt ) const;
+      virtual bool Contains( const threeVector* pt ) const;
+      virtual bool crosses( const line* ) const;
+      virtual bool crosses( const ray* ) const;
+      virtual double distance( const line* ) const;
+      virtual stdexts::fifo< double > distances( const line* ) const;
+      virtual threeVector intersect( const line* ) const;
+
+      virtual void rotate( rotation );
+      virtual void rotateAbout( rotation, threeVector );
+
+      const unsigned int& numSurfaces() const { return _numSurfaces; }
+      virtual surface* const* surfaces() const { return _surfaces; }
+
+      enum SimpleShapesT { shape_invalid, shape_sphere, shape_box, shape_cylinder };
+  };
+
+
+
+#ifdef S3D_TEST_FUNCTIONALITY
+
+  class test_simple_shape : public simple_shape
+  {
+    private:
+
+      void makeSurfaces() {}
+
+    public:
+      test_simple_shape( unsigned int i, double d, threeVector p = threeVector( 0.0 ), rotation r = rotation() ) :
+        simple_shape( i, d, p, r ) {}
+
+      ~test_simple_shape() {}
+
+      virtual bool contains( threeVector vec ) const { return this->contains( &vec ); }
+      virtual bool Contains( threeVector vec ) const { return this->Contains( &vec ); }
+      virtual bool contains( const threeVector* ) const { return false; }
+      virtual bool Contains( const threeVector* ) const { return false; }
+  };
+
+#endif
+}
+
+#endif // __S3D__VOLUME_H__
