@@ -29,9 +29,9 @@ namespace S3D
   const colour colour_blue = colour( 0.0, 0.0, 1.0 );
   const colour colour_black = colour( 0.0, 0.0, 0.0 );
   const colour colour_white = colour( 1.0, 1.0, 1.0 );
-  const colour colour_lightGrey = colour( 0.25, 0.25, 0.25 );
+  const colour colour_lightGrey = colour( 0.75, 0.75, 0.75 );
   const colour colour_grey = colour( 0.5, 0.5, 0.5 );
-  const colour colour_darkGrey = colour( 0.75, 0.75, 0.75 );
+  const colour colour_darkGrey = colour( 0.25, 0.25, 0.25 );
 
   const colour colour_invisible = colour( 0.0, 0.0, 0.0, 0.0 );
 
