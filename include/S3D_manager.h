@@ -18,6 +18,8 @@ namespace S3D
   class printer;
   class object_base;
   class volume_base;
+  class camera_base;
+  class frame;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -45,6 +47,8 @@ namespace S3D
       bool _isVisibleLayer( int ) const;
 
       volume_base* _theWorld;
+      camera_base* _theCamera;
+      stdexts::autoPtr<frame> _lastFrame;
       std::string _printFile;
       unsigned int _numberObjects;
 
@@ -71,6 +75,10 @@ namespace S3D
       void removeObject( object_base* );
 
       void initObject( object_base* ) const;
+
+      void setCamera( camera_base* );
+      camera_base* theCamera() { return this->_theCamera; }
+      const frame* getFrame();
 
       unsigned int countObjects() const;
   };

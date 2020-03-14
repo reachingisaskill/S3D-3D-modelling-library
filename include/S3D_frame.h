@@ -9,15 +9,15 @@ namespace S3D
 {
 
 
-  // All the detail that can be carried by a ray of light.
-  struct ray
+  // All the detail that can be carried by a beam of light.
+  struct beam
   {
     double red;
     double green;
     double blue;
     unsigned int numReflections;
 
-    ray();
+    beam();
   };
 
 
@@ -27,7 +27,7 @@ namespace S3D
     private:
       unsigned int _pixelsX;
       unsigned int _pixelsY;
-      ray* _image;
+      beam* _image;
 
       unsigned int _pixelNum( unsigned int x, unsigned int y ) const;
 
@@ -47,8 +47,8 @@ namespace S3D
       unsigned int numPixelsY() const { return this->_pixelsY; }
 
       // Return a reference to a specific pixel
-      ray& pixel( unsigned int x, unsigned int y ) { return _image[ _pixelNum( x, y ) ]; }
-      const ray& pixel( unsigned int x, unsigned int y ) const { return _image[ _pixelNum( x, y ) ]; }
+      beam& pixel( unsigned int x, unsigned int y ) { return _image[ _pixelNum( x, y ) ]; }
+      const beam& pixel( unsigned int x, unsigned int y ) const { return _image[ _pixelNum( x, y ) ]; }
 
       // Save the frame to a bmp image
       void dump( std::string ) const;

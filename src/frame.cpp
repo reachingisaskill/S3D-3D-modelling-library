@@ -4,7 +4,7 @@
 namespace S3D
 {
 
-  ray::ray() :
+  beam::beam() :
     red( 0.0 ),
     green( 0.0 ),
     blue( 0.0 ),
@@ -19,7 +19,7 @@ namespace S3D
     _pixelsY( y ),
     _image( 0 )
   {
-    _image = new ray[(_pixelsX * _pixelsY)];
+    _image = new beam[(_pixelsX * _pixelsY)];
   }
 
 
@@ -28,7 +28,7 @@ namespace S3D
     _pixelsY( f._pixelsY ),
     _image( 0 )
   {
-    _image = new ray[(_pixelsX * _pixelsY)];
+    _image = new beam[(_pixelsX * _pixelsY)];
 
     for ( unsigned int i = 0; i < _pixelsX; ++i )
     {
@@ -47,7 +47,7 @@ namespace S3D
     if ( this->_image != 0 )
     {
       delete[] _image;
-      _image = new ray[(_pixelsX * _pixelsY)];
+      _image = new beam[(_pixelsX * _pixelsY)];
     }
 
     for ( unsigned int i = 0; i < _pixelsX; ++i )
@@ -87,7 +87,7 @@ namespace S3D
     {
       for ( unsigned int j = 0; j < this->_pixelsY; ++j )
       {
-        const ray& r = this->pixel( i, j );
+        const beam& r = this->pixel( i, j );
         bm.setPixel( i, j, stdexts::bitmap::pixel(r.red, r.green, r.blue) );
       }
     }

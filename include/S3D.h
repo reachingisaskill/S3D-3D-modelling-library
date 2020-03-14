@@ -22,6 +22,11 @@
 
 #include "S3D_manager.h"
 
+#include "S3D_camera_base.h"
+#include "S3D_camera_test.h"
+#include "S3D_camera_linescan.h"
+
+
 //#include "S3D_mapping.h"
 //#include "S3D_sculpted.h"
 //#include "S3D_printer.h"

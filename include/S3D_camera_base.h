@@ -21,6 +21,7 @@ namespace S3D
       frame* _frame;
 
     protected:
+      void _setFrame( frame* f ) { _frame = f; }
 
     public:
       // Position, Direction, FieldOfView

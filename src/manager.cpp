@@ -3,6 +3,7 @@
 
 #include "S3D_base.h"
 #include "S3D_volume.h"
+#include "S3D_camera_base.h"
 
 namespace S3D
 {
@@ -159,6 +160,27 @@ namespace S3D
       return true;
   }
 
+  void manager::setCamera( camera_base* c )
+  {
+    if ( _theCamera != nullptr )
+    {
+    }
+    _theCamera = c;
+  }
+
+  const frame* manager::getFrame()
+  {
+    if ( _theCamera == nullptr )
+    {
+      _lastFrame = stdexts::autoPtr<frame>(nullptr);
+    }
+    else 
+    {
+      _theCamera->shutter();
+      _lastFrame = _theCamera->popFrame();
+    }
+    return _lastFrame.get();
+  }
 
 }
 
