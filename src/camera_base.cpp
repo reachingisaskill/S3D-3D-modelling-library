@@ -1,6 +1,8 @@
 
 #include "S3D_camera_base.h"
 
+#include <utility>
+
 namespace S3D
 {
 
@@ -10,7 +12,7 @@ namespace S3D
     _fieldOfView( f ),
     _pixelsX( 800 ),
     _pixelsY( 600 ),
-    _frame( 0 )
+    _frame( nullptr )
   {
   }
 
@@ -20,22 +22,55 @@ namespace S3D
     _fieldOfView( c._fieldOfView ),
     _pixelsX( c._pixelsX ),
     _pixelsY( c._pixelsY ),
-    _frame( 0 )
+    _frame( nullptr )
+  {
+  }
+
+  camera_base::camera_base( camera_base&& c ) noexcept :
+    _position( std::move( c._position ) ),
+    _direction( std::move( c._direction ) ),
+    _fieldOfView( std::move( c._fieldOfView ) ),
+    _pixelsX( std::move( c._pixelsX ) ),
+    _pixelsY( std::move( c._pixelsY ) ),
+    _frame( std::exchange( c._frame, nullptr ) )
   {
   }
 
   camera_base& camera_base::operator=( const camera_base& c )
   {
-    _position = c._position;
-    _direction = c._direction;
-    _fieldOfView = c._fieldOfView;
-    _pixelsX = c._pixelsX;
-    _pixelsY = c._pixelsY;
-
-    if ( _frame != 0 )
+    if ( &c != this )
     {
-      delete _frame;
-      _frame = 0;
+      _position = c._position;
+      _direction = c._direction;
+      _fieldOfView = c._fieldOfView;
+      _pixelsX = c._pixelsX;
+      _pixelsY = c._pixelsY;
+
+      if ( _frame != nullptr )
+      {
+        delete _frame;
+        _frame = nullptr;
+      }
+    }
+
+    return *this;
+  }
+
+  camera_base& camera_base::operator=( camera_base&& c )
+  {
+    if ( &c != this )
+    {
+      _position = c._position;
+      _direction = c._direction;
+      _fieldOfView = c._fieldOfView;
+      _pixelsX = c._pixelsX;
+      _pixelsY = c._pixelsY;
+
+      if ( _frame != nullptr )
+      {
+        delete _frame;
+      }
+      this->_frame = std::exchange( c._frame, nullptr );
     }
 
     return *this;
@@ -43,10 +78,10 @@ namespace S3D
 
   camera_base::~camera_base()
   {
-    if ( _frame != 0 )
+    if ( _frame != nullptr )
     {
       delete _frame;
-      _frame = 0;
+      _frame = nullptr;
     }
   }
 
@@ -59,14 +94,14 @@ namespace S3D
   stdexts::autoPtr<frame> camera_base::popFrame()
   {
     stdexts::autoPtr<frame> temp( this->_frame );
-    if ( this->_frame == 0 )
+    if ( this->_frame == nullptr )
     {
       return temp;
     }
     else 
     {
       delete this->_frame;
-      this->_frame = 0;
+      this->_frame = nullptr;
       return temp;
     }
   }

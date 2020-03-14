@@ -29,8 +29,14 @@ namespace S3D
       // Copy constructor (does not copy the frame object!)
       camera_base( const camera_base& );
 
+      // Move constructor (moves the frame object!)
+      camera_base( camera_base&& ) noexcept;
+
       // Assignment operator (does not copy the frame object!)
       camera_base& operator=( const camera_base& );
+
+      // Move assignment operator (moves the frame object!)
+      camera_base& operator=( camera_base&& );
 
       virtual ~camera_base();
 
