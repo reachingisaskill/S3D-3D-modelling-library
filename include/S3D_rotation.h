@@ -35,9 +35,9 @@ namespace S3D
       virtual const threeVector& getAxis() const { return _axis; }
       virtual void setAxis( threeVector v ) { _axis = v; this->calcMatrix(); }
 
-      threeVector rotateVector( threeVector );
-      threeVector rotateVectorBackwards( threeVector );
-      virtual threeVector operator()( threeVector vec ) { return this->rotateVector( vec ); }
+      threeVector rotateVector( threeVector ) const;
+      threeVector rotateVectorBackwards( threeVector ) const;
+      virtual threeVector operator()( threeVector vec ) const { return this->rotateVector( vec ); }
 
 
       virtual bool operator==( const rotation& ) const;

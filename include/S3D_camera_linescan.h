@@ -20,8 +20,8 @@ namespace S3D
     protected:
 
     public:
-      // Position, Direction, size_x, size_y
-      camera_lineScan( threeVector, threeVector, double, double );
+      // Position, Rotation, size_x, size_y
+      camera_lineScan( threeVector, rotation, double, double );
 
       // Use the implicit copy, and move constructors
 //      camera_linescan( const camera_linescan& );

@@ -14,7 +14,7 @@ namespace S3D
   {
     private:
       threeVector _position;
-      threeVector _direction;
+      rotation _rotation;
       double _fieldOfView;
       unsigned int _pixelsX;
       unsigned int _pixelsY;
@@ -25,7 +25,7 @@ namespace S3D
 
     public:
       // Position, Direction, FieldOfView
-      camera_base( threeVector, threeVector, double=0.0 );
+      camera_base( threeVector, rotation, double=0.0 );
 
       // Copy constructor (does not copy the frame object!)
       camera_base( const camera_base& );
@@ -43,13 +43,15 @@ namespace S3D
 
 
       // Set the size of the frame
-      virtual void setPixels( double x, double y );
+      virtual void setPixels( unsigned int x, unsigned int y );
+      unsigned int getPixelsX() const { return _pixelsX; }
+      unsigned int getPixelsY() const { return _pixelsY; }
 
       virtual inline const threeVector& getPosition() const { return this->_position; }
       virtual inline void setPosition( threeVector pos ) { this->_position = pos; }
 
-      virtual inline const threeVector& getDirection() const { return this->_direction; }
-      virtual inline void setDirection( threeVector dir ) { this->_direction = dir; }
+      virtual inline const rotation& getRotation() const { return this->_rotation; }
+      virtual inline void setRotation( rotation rot ) { this->_rotation = rot; }
 
       virtual inline double getFieldOfView() const { return this->_fieldOfView; }
       virtual inline void setFieldOfView( double fov ) { this->_fieldOfView = fov; }

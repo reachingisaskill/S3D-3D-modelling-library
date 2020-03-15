@@ -6,7 +6,7 @@
 namespace S3D
 {
 
-  camera_test::camera_test( threeVector p, threeVector d, double x, double y ) :
+  camera_test::camera_test( threeVector p, rotation d, double x, double y ) :
     camera_base( p, d, 0.0 ),
     _width( x ),
     _height( y )
@@ -19,9 +19,19 @@ namespace S3D
 
   void camera_test::shutter()
   {
-    frame* f = new frame( _width, _height );
+    frame* f = new frame( this->getPixelsX(), this->getPixelsY() );
+    unsigned int pX = this->getPixelsX();
+    unsigned int pY = this->getPixelsY();
+    for ( unsigned int i = 0; i < pX; ++i )
+    {
+      for ( unsigned int j = 0; j < pY; ++j )
+      {
+        f->pixel( i, j ).red = (double)i/pX;
+        f->pixel( i, j ).green = (double)(pY-j)/pY;
+        f->pixel( i, j ).blue = 1.0;
+      }
+    }
     this->_setFrame( f );
   }
-
 }
 

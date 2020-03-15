@@ -6,9 +6,9 @@
 namespace S3D
 {
 
-  camera_base::camera_base( threeVector p, threeVector d, double f ) :
+  camera_base::camera_base( threeVector p, rotation d, double f ) :
     _position( p ),
-    _direction( d ),
+    _rotation( d ),
     _fieldOfView( f ),
     _pixelsX( 800 ),
     _pixelsY( 600 ),
@@ -18,7 +18,7 @@ namespace S3D
 
   camera_base::camera_base( const camera_base& c ) :
     _position( c._position ),
-    _direction( c._direction ),
+    _rotation( c._rotation ),
     _fieldOfView( c._fieldOfView ),
     _pixelsX( c._pixelsX ),
     _pixelsY( c._pixelsY ),
@@ -28,7 +28,7 @@ namespace S3D
 
   camera_base::camera_base( camera_base&& c ) noexcept :
     _position( std::move( c._position ) ),
-    _direction( std::move( c._direction ) ),
+    _rotation( std::move( c._rotation ) ),
     _fieldOfView( std::move( c._fieldOfView ) ),
     _pixelsX( std::move( c._pixelsX ) ),
     _pixelsY( std::move( c._pixelsY ) ),
@@ -41,7 +41,7 @@ namespace S3D
     if ( &c != this )
     {
       _position = c._position;
-      _direction = c._direction;
+      _rotation = c._rotation;
       _fieldOfView = c._fieldOfView;
       _pixelsX = c._pixelsX;
       _pixelsY = c._pixelsY;
@@ -61,7 +61,7 @@ namespace S3D
     if ( &c != this )
     {
       _position = c._position;
-      _direction = c._direction;
+      _rotation = c._rotation;
       _fieldOfView = c._fieldOfView;
       _pixelsX = c._pixelsX;
       _pixelsY = c._pixelsY;
@@ -85,7 +85,7 @@ namespace S3D
     }
   }
 
-  void camera_base::setPixels( double x, double y )
+  void camera_base::setPixels( unsigned int x, unsigned int y )
   {
     this->_pixelsX = x;
     this->_pixelsY = y;
@@ -94,16 +94,8 @@ namespace S3D
   stdexts::autoPtr<frame> camera_base::popFrame()
   {
     stdexts::autoPtr<frame> temp( this->_frame );
-    if ( this->_frame == nullptr )
-    {
-      return temp;
-    }
-    else 
-    {
-      delete this->_frame;
-      this->_frame = nullptr;
-      return temp;
-    }
+    this->_frame = nullptr;
+    return temp;
   }
 
 }

@@ -21,7 +21,7 @@ namespace S3D
 
     public:
       // Position, Direction, size_x, size_y
-      camera_test( threeVector, threeVector, double, double );
+      camera_test( threeVector, rotation, double, double );
 
       // Use the implicit copy, and move constructors
 //      camera_linescan( const camera_linescan& );

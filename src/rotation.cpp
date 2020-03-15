@@ -69,7 +69,7 @@ namespace S3D
     this->_axis[2] = 0.5 * B / std::sin( this->_theta );
   }
 
-  threeVector rotation::rotateVector( threeVector vec )
+  threeVector rotation::rotateVector( threeVector vec ) const
   {
     threeVector newVec( 0.0 );
 
@@ -84,7 +84,7 @@ namespace S3D
     return newVec;
   }
 
-  threeVector rotation::rotateVectorBackwards( threeVector vec )
+  threeVector rotation::rotateVectorBackwards( threeVector vec ) const
   {
     threeVector newVec( 0.0 );
 
