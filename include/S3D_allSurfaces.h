@@ -6,6 +6,7 @@
 #include "S3D_global.h"
 
 #include "S3D_surface.h"
+#include "S3D_line.h"
 
 
 namespace S3D
@@ -50,6 +51,7 @@ namespace S3D
 
       virtual double area() const;
       virtual bool crosses( const ray* ) const;
+      virtual bool crosses( const line* ) const;
   };
 
 

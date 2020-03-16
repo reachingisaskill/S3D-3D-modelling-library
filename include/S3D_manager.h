@@ -20,6 +20,7 @@ namespace S3D
   class volume_base;
   class camera_base;
   class frame;
+  class rayTracer;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -30,16 +31,24 @@ namespace S3D
   typedef std::set< object_base* > BasePointerContainerT;
   typedef std::map< int, BasePointerContainerT > PointersMapT;
 
+  typedef std::set< object_3D_base* > Pointer3DContainerT;
+  typedef std::map< int, Pointer3DContainerT > Object3DMapT;
+
 
   class manager : public stdexts::singleton< manager >
   {
     friend class stdexts::singleton< manager >;
+    friend class rayTracer;
 
     private:
       manager();
 
       // BasePointerContainerT _pointers;
+      // Holds a pointer to every object
       PointersMapT _pointers;
+      // Holders pointers to only objects with non-zero volume or suface area (excluding the world volume!)
+      Object3DMapT _objects;
+      // Set of layers that are visible.
       std::set< int > _visibleLayers;
 
       std::map< int, colour > _defaultColours;
@@ -71,8 +80,11 @@ namespace S3D
       const object_base* getWorld() const;
       bool worldContains( threeVector ) const;
 
-      void addObject( object_base*, int );
+      void addObject( object_base*, int layer = 0);
       void removeObject( object_base* );
+
+      void add3DObject( object_3D_base*, int layer = 0 );
+      void remove3DObject( object_3D_base* );
 
       void initObject( object_base* ) const;
 

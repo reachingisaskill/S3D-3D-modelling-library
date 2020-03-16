@@ -10,6 +10,7 @@ namespace S3D
 
   manager::manager() :
     _pointers(),
+    _objects(),
     _visibleLayers(),
     _theWorld( 0 ),
     _printFile( "" )
@@ -24,6 +25,11 @@ namespace S3D
       {
         delete (*it);
       }
+      mapIt->second.clear();
+    }
+
+    for ( Object3DMapT::iterator mapIt = _objects.begin(); mapIt != _objects.end(); ++mapIt )
+    {
       mapIt->second.clear();
     }
   }
@@ -133,10 +139,51 @@ namespace S3D
     }
   }
 
-  void manager::initObject( object_base* obj ) const
+
+  void manager::add3DObject( object_3D_base* obj, int layer )
   {
     if ( this->isAlive() )
-      obj->_colour = getDefaultColour( obj->_layer );
+    {
+      if ( obj->_isOwned ) // See if it's alread been set!
+      {
+        _pointers[ obj->_layer ].erase( obj );
+        _objects[ obj->_layer ].erase( obj );
+      }
+      else
+        obj->_isOwned = true;
+
+      obj->_layer = layer;
+      this->initObject( obj );
+      _pointers[ layer ].insert( obj );
+      _objects[ layer ].insert( obj );
+    }
+  }
+
+  void manager::remove3DObject( object_3D_base* obj )
+  {
+    if ( this->isAlive() )
+    {
+      int layerNum = obj->getLayer();
+      BasePointerContainerT::iterator found = _pointers[ layerNum ].find( obj );
+      if ( found != _pointers[ layerNum ].end() )
+      {
+        delete (*found);
+        _pointers[ layerNum ].erase( found );
+      }
+
+
+      Pointer3DContainerT::iterator found3D = _objects[ layerNum ].find( obj );
+      if ( found3D != _objects[ layerNum ].end() )
+      {
+        _objects[ layerNum ].erase( found3D );
+      }
+    }
+  }
+
+  void manager::initObject( object_base* obj ) const
+  {
+//    if ( this->isAlive() )
+//      obj->_colour = getDefaultColour( obj->_layer );
   }
 
   unsigned int manager::countObjects() const

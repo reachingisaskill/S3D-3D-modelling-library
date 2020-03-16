@@ -32,6 +32,9 @@ namespace S3D
 
       virtual double area() const = 0;
 
+      virtual bool contains( const threeVector* v ) const { return ! this->InFront( v ); }
+      virtual bool Contains( const threeVector* v ) const { return ! this->inFront( v ); }
+
       virtual double distance( const threeVector* ) const = 0;
       virtual double distance( const line* ) const = 0;
       virtual bool crosses( const ray* ) const = 0;

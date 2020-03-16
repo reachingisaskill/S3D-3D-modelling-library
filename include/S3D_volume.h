@@ -12,7 +12,7 @@
 namespace S3D
 {
 
-  class volume_base : public object_base
+  class volume_base : public object_3D_base
   {
     private:
       threeVector _normal;
@@ -29,15 +29,15 @@ namespace S3D
 
       virtual const threeVector& getDirection() const { return _normal; }
 
-      bool contains( threeVector ) const;
-      bool Contains( threeVector ) const;
-      virtual bool contains( const threeVector* ) const = 0;
-      virtual bool Contains( const threeVector* ) const = 0;
-      virtual bool crosses( const line* ) const = 0;
-      virtual bool crosses( const ray* ) const = 0;
-      virtual double distance( const line* ) const = 0;
+//      bool contains( threeVector ) const;
+//      bool Contains( threeVector ) const;
+//      virtual bool contains( const threeVector* ) const = 0;
+//      virtual bool Contains( const threeVector* ) const = 0;
+//      virtual bool crosses( const line* ) const = 0;
+//      virtual bool crosses( const ray* ) const = 0;
+//      virtual double distance( const line* ) const = 0;
+//      virtual threeVector intersect( const line* ) const = 0;
       virtual stdexts::fifo< double > distances( const line* ) const = 0;
-      virtual threeVector intersect( const line* ) const = 0;
 
       virtual void rotate( rotation );
       virtual void rotateAbout( rotation, threeVector );

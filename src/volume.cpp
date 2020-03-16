@@ -7,7 +7,7 @@ namespace S3D
 {
 
   volume_base::volume_base( double R, threeVector p, rotation r ) :
-    object_base( p, r ),
+    object_3D_base( p, r ),
     _normal( r.rotateVector( unit_threeVector_z ) ),
     _outerRad( R ),
     _outerRadSq( R*R )
@@ -26,15 +26,15 @@ namespace S3D
     object_base::rotateAbout( r, p );
   }
 
-  bool volume_base::contains( threeVector vec ) const
-  {
-    return this->contains( &vec );
-  }
-
-  bool volume_base::Contains( threeVector vec ) const
-  {
-    return this->Contains( &vec );
-  }
+//  bool volume_base::contains( threeVector vec ) const
+//  {
+//    return this->contains( &vec );
+//  }
+//
+//  bool volume_base::Contains( threeVector vec ) const
+//  {
+//    return this->Contains( &vec );
+//  }
 
 
   /*

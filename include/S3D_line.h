@@ -23,7 +23,9 @@ namespace S3D
       rotation _getRotation( threeVector v );
 
     public:
+      // start point and direction
       line( threeVector, threeVector );
+      // Start position and rotation wrt the default vector
       line( threeVector, rotation );
       virtual ~line();
 

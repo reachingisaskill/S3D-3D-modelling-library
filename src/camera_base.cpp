@@ -12,7 +12,8 @@ namespace S3D
     _fieldOfView( f ),
     _pixelsX( 800 ),
     _pixelsY( 600 ),
-    _frame( nullptr )
+    _frame( nullptr ),
+    _rayTracer( new rayTracer() )
   {
   }
 
@@ -22,7 +23,8 @@ namespace S3D
     _fieldOfView( c._fieldOfView ),
     _pixelsX( c._pixelsX ),
     _pixelsY( c._pixelsY ),
-    _frame( nullptr )
+    _frame( nullptr ),
+    _rayTracer( new rayTracer( *c._rayTracer ) )
   {
   }
 
@@ -32,7 +34,8 @@ namespace S3D
     _fieldOfView( std::move( c._fieldOfView ) ),
     _pixelsX( std::move( c._pixelsX ) ),
     _pixelsY( std::move( c._pixelsY ) ),
-    _frame( std::exchange( c._frame, nullptr ) )
+    _frame( std::exchange( c._frame, nullptr ) ),
+    _rayTracer( std::exchange( c._rayTracer, nullptr ) )
   {
   }
 
@@ -50,6 +53,20 @@ namespace S3D
       {
         delete _frame;
         _frame = nullptr;
+      }
+
+      if ( _rayTracer != nullptr )
+      {
+        delete _rayTracer;
+      }
+
+      if ( c._rayTracer != nullptr )
+      {
+        _rayTracer = new rayTracer( *c._rayTracer );
+      }
+      else 
+      {
+        _rayTracer = nullptr;
       }
     }
 
@@ -71,6 +88,13 @@ namespace S3D
         delete _frame;
       }
       this->_frame = std::exchange( c._frame, nullptr );
+
+      if ( _rayTracer != nullptr )
+      {
+        delete _rayTracer;
+      }
+      this->_rayTracer = std::exchange( c._rayTracer, nullptr );
+
     }
 
     return *this;
@@ -83,6 +107,20 @@ namespace S3D
       delete _frame;
       _frame = nullptr;
     }
+    if ( _rayTracer != nullptr )
+    {
+      delete _rayTracer;
+      _rayTracer = nullptr;
+    }
+  }
+
+  void camera_base::setRayTracer( rayTracer* rt )
+  {
+    if ( this->_rayTracer != nullptr )
+    {
+      delete this->_rayTracer;
+    }
+    this->_rayTracer = rt;
   }
 
   void camera_base::setPixels( unsigned int x, unsigned int y )

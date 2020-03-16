@@ -31,10 +31,10 @@ namespace S3D
 
         threeVector beam_direction = this->getRotation().rotateVector( defaultDirection );
         threeVector beam_start = this->getPosition() + this->getRotation().rotateVector( makeThreeVector( posX, posY, 0.0 ) );
+      
+        beam b = this->_getRayTracer()->traceRay( beam_start, beam_direction );
 
-        std::cout << "Dir : " << beam_direction << ", Start: " << beam_start << std::endl;
-
-
+        f->pixel( i, j ) = b;
       }
     }
     this->_setFrame( f );

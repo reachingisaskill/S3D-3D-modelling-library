@@ -16,6 +16,8 @@ namespace S3D
   class object_base;
   class control;
   class point;
+  class line;
+  class ray;
 
 
   class object_base : public stdexts::non_copyable
@@ -50,6 +52,33 @@ namespace S3D
 
       virtual void rotate( rotation );
       virtual void rotateAbout( rotation, threeVector );
+
+  };
+
+
+  class object_3D_base : public object_base
+  {
+    private:
+
+    protected:
+
+    public:
+      object_3D_base( threeVector = threeVector( 0.0 ), rotation = rotation() );
+
+      virtual ~object_3D_base();
+
+      // Pure virtual functions to handle intersection, containment and collision.
+      virtual bool contains( threeVector vec ) const { return this->contains( &vec ); }
+      virtual bool Contains( threeVector vec ) const { return this->Contains( &vec ); }
+      virtual bool contains( const threeVector* ) const = 0;
+      virtual bool Contains( const threeVector* ) const = 0;
+      virtual bool crosses( const line* ) const = 0;
+      virtual bool crosses( const ray* ) const = 0;
+      virtual double distance( const line* ) const = 0;
+      virtual threeVector intersect( const line* ) const = 0;
+
+      // Volume only
+//      virtual stdexts::fifo< double > distances( const line* ) const = 0;
   };
 
 }

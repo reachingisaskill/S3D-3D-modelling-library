@@ -6,6 +6,7 @@
 #include "S3D_defs.h"
 
 #include "S3D_frame.h"
+#include "S3D_raytracer.h"
 
 namespace S3D
 {
@@ -19,9 +20,11 @@ namespace S3D
       unsigned int _pixelsX;
       unsigned int _pixelsY;
       frame* _frame;
+      rayTracer* _rayTracer;
 
     protected:
       void _setFrame( frame* f ) { _frame = f; }
+      rayTracer* _getRayTracer() { return this->_rayTracer; }
 
     public:
       // Position, Direction, FieldOfView
@@ -41,6 +44,8 @@ namespace S3D
 
       virtual ~camera_base();
 
+      // Set the rayTracer object - takes ownership
+      void setRayTracer( rayTracer* );
 
       // Set the size of the frame
       virtual void setPixels( unsigned int x, unsigned int y );

@@ -1,6 +1,8 @@
 
 #include "S3D_allSurfaces.h"
 
+#include <cmath>
+
 namespace S3D
 {
 
@@ -65,8 +67,20 @@ namespace S3D
 
     diff = this->getRotation() / diff;
 
-    return ( ( diff[0] <= _half_width ) && ( diff[1] <= _half_length ) ); // TODO TEST!
+    return ( ( std::fabs( diff[0] ) <= _half_width ) && ( std::fabs( diff[1] ) <= _half_length ) ); // TODO TEST!
   }
+
+  bool square_plane::crosses( const line* l ) const
+  {
+    if ( ! plane::crosses( l ) ) return false;
+    threeVector inter = this->intersect( l );
+    threeVector diff = inter - getCenter();
+
+    diff = this->getRotation() / diff;
+
+    return ( ( std::fabs( diff[0] ) <= _half_width ) && ( std::fabs( diff[1] ) <= _half_length ) ); // TODO TEST!
+  }
+
 
   /////////////////////////////////////////////////////////////////////////////////
 

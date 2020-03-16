@@ -84,9 +84,16 @@ namespace S3D
 
   threeVector sphere::intersect( const line* l ) const // TODO Check this one;
   {
-    threeVector sep = l->separation( &this->getCenter() );
-    double dist = sep.mod();
-    return this->getCenter() + ( ( this->getRadius() / dist ) * sep );
+//    threeVector sep = l->separation( &this->getCenter() );
+//    double dist = sep.mod();
+//    return this->getCenter() + ( ( this->getRadius() / dist ) * sep );
+    threeVector alpha = l->getStart() - this->getCenter();
+    double sep = alpha.mod() - this->getRadius();
+    if ( sep < 0.0 )
+    {
+      sep = alpha.mod() + this->getRadius();
+    }
+    return l->getStart() + sep*l->getDirection();
   }
 
 ///////////////////////////////////////////////////////////////////////////////
