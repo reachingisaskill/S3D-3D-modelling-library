@@ -25,6 +25,7 @@
 #include "S3D_camera_base.h"
 #include "S3D_camera_test.h"
 #include "S3D_camera_linescan.h"
+#include "S3D_camera_pinhole.h"
 
 
 //#include "S3D_mapping.h"
