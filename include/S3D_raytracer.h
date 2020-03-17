@@ -15,6 +15,8 @@ namespace S3D
   {
     private:
     protected:
+      // Recursive-style raytracing. Starting beam, initial position, direction.
+      virtual beam _traceRay( beam, threeVector, threeVector );
     public:
       rayTracer();
 

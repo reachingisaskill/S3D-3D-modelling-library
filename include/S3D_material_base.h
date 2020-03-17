@@ -7,6 +7,9 @@
 namespace S3D
 {
 
+  class rayTracer;
+  class beam;
+
   class material_base
   {
     private:
@@ -21,13 +24,18 @@ namespace S3D
       double _refractiveIndex;
 
     protected:
-    public:
-      material_base() {}
 
-      virtual ~texture_base() {}
+    public:
+      material_base();
+
+      virtual ~material_base() {}
 
       // Returns the colour of a point on the container surface, parameterized by a & b.
       virtual colour getColour( double a, double b ) const = 0;
+
+      // Handle the light-surface interaction
+      // current light beam, interaction angle, rayTracer that interacted.
+      virtual beam interact( beam, double angle, rayTracer* tracer ) const = 0;
   };
 }
 

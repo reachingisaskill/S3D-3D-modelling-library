@@ -17,6 +17,11 @@ namespace S3D
 
   beam rayTracer::traceRay( threeVector start, threeVector dir )
   {
+    return this->_traceRay( beam(), start, dir );
+  }
+
+  beam rayTracer::_traceRay( beam b, threeVector start, threeVector dir )
+  {
     line the_beam( start, dir );
 
     Object3DMapT& objectMap = manager::getInstance()->_objects;
@@ -47,14 +52,12 @@ namespace S3D
     }
 
 
-    beam b;
-
     if ( current_object != nullptr )
     {
       colour c = current_object->getColour();
-      b.red = c.getRed();
-      b.green = c.getGreen();
-      b.blue = c.getBlue();
+      b.red += c.getRed();
+      b.green += c.getGreen();
+      b.blue += c.getBlue();
     }
 
     std::cout << std::endl;
