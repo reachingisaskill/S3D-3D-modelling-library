@@ -5,6 +5,8 @@
 
 #include "S3D_sculpted.h"
 
+#include "logtastic.h"
+
 #include <cmath>
 #include <cstdlib>
 

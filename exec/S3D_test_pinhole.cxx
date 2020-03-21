@@ -18,10 +18,15 @@ int main( int, char** )
   S3D::box* box1 = new S3D::box( 1.0, 1.0, 1.0, makeThreeVector( -5.0, 0.0, 0.0 ) );
   S3D::box* box2 = new S3D::box( 1.0, 1.0, 1.0, makeThreeVector( -5.0, 0.0, 5.0 ) );
 
-  sph1->setColour( S3D::colour( 1.0, 0.0, 0.0 ) );
-  sph2->setColour( S3D::colour( 0.0, 0.0, 1.0 ) );
-  box1->setColour( S3D::colour( 0.0, 1.0, 0.0 ) );
-  box2->setColour( S3D::colour( 0.0, 1.0, 0.0 ) );
+  S3D::material_simple* sph1_mat = new S3D::material_simple( S3D::colour( 1.0, 0.0, 0.0 ) );
+  S3D::material_simple* sph2_mat = new S3D::material_simple( S3D::colour( 0.0, 0.0, 1.0 ) );
+  S3D::material_simple* box1_mat = new S3D::material_simple( S3D::colour( 0.0, 1.0, 0.0 ) );
+  S3D::material_simple* box2_mat = new S3D::material_simple( S3D::colour( 0.0, 1.0, 0.0 ) );
+
+  sph1->setMaterial( sph1_mat );
+  sph2->setMaterial( sph2_mat );
+  box1->setMaterial( box1_mat );
+  box2->setMaterial( box2_mat );
 
   manager->add3DObject( (S3D::object_3D_base*)sph1 );
   manager->add3DObject( (S3D::object_3D_base*)sph2 );

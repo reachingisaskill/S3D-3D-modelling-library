@@ -2,9 +2,12 @@
 #ifndef __S3D__CONTROL_H__
 #define __S3D__CONTROL_H__
 
-#include "S3D_defs.h"
-#include "S3D_global.h"
-
+#include "S3D_realVector.h"
+#include "S3D_rotation.h"
+#include "S3D_beam.h"
+#include "S3D_base.h"
+#include "S3D_frame.h"
+#include "S3D_raytracer.h"
 
 #include <vector>
 #include <set>
@@ -16,8 +19,9 @@ namespace S3D
 
   // Some declarations
   class printer;
-  class object_base;
+//  class object_base;
   class volume_base;
+  class light_interface;
   class camera_base;
   class frame;
   class rayTracer;
@@ -34,6 +38,9 @@ namespace S3D
   typedef std::set< object_3D_base* > Pointer3DContainerT;
   typedef std::map< int, Pointer3DContainerT > Object3DMapT;
 
+  typedef std::set< light_interface* > LightingContainerT;
+  typedef std::map< int, LightingContainerT > LightingMapT;
+
 
   class manager : public stdexts::singleton< manager >
   {
@@ -48,6 +55,9 @@ namespace S3D
       PointersMapT _pointers;
       // Holders pointers to only objects with non-zero volume or suface area (excluding the world volume!)
       Object3DMapT _objects;
+      // Holds pointers to the objects that emit light
+      LightingMapT _lights;
+
       // Set of layers that are visible.
       std::set< int > _visibleLayers;
 
@@ -85,6 +95,9 @@ namespace S3D
 
       void add3DObject( object_3D_base*, int layer = 0 );
       void remove3DObject( object_3D_base* );
+
+      void addLight( light_interface*, int layer = 0 );
+      void removeLight( light_interface* );
 
       void initObject( object_base* ) const;
 

@@ -2,20 +2,17 @@
 #ifndef __S3D__BASE_H__
 #define __S3D__BASE_H__
 
-
-#include "S3D_defs.h"
-
-#include "S3D_colour.h"
+#include "S3D_realVector.h"
 #include "S3D_rotation.h"
+#include "S3D_beam.h"
+#include "S3D_material_base.h"
+#include "3D_interaction.h"
 
 #include "stdexts.h"
 
 
 namespace S3D
 {
-  class object_base;
-  class control;
-  class point;
   class line;
   class ray;
 
@@ -26,7 +23,7 @@ namespace S3D
 
     private:
       bool _isOwned;
-      colour _colour;
+//      colour _colour;
       int _layer;
       threeVector _position;
       rotation _rotation;
@@ -37,9 +34,9 @@ namespace S3D
       object_base( threeVector = threeVector( 0.0 ), rotation = rotation() );
       virtual ~object_base();
 
-      colour& getColour() { return _colour; }
-      const colour& getColour() const { return _colour; }
-      void setColour( colour c ) { _colour = c; }
+//      colour& getColour() { return _colour; }
+//      const colour& getColour() const { return _colour; }
+//      void setColour( colour c ) { _colour = c; }
 
       const int& getLayer() const { return _layer; }
       // void setLayer( int );
@@ -59,6 +56,7 @@ namespace S3D
   class object_3D_base : public object_base
   {
     private:
+      material_base* _material;
 
     protected:
 
@@ -66,6 +64,9 @@ namespace S3D
       object_3D_base( threeVector = threeVector( 0.0 ), rotation = rotation() );
 
       virtual ~object_3D_base();
+
+      void setMaterial( material_base* m ) { _material = m; }
+      material_base* getMaterial() { return _material; }
 
       // Pure virtual functions to handle intersection, containment and collision.
       virtual bool contains( threeVector vec ) const { return this->contains( &vec ); }
@@ -75,7 +76,7 @@ namespace S3D
       virtual bool crosses( const line* ) const = 0;
       virtual bool crosses( const ray* ) const = 0;
       virtual double distance( const line* ) const = 0;
-      virtual threeVector intersect( const line* ) const = 0;
+      virtual interaction intersect( const line* ) const = 0;
 
       // Volume only
 //      virtual stdexts::fifo< double > distances( const line* ) const = 0;

@@ -1,5 +1,14 @@
 
 
+LIGHTS MODEL
+  All objects have the option of emitting light.
+  Those with an emittance > 0.0 are have their pointers cached in the manager for a quick look up.
+  light is emitted according to some distribution from the surfaces.
+  Perfectly metallic surfaces only emit light in a perpendicular direction => can model the sun as an infinite plane!
+
+
+
+
 FUNCTION inFront : 
   Does NOT count touching the surface!
 

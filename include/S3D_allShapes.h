@@ -3,8 +3,6 @@
 #define __ALL_SHAPES_HPP__
 
 
-#include "S3D_global.h"
-
 #include "S3D_volume.h"
 
 
@@ -32,7 +30,7 @@ namespace S3D
       virtual bool crosses( const ray* l ) const;
       virtual double distance( const line* ) const;
       virtual stdexts::fifo< double > distances( const line* ) const;
-      virtual threeVector intersect( const line* ) const;
+      virtual interaction intersect( const line* ) const;
   };
 
   class box : public simple_shape

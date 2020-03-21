@@ -3,9 +3,6 @@
 #define __S3D__FIELD_MAP_H__
 
 
-#include "S3D_global.h"
-#include "S3D_defs.h"
-
 #include <string>
 
 

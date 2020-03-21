@@ -2,9 +2,6 @@
 #ifndef __S3D__CAMERA_PINHOLE_H__
 #define __S3D__CAMERA_PINHOLE_H__
 
-#include "S3D_global.h"
-#include "S3D_defs.h"
-
 #include "S3D_camera_base.h"
 
 

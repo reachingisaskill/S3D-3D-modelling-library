@@ -2,11 +2,13 @@
 #ifndef __S3D__CAMERA_H__
 #define __S3D__CAMERA_H__
 
-#include "S3D_global.h"
-#include "S3D_defs.h"
-
+#include "S3D_realVector.h"
+#include "S3D_rotation.h"
+#include "S3D_beam.h"
 #include "S3D_frame.h"
 #include "S3D_raytracer.h"
+
+#include "stdexts.h"
 
 namespace S3D
 {

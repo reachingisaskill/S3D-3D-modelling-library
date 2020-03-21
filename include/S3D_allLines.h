@@ -3,8 +3,6 @@
 #define __S3D__ALL_LINES_H__
 
 
-#include "S3D_global.h"
-
 #include "S3D_line.h"
 
 #include <vector>

@@ -24,12 +24,10 @@ int main( int, char** )
   SECTION( "Colour" );
   
   S3D::colour col1;
-  S3D::colour col2( 10.0, 20.0, 30.0, 0.3 );
+  S3D::colour col2( 10.0, 20.0, 30.0 );
   ASSERT_EQUAL( col2.getRed(), 10.0 );
   ASSERT_EQUAL( col2.getGreen(), 20.0 );
   ASSERT_EQUAL( col2.getBlue(), 30.0 );
-  ASSERT_EQUAL( col2.getOpacity(), 0.3 );
-  col1.setGreen( col2.getOpacity() );
   ASSERT_EQUAL( col1.getGreen(), 0.3 );
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

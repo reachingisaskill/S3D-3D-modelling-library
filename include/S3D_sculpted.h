@@ -2,7 +2,6 @@
 #ifndef __S3D__SCULPTED_H__
 #define __S3D__SCULPTED_H__
 
-#include "S3D_defs.h"
 #include "S3D_allShapes.h"
 #include "S3D_mapping.h"
 

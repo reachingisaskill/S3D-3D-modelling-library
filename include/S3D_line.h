@@ -2,10 +2,6 @@
 #ifndef __S3D__LINE_H__
 #define __S3D__LINE_H__
 
-
-#include "S3D_global.h"
-#include "S3D_defs.h"
-
 #include "S3D_allPoints.h"
 
 

@@ -10,7 +10,7 @@ namespace S3D
   object_base::object_base( threeVector p, rotation r ) :
     stdexts::non_copyable(),
     _isOwned( false ),
-    _colour( S3D_DEFAULT_COLOUR ),
+//    _colour( S3D_DEFAULT_COLOUR ),
     _layer( 0 ),
     _position( p ),
     _rotation( r )

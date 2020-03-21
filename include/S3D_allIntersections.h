@@ -3,8 +3,6 @@
 #define __S3D__ALL_INTERSECTIONS_H__
 
 
-#include "S3D_global.h"
-
 #include "S3D_intersection.h"
 
 

@@ -2,8 +2,6 @@
 #ifndef __S3D__MATERIAL_SIMPLE_H__
 #define __S3D__MATERIAL_SIMPLE_H__
 
-#include "S3D_global.h"
-
 #include "S3D_material_base.h"
 
 namespace S3D
@@ -24,9 +22,9 @@ namespace S3D
       virtual ~material_simple() {}
 
       // Whole thing is the same colour.
-      virtual colour getColour( double, double ) const { return _colour; }
+      virtual colour getColour( const surfaceMapping* ) const { return _colour; }
 
-      virtual beam interact( beam, double angle, rayTracer* tracer ) const;
+      virtual beam interact( beam, double angle, const rayTracer* tracer ) const;
   };
 }
 

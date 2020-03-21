@@ -21,8 +21,8 @@ int main( int, char** )
 
   SECTION( "Manager - Basic Functions" );
   {
-    S3D::colour testColour1( 1.0, 0.54, 234, 0.666 );
-    S3D::colour testColour2( 1.0, 0.54, 234, 0.666 );
+    S3D::colour testColour1( 1.0, 0.54, 234 );
+    S3D::colour testColour2( 1.0, 0.54, 234 );
 
     S3D::manager::createInstance();
 
@@ -119,7 +119,7 @@ void addSomeShapes()
 
 std::ostream& operator<<( std::ostream& os, S3D::colour col )
 {
-  os << col.getRed() << ", " << col.getGreen() << ", " << col.getBlue() << ", " << col.getOpacity();
+  os << col.getRed() << ", " << col.getGreen() << ", " << col.getBlue();
   return os;
 }
 

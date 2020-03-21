@@ -3,9 +3,6 @@
 #define __S3D__INTERSECTION_HPP__
 
 
-#include "S3D_global.h"
-#include "S3D_defs.h"
-
 #include "S3D_allShapes.h"
 
 

@@ -20,8 +20,7 @@ namespace S3D
     _params(),
     _colourRed( S3D_DEFAULT_COLOUR_RED ),
     _colourGreen( S3D_DEFAULT_COLOUR_GREEN ),
-    _colourBlue( S3D_DEFAULT_COLOUR_BLUE ),
-    _opacity( S3D_DEFAULT_COLOUR_OPAC )
+    _colourBlue( S3D_DEFAULT_COLOUR_BLUE )
   {
     ++shapeCounter;
   }
@@ -32,8 +31,7 @@ namespace S3D
     _params(),
     _colourRed( S3D_DEFAULT_COLOUR_RED ),
     _colourGreen( S3D_DEFAULT_COLOUR_GREEN ),
-    _colourBlue( S3D_DEFAULT_COLOUR_BLUE ),
-    _opacity( S3D_DEFAULT_COLOUR_OPAC )
+    _colourBlue( S3D_DEFAULT_COLOUR_BLUE )
   {
     ++shapeCounter;
   }
@@ -44,8 +42,7 @@ namespace S3D
     _params( s._params ),
     _colourRed( s._colourRed ),
     _colourGreen( s._colourGreen ),
-    _colourBlue( s._colourBlue ),
-    _opacity( s._opacity )
+    _colourBlue( s._colourBlue )
   {
     ++shapeCounter;
   }
@@ -58,7 +55,6 @@ namespace S3D
     _colourRed =  s._colourRed;
     _colourGreen =  s._colourGreen;
     _colourBlue =  s._colourBlue;
-    _opacity = s._opacity;
 
     return *this;
   }
@@ -77,11 +73,6 @@ namespace S3D
     _colourRed = r;
     _colourGreen = g;
     _colourBlue = b;
-  }
-
-  void print_base::setOpacity( double op )
-  {
-    _opacity = 1.0 - op;
   }
 
 
@@ -199,7 +190,6 @@ namespace S3D
     out << dent << "      appearance Appearance {\n";
     out << dent << "        material Material {\n";
     out << dent << "          diffuseColor  " << _colourRed << ' ' << _colourGreen << ' '<< _colourBlue << '\n';
-    out << dent << "          transparency  " << _opacity << '\n';
     out << dent << "        }\n";
     out << dent << "      }\n";
     out << dent << "      geometry " << _shape << " {\n" << params;
@@ -304,7 +294,6 @@ namespace S3D
     out << dent << "  appearance Appearance {\n";
     out << dent << "    material Material {\n";
     out << dent << "      emissiveColor  " << _colourRed << ' ' << _colourGreen << ' '<< _colourBlue << '\n';
-    out << dent << "      transparency   " << _opacity << '\n';
     out << dent << "    }\n";
     out << dent << "  }\n";
     out << dent << "  geometry " << _shape << " {\n" << params;
@@ -416,7 +405,6 @@ namespace S3D
     out << dent << "  appearance Appearance {\n";
     out << dent << "    material Material {\n";
     out << dent << "      emissiveColor  " << _colourRed << ' ' << _colourGreen << ' '<< _colourBlue << '\n';
-    out << dent << "      transparency   " << _opacity << '\n';
     out << dent << "    }\n";
     out << dent << "  }\n";
     out << dent << "  geometry " << _shape << " {\n" << params;

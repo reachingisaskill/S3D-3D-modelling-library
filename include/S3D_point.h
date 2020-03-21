@@ -2,17 +2,14 @@
 #ifndef __S3D__POINT_H__
 #define __S3D__POINT_H__
 
-
 #include "S3D_realVector.h"
 #include "S3D_rotation.h"
-
 #include "S3D_base.h"
 
 
 namespace S3D
 {
-
-  class rotation;
+  class object_base;
 
   class point : public object_base
   {

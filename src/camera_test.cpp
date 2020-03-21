@@ -26,9 +26,7 @@ namespace S3D
     {
       for ( unsigned int j = 0; j < pY; ++j )
       {
-        f->pixel( i, j ).red = (double)i/pX;
-        f->pixel( i, j ).green = (double)(pY-j)/pY;
-        f->pixel( i, j ).blue = 1.0;
+        f->pixel( i, j ) = beam( (double)i/pX, (double)(pY-j)/pY, 1.0 );
       }
     }
     this->_setFrame( f );

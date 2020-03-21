@@ -2,13 +2,16 @@
 #ifndef __S3D_PRINTER_H__
 #define __S3D_PRINTER_H__
 
+#include "S3D_realVector.h"
+#include "S3D_rotation.h"
+#include "S3D_defs.h"
+
+#include "stdexts.h"
+
 #include <iostream>
 #include <string>
 #include <map>
 #include <vector>
-
-#include "S3D_global.h"
-#include "S3D_defs.h"
 
 
 // #define __S3D_PRINTER__USE_X3D__
@@ -38,7 +41,6 @@ namespace S3D
       double _colourRed;
       double _colourGreen;
       double _colourBlue;
-      double _opacity;
       // Cannot be arsed with materials and textures!
 
     public:
@@ -52,7 +54,6 @@ namespace S3D
 
       void addParam( std::string, std::string );
       void setColour( double, double, double );
-      void setOpacity( double );
   };
 
 

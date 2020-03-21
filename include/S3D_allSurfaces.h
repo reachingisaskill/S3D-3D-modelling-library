@@ -3,8 +3,6 @@
 #define __SIMULATION_3D__SURFACES_H__
 
 
-#include "S3D_global.h"
-
 #include "S3D_surface.h"
 #include "S3D_line.h"
 

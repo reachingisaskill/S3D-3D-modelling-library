@@ -3,6 +3,7 @@
 
 #include "S3D_frame.h"
 
+#include <cmath>
 
 namespace S3D
 {
@@ -12,10 +13,11 @@ namespace S3D
   {
   }
 
-  beam material_simple::interact( beam b, double angle, rayTracer* tracer ) const
+  beam material_simple::interact( beam b, double angle, const rayTracer* tracer ) const
   {
-    // 1. Trace rays back to light sources - calculate brightness
-    // 2. return colour weighted by the illumination.
+    b *= std::cos( angle );
+    beam reflected = b * this->getColour( 0.0, 0.0 ) * this->getReflectance();
+    return reflected;
   }
 
 }

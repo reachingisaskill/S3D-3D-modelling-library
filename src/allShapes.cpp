@@ -82,18 +82,30 @@ namespace S3D
     return dists;
   }
 
-  threeVector sphere::intersect( const line* l ) const // TODO Check this one;
+  interaction sphere::intersect( const line* l ) const // TODO Check this one;
   {
 //    threeVector sep = l->separation( &this->getCenter() );
 //    double dist = sep.mod();
 //    return this->getCenter() + ( ( this->getRadius() / dist ) * sep );
+
+
+//    threeVector alpha = l->getStart() - this->getCenter();
+//    double sep = alpha.mod() - this->getRadius();
+//    if ( sep < 0.0 )
+//    {
+//      sep = alpha.mod() + this->getRadius();
+//    }
+
     threeVector alpha = l->getStart() - this->getCenter();
-    double sep = alpha.mod() - this->getRadius();
-    if ( sep < 0.0 )
-    {
-      sep = alpha.mod() + this->getRadius();
-    }
-    return l->getStart() + sep*l->getDirection();
+    double ad = alpha * l->getDirection().norm(); // Dot product
+    double a_sq = alpha * alpha;
+    double r_sq = this->_radius*this->_radius;
+
+    double distance = -ad + std::sqrt( ad*ad + r_sq - a_sq );
+
+    std::cout << "INTER: " <<  alpha << " | " << ad << ", " << a_sq << ", " << r_sq << ", " << distance << std::endl;
+    threeVector point = l->getStart() + distance*l->getDirection();
+    return interaction( point, l, this, ( point - this->getCenter() ).norm(), nullptr );
   }
 
 ///////////////////////////////////////////////////////////////////////////////
