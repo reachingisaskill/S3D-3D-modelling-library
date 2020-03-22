@@ -7,17 +7,16 @@
 #include "S3D_beam.h"
 #include "S3D_frame.h"
 #include "S3D_raytracer.h"
+#include "S3D_base.h"
 
 #include "stdexts.h"
 
 namespace S3D
 {
 
-  class camera_base
+  class camera_base : public base
   {
     private:
-      threeVector _position;
-      rotation _rotation;
       double _fieldOfView;
       unsigned int _pixelsX;
       unsigned int _pixelsY;
@@ -54,11 +53,6 @@ namespace S3D
       unsigned int getPixelsX() const { return _pixelsX; }
       unsigned int getPixelsY() const { return _pixelsY; }
 
-      virtual inline const threeVector& getPosition() const { return this->_position; }
-      virtual inline void setPosition( threeVector pos ) { this->_position = pos; }
-
-      virtual inline const rotation& getRotation() const { return this->_rotation; }
-      virtual inline void setRotation( rotation rot ) { this->_rotation = rot; }
 
       virtual inline double getFieldOfView() const { return this->_fieldOfView; }
       virtual inline void setFieldOfView( double fov ) { this->_fieldOfView = fov; }

@@ -57,6 +57,7 @@ namespace S3D
   double radiansToDegrees( double );
 
   double angle( threeVector, threeVector );
+  threeVector cross( threeVector, threeVector );
 
 
   rotation operator-( rotation );

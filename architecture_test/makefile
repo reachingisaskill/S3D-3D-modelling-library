@@ -49,7 +49,7 @@ LIB_NAME = S3D
 
 # Includes and Libraries
 INC_FLAGS += -I${INC_DIR}
-LIB_FLAGS += -lstdexts -ltestass -llogtastic
+LIB_FLAGS += -lstdexts -llogtastic
 
 
 # Compile-Time Definitions

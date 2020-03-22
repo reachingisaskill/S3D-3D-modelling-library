@@ -6,9 +6,8 @@
 namespace S3D
 {
 
-  camera_base::camera_base( threeVector p, rotation d, double f ) :
-    _position( p ),
-    _rotation( d ),
+  camera_base::camera_base( threeVector p, rotation r, double f ) :
+    base( p, r ),
     _fieldOfView( f ),
     _pixelsX( 800 ),
     _pixelsY( 600 ),
@@ -18,8 +17,7 @@ namespace S3D
   }
 
   camera_base::camera_base( const camera_base& c ) :
-    _position( c._position ),
-    _rotation( c._rotation ),
+    base( c ),
     _fieldOfView( c._fieldOfView ),
     _pixelsX( c._pixelsX ),
     _pixelsY( c._pixelsY ),
@@ -29,8 +27,7 @@ namespace S3D
   }
 
   camera_base::camera_base( camera_base&& c ) noexcept :
-    _position( std::move( c._position ) ),
-    _rotation( std::move( c._rotation ) ),
+    base( std::move( c ) ),
     _fieldOfView( std::move( c._fieldOfView ) ),
     _pixelsX( std::move( c._pixelsX ) ),
     _pixelsY( std::move( c._pixelsY ) ),
@@ -43,8 +40,7 @@ namespace S3D
   {
     if ( &c != this )
     {
-      _position = c._position;
-      _rotation = c._rotation;
+      base::operator=( c );
       _fieldOfView = c._fieldOfView;
       _pixelsX = c._pixelsX;
       _pixelsY = c._pixelsY;
@@ -77,11 +73,10 @@ namespace S3D
   {
     if ( &c != this )
     {
-      _position = c._position;
-      _rotation = c._rotation;
-      _fieldOfView = c._fieldOfView;
-      _pixelsX = c._pixelsX;
-      _pixelsY = c._pixelsY;
+      base::operator=( std::move( c ) );
+      _fieldOfView = std::move( c._fieldOfView );
+      _pixelsX = std::move( c._pixelsX );
+      _pixelsY = std::move( c._pixelsY );
 
       if ( _frame != nullptr )
       {

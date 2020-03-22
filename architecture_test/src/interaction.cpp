@@ -4,16 +4,14 @@
 namespace S3D
 {
 
-  interaction::interaction( threeVector p, const line* l, const object_base* s, threeVector norm, const surfaceMapping* map ) :
+  interaction::interaction( point p, const line* l, const object_base* s, threeVector norm, const surfaceMapping* map ) :
     _thePoint( p ),
     _theLine( l ),
     _theObject( s ),
     _surfaceNormal( norm ),
     _surfaceMapping( map ),
-    _cosIncidentAngle( 0.0 )
+    _cosIncidentAngle( norm * l->getDirection() )// Both should be normalised!!!
   {
-    // Both should be normalised!!!
-    _cosIncidentAngle = norm * l->getDirection();
   }
 }
 

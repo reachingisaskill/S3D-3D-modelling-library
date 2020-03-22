@@ -10,7 +10,7 @@ namespace S3D
   frame::frame(unsigned int x, unsigned int y ) :
     _pixelsX( x ),
     _pixelsY( y ),
-    _image( 0 )
+    _image( nullptr )
   {
     _image = new beam[(_pixelsX * _pixelsY)];
   }
@@ -19,7 +19,7 @@ namespace S3D
   frame::frame( const frame& f ) :
     _pixelsX( f._pixelsX ),
     _pixelsY( f._pixelsY ),
-    _image( 0 )
+    _image( nullptr )
   {
     _image = new beam[(_pixelsX * _pixelsY)];
 
@@ -33,11 +33,19 @@ namespace S3D
   }
 
 
+  frame::frame( const frame&& f ) :
+    _pixelsX( std::move( f._pixelsX ) ),
+    _pixelsY( std::move( f._pixelsY ) ),
+    _image( std::exchange( f._image, nullptr ) )
+  {
+  }
+
+
   frame& frame::operator=( const frame& f )
   {
     _pixelsX = f._pixelsX;
     _pixelsY = f._pixelsY;
-    if ( this->_image != 0 )
+    if ( this->_image != nullptr )
     {
       delete[] _image;
       _image = new beam[(_pixelsX * _pixelsY)];
@@ -55,12 +63,27 @@ namespace S3D
   }
 
 
-  frame::~frame()
+  frame& frame::operator=( const frame&& f )
   {
-    if ( this->_image != 0 )
+    _pixelsX = std::move( f._pixelsX );
+    _pixelsY = std::move( f._pixelsY );
+
+    if ( this->_image != nullptr )
     {
       delete[] _image;
-      _image = 0;
+    }
+    _image = std::exchange( f.image, nullptr );
+    
+    return *this;
+  }
+
+
+  frame::~frame()
+  {
+    if ( this->_image != nullptr )
+    {
+      delete[] _image;
+      _image = nullptr;
     }
   }
 

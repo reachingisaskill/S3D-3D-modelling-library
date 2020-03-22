@@ -26,8 +26,10 @@ namespace S3D
       frame( unsigned int, unsigned int );
 
       frame( const frame& );
+      frame( const frame&& );
 
       virtual frame& operator=( const frame& );
+      virtual frame& operator=( const frame&& );
 
       virtual ~frame();
 

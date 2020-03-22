@@ -9,65 +9,40 @@
 namespace S3D
 {
 
-  class surface : public object_base
+  class surface
   {
     private:
+      point _position;
       threeVector _normal;
+      rotation _rotation;
 
     protected:
-      surface( threeVector, rotation );
+      surface( point, rotation );
+//      surface( point, threeVector );
 
     public:
       virtual ~surface();
 
-      virtual const threeVector& getDirection() const { return _normal; }
+      const point& getPosition() const { return _position; }
+      void setPosition( const point& p ) { _position = p; }
 
-      virtual inline bool inFront( threeVector vec ) const { return this->inFront( &vec ); }
-      virtual inline bool InFront( threeVector vec ) const { return this->InFront( &vec ); };
-      virtual bool inFront( const threeVector* ) const;
-      virtual bool InFront( const threeVector* ) const;
+      const threeVector& getNormal() const { return _normal; }
+      void setNormal( const threeVector& );
 
-      virtual double area() const = 0;
+      const rotation& getRotation() const { return _rotation; }
+      void setRotation( const rotation& );
 
-      virtual bool contains( const threeVector* v ) const { return ! this->InFront( v ); }
-      virtual bool Contains( const threeVector* v ) const { return ! this->inFront( v ); }
 
-      virtual double distance( const threeVector* ) const = 0;
-      virtual double distance( const line* ) const = 0;
-      virtual bool crosses( const ray* ) const = 0;
-      virtual bool crosses( const line* ) const = 0;
-      virtual threeVector intersect( const line* ) const = 0;
+      virtual bool inFront( const point& ) const;
+
+      virtual double distance( const point& ) const = 0;
+      virtual double distance( const line& ) const = 0;
+      virtual bool crosses( const line& ) const = 0;
+      virtual point intersect( const line& ) const = 0;
 
       virtual void rotate( rotation );
       virtual void rotateAbout( rotation, threeVector );
   };
-
-
-
-
-
-
-
-
-#ifdef S3D_TEST_FUNCTIONALITY
-
-  class test_surface : public surface
-  {
-    private:
-
-    public:
-      test_surface( threeVector p, rotation r ) : surface( p, r ) {}
-
-      virtual double area() const { return 0.0; }
-      virtual double distance( const threeVector* ) const { return 0.0; }
-      virtual double distance( const line* ) const { return 0.0; }
-      virtual bool crosses( const ray* ) const { return false; }
-      virtual bool crosses( const line* ) const { return false; }
-      virtual threeVector intersect( const line* ) const { return threeVector( 0.0 ); }
-  };
-
-#endif
-
 }
 
 #endif // __SURFACE_H__

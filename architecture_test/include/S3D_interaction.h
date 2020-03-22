@@ -14,7 +14,7 @@ namespace S3D
   class interaction
   {
     private:
-      threeVector _thePoint;
+      point _thePoint;
       const line* _theLine;
       const object_base* _theObject;
       threeVector _surfaceNormal;
@@ -22,7 +22,7 @@ namespace S3D
       double _cosIncidentAngle;
 
     public :
-      interaction( threeVector, const line*, const object_base*, threeVector, const surfaceMapping* );
+      interaction( point, const line*, const object_base*, threeVector, const surfaceMapping* );
 
       const line* getLine() const { return this->_theLine; }
 
