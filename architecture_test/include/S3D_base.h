@@ -24,10 +24,10 @@ namespace S3D
       rotation _rotation;
 
     protected:
-      object_base( point = point(), rotation = rotation() );
+      base( point = point(), rotation = rotation() );
 
     public:
-      virtual ~object_base();
+      virtual ~base();
 
       const int& getLayer() const { return _layer; }
 
@@ -38,7 +38,7 @@ namespace S3D
       virtual void setRotation( rotation r ) { _rotation = r; }
 
       virtual void rotate( rotation );
-      virtual void rotateAbout( rotation, threeVector );
+      virtual void rotateAbout( rotation, point );
 
   };
 }

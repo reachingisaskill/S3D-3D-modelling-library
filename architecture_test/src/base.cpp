@@ -23,9 +23,9 @@ namespace S3D
     this->_rotation *= r;
   }
 
-  void base::rotateAbout( rotation r, threeVector p )
+  void base::rotateAbout( rotation r, point p )
   {
-    _position = ( r * ( _position - p ) ) + p;
+    _position = point( ( r * ( _position - p ) ) + p.getPosition());
     this->rotate( r );
   }
 

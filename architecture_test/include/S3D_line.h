@@ -12,6 +12,8 @@ namespace S3D
 
   class line
   {
+    friend point lineIntersection( const line&, const line& );
+
     private:
       point _position;
       threeVector _direction;
@@ -27,11 +29,11 @@ namespace S3D
       line( point, rotation );
       virtual ~line();
 
-      virtual inline const threeVector& getStart() const { return _position; }
-      virtual inline void setStart( threeVector p ) { _position = p; }
+      virtual inline const point& getStart() const { return _position; }
+      virtual inline void setStart( point p ) { _position = p; }
 
-      virtual inline const threeVector& getPosition() const { return _position; }
-      virtual inline void setPosition( threeVector p ) { _position = p; }
+      virtual inline const point& getPosition() const { return _position; }
+      virtual inline void setPosition( point p ) { _position = p; }
 
       virtual inline const threeVector& getDirection() const { return _direction; }
       virtual inline void setDirection( threeVector d ) { _direction = d.norm(); }
@@ -46,6 +48,8 @@ namespace S3D
       virtual void rotateAbout( rotation, threeVector );
   };
 
+
+  point lineIntersection( const line&, const line& );
 }
 
 #endif // __S3D__LINE_H__

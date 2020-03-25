@@ -1,272 +1,270 @@
 
 #include "S3D_manager.h"
 
-#include "S3D_base.h"
-#include "S3D_light_base.h"
-#include "S3D_volume.h"
-#include "S3D_camera_base.h"
+#include "logtastic.h"
 
 namespace S3D
 {
 
   manager::manager() :
+    _theWorld( nullptr ),
+    _theCamera( nullptr ),
     _pointers(),
     _objects(),
-    _visibleLayers(),
-    _theWorld( 0 ),
-    _printFile( "" )
+    _lights(),
+    _materials(),
+    _inVisibleLayers(),
+    _lastFrame()
   {
+    INFO_LOG( "S3D Manager instantiated" );
   }
 
   manager::~manager()
   {
-    for ( PointersMapT::iterator mapIt = _pointers.begin(); mapIt != _pointers.end(); ++mapIt )
-    {
-      for ( BasePointerContainerT::iterator it = mapIt->second.begin(); it != mapIt->second.end(); ++it )
-      {
-        delete (*it);
-      }
-      mapIt->second.clear();
-    }
-
-    for ( Object3DMapT::iterator mapIt = _objects.begin(); mapIt != _objects.end(); ++mapIt )
+    INFO_LOG( "S3D Destroying S3D Manager" );
+    // Remove pointers to objects
+    for ( ObjectMapT::iterator mapIt = _objects.begin(); mapIt != _objects.end(); ++mapIt )
     {
       mapIt->second.clear();
     }
-  }
+    INFO_LOG( "Removed Object pointers" );
 
-  void manager::printLayer( int layerNum ) const
-  {
-    BasePointerContainerT::const_iterator itEnd = _pointers.find( layerNum )->second.end();
-    for ( BasePointerContainerT::const_iterator it = _pointers.find( layerNum )->second.begin(); it != itEnd; ++it )
+    // Remove pointers to lights
+    for ( LightMapT::iterator mapIt = _lights.begin(); mapIt != _lights.end(); ++mapIt )
     {
-      // TODO PRINT ME!
+      mapIt->second.clear();
     }
-  }
+    INFO_LOG( "Removed Lights pointers" );
 
-  void manager::printVisible() const
-  {
-    for ( PointersMapT::const_iterator mapIt = _pointers.begin(); mapIt != _pointers.end(); ++mapIt )
+    // Remove pointers to materials
+    _materials.clear();
+    INFO_LOG( "Removed Materials pointers" );
+
+    // Delete all objects in memory
+    for ( BaseContainerT::iterator it = _pointers.begin(); it != _pointers.end(); ++it )
     {
-      if ( ! _isVisibleLayer( mapIt->first ) ) continue;
-
-      for ( BasePointerContainerT::const_iterator it = mapIt->second.begin(); it != mapIt->second.end(); ++it )
-      {
-        // TODO PRINT ME!
-      }
+      delete (*it);
     }
+    _pointers.clear();
+    INFO_LOG( "All objects deleted" );
   }
 
-  void manager::printAll() const
-  {
-    for ( PointersMapT::const_iterator mapIt = _pointers.begin(); mapIt != _pointers.end(); ++mapIt )
-    {
-      for ( BasePointerContainerT::const_iterator it = mapIt->second.begin(); it != mapIt->second.end(); ++it )
-      {
-        // TODO PRINT ME!
-      }
-    }
-  }
 
-  void manager::setPrintFile( std::string filename )
+  bool manager::_isVisibleLayer( int layerNum ) const
   {
-    _printFile = filename;
-  }
-
-  colour manager::getDefaultColour( int num ) const
-  {
-    std::map< int, colour >::const_iterator iter = _defaultColours.find( num );
-
-    if ( iter == _defaultColours.end() )
-      return S3D_DEFAULT_COLOUR;
+    std::set< int >::const_iterator iter = _inVisibleLayers.find( layerNum );
+    
+    if ( iter != _inVisibleLayers.end() )
+      return false;
     else
-      return iter->second;
+      return true;
   }
 
-  void manager::setWorld( volume_base* obj )
+
+  void manager::_addBase( base* obj )
   {
-    if ( _theWorld )
+    INFO_STREAM << "Taking ownership of base pointer: " << obj;
+    if ( _pointers.find( obj ) != _pointers.end() )
     {
-      this->removeObject( (object_base*) _theWorld );
+      INFO_LOG( "Base pointer already stored in memory set" );
+      obj->_isOwned = true;
+    }
+    else
+    {
+      _pointers.insert( obj );
+      obj->_isOwned = true;
+    }
+  }
+
+
+  void manager::_removeBase( base* obj )
+  {
+    INFO_STREAM << "Removing base pointer: " << obj;
+    if ( _pointers.find( obj ) == _pointers.end() )
+    {
+      WARN_LOG( "Pointer not found in memory map" );
+      obj->_isOwned = false;
+    }
+    else
+    {
+      _pointers.erase( obj );
+      obj->_isOwned = false;
+      delete obj;
+    }
+  }
+
+
+  void manager::setWorld( object_base* obj, int layerNum )
+  {
+    INFO_STREAM <<  "Setting world volume: " << (base*) obj;
+    if ( _theWorld != nullptr )
+    {
+      WARN_LOG( "World volume already set - removing." );
+      this->removeObject( _theWorld );
     }
 
-    this->addObject( (object_base*) obj, 0 );
-
+    this->addObject( obj, layerNum );
     _theWorld = obj;
   }
+
 
   const object_base* manager::getWorld() const
   {
     return _theWorld;
   }
 
-  bool manager::worldContains( threeVector p ) const
+
+  bool manager::worldContains( point p ) const
   {
     return _theWorld->contains( p );
   }
 
+
   void manager::addObject( object_base* obj, int layer )
   {
-    if ( this->isAlive() )
+    INFO_STREAM << "Adding object: " << (base*) obj;
+    if ( obj->_isOwned ) // See if it's already owned
     {
-      if ( obj->_isOwned ) // See if it's alread been set!
-      {
-        _pointers[ obj->_layer ].erase( obj );
-      }
-      else
-        obj->_isOwned = true;
-
+      INFO_LOG( "Object already owned. Setting layer number." );
+      _objects[ obj->_layer ].erase( obj );
       obj->_layer = layer;
-      this->initObject( obj );
-      _pointers[ layer ].insert( obj );
+      _objects[ obj->_layer ].insert( obj );
+    }
+    else
+    {
+      _addBase( (base*) obj );
+      obj->_layer = layer;
+      _objects[ obj->_layer ].insert( obj );
     }
   }
+
 
   void manager::removeObject( object_base* obj )
   {
-    if ( this->isAlive() )
+    INFO_STREAM << "Removing object: " << (base*) obj;
+    if ( ! obj->_isOwned )
     {
-      int layerNum = obj->getLayer();
-      BasePointerContainerT::iterator found = _pointers[ layerNum ].find( obj );
-      if ( found == _pointers[ layerNum ].end() )
-      {
-        return;
-      }
-      else
-      {
-        delete (*found);
-        _pointers[ layerNum ].erase( found );
-      }
+      WARN_LOG( "Object is not owned." );
+      return;
     }
+
+    _objects[ obj->_layer ].erase( obj ); // Delete the pointer in the object list
+    _removeBase( (base*) obj );
   }
 
-  void manager::add3DObject( object_3D_base* obj, int layer )
-  {
-    if ( this->isAlive() )
-    {
-      if ( obj->_isOwned ) // See if it's alread been set!
-      {
-        _pointers[ obj->_layer ].erase( obj );
-        _objects[ obj->_layer ].erase( obj );
-      }
-      else
-        obj->_isOwned = true;
 
+
+  void manager::addLight( light_base* obj, int layer )
+  {
+    INFO_STREAM << "Added light: " << (base*) obj;
+    if ( obj->_isOwned ) // See if it's already owned
+    {
+      INFO_LOG( "Light is already owned. Setting layer." );
+      _lights[ obj->_layer ].erase( obj );
       obj->_layer = layer;
-      this->initObject( obj );
-      _pointers[ layer ].insert( obj );
-      _objects[ layer ].insert( obj );
+      _lights[ obj->_layer ].insert( obj );
     }
-  }
-
-  void manager::remove3DObject( object_3D_base* obj )
-  {
-    if ( this->isAlive() )
+    else
     {
-      int layerNum = obj->getLayer();
-      BasePointerContainerT::iterator found = _pointers[ layerNum ].find( obj );
-      if ( found != _pointers[ layerNum ].end() )
-      {
-        delete (*found);
-        _pointers[ layerNum ].erase( found );
-      }
-
-
-      Pointer3DContainerT::iterator found3D = _objects[ layerNum ].find( obj );
-      if ( found3D != _objects[ layerNum ].end() )
-      {
-        _objects[ layerNum ].erase( found3D );
-      }
+      _addBase( (base*) obj );
+      obj->_layer = layer; // Set layer
+      _lights[ obj->_layer ].insert( obj ); // Add pointer to lights map.
     }
   }
 
 
-  void manager::addLight( light_interface* lightobj, int layer )
+  void manager::removeLight( light_base* obj )
   {
-    object_base* obj = (object_base*)lightobj;
-    if ( this->isAlive() )
+    INFO_STREAM << "Removing light: " << (base*) obj;
+    if ( obj->_isOwned )
     {
-      if ( obj->_isOwned ) // See if it's alread been set!
-      {
-        _pointers[ obj->_layer ].erase( obj );
-        _lights[ obj->_layer ].erase( lightobj );
-      }
-      else
-        obj->_isOwned = true;
-
-      obj->_layer = layer;
-      this->initObject( obj );
-      _pointers[ layer ].insert( obj );
-      _lights[ layer ].insert( lightobj );
+      _removeBase( (base*) obj );
+      _lights[ obj->_layer ].erase( obj ); // Delete the pointer in the light list
     }
-  }
-
-  void manager::removeLight( light_interface* lightobj )
-  {
-    if ( this->isAlive() )
+    else
     {
-      object_base* obj = (object_base*)lightobj;
-      int layerNum = obj->getLayer();
-      BasePointerContainerT::iterator found = _pointers[ layerNum ].find( obj );
-      if ( found != _pointers[ layerNum ].end() )
-      {
-        delete (*found);
-        _pointers[ layerNum ].erase( found );
-      }
-
-
-      LightingContainerT::iterator foundlight = _lights[ layerNum ].find( lightobj );
-      if ( foundlight != _lights[ layerNum ].end() )
-      {
-        _lights[ layerNum ].erase( foundlight );
-      }
+      WARN_LOG( "Object is not owned." );
     }
   }
 
 
-  void manager::initObject( object_base* obj ) const
+  void manager::addMaterial( std::string name, material_base* obj )
   {
-//    if ( this->isAlive() )
-//      obj->_colour = getDefaultColour( obj->_layer );
+    INFO_STREAM << "Adding '" << name << "' as a material: " << (base*) obj;
+    if ( obj->_isOwned )
+    {
+      INFO_LOG( "Material is already owned." );
+      _materials[name] = obj;
+    }
+    else
+    {
+      _addBase( (base*) obj );
+      _materials[name] = obj;
+    }
   }
+
+
+  const material_base* manager::getMaterial( std::string name ) const
+  {
+    MaterialMapT::const_iterator found = _materials.find( name );
+    if ( found == _materials.end() )
+    {
+      WARN_STREAM << "Material '" << name << "' was not found. Return nullptr.";
+      return nullptr;
+    }
+    else
+    {
+      return found->second;
+    }
+  }
+
+
+  void manager::removeMaterial( std::string name )
+  {
+    INFO_STREAM << "Attemping to remove material named: '" << name << "'.";
+    MaterialMapT::const_iterator found = _materials.find( name );
+    if ( found == _materials.end() )
+    {
+      INFO_LOG( "Material not found." );
+      return;
+    }
+    else
+    {
+      material_base* obj = found->second;
+      _materials.erase( found );
+      _removeBase( (base*) obj );
+    }
+  }
+
 
   unsigned int manager::countObjects() const
   {
-    unsigned int counter = 0;
-    for ( PointersMapT::const_iterator mapIt = _pointers.begin(); mapIt != _pointers.end(); ++mapIt )
-    {
-      counter += mapIt->second.size();
-    }
-    return counter;
+    return _pointers.size();
   }
 
-
-  bool manager::_isVisibleLayer( int layerNum ) const
-  {
-    std::set< int >::const_iterator iter = _visibleLayers.find( layerNum );
-    
-    if ( iter == _visibleLayers.end() )
-      return false;
-    else
-      return true;
-  }
 
   void manager::setCamera( camera_base* c )
   {
+    INFO_STREAM << "Setting camera: " << (base*) c;
     if ( _theCamera != nullptr )
     {
+      INFO_STREAM << "Camera, " << (base*) _theCamera << ", already set - removing.";
+      _removeBase( (base*) _theCamera );
     }
     _theCamera = c;
   }
+
 
   const frame* manager::getFrame()
   {
     if ( _theCamera == nullptr )
     {
+      WARN_LOG( "No camera set. Returning empty frame." );
       _lastFrame = stdexts::autoPtr<frame>(nullptr);
     }
     else 
     {
+      INFO_LOG( "Taking frame." );
       _theCamera->shutter();
       _lastFrame = _theCamera->popFrame();
     }

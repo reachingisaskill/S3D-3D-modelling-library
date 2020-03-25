@@ -33,7 +33,7 @@ namespace S3D
   }
 
 
-  frame::frame( const frame&& f ) :
+  frame::frame( frame&& f ) :
     _pixelsX( std::move( f._pixelsX ) ),
     _pixelsY( std::move( f._pixelsY ) ),
     _image( std::exchange( f._image, nullptr ) )
@@ -63,7 +63,7 @@ namespace S3D
   }
 
 
-  frame& frame::operator=( const frame&& f )
+  frame& frame::operator=( frame&& f )
   {
     _pixelsX = std::move( f._pixelsX );
     _pixelsY = std::move( f._pixelsY );
@@ -72,7 +72,7 @@ namespace S3D
     {
       delete[] _image;
     }
-    _image = std::exchange( f.image, nullptr );
+    _image = std::exchange( f._image, nullptr );
     
     return *this;
   }

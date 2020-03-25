@@ -20,12 +20,22 @@ namespace S3D
       point( double, double, double );
       virtual ~point();
 
-      virtual const threeVector& getPosition() { return _position; }
+      virtual const threeVector& getPosition() const { return _position; }
       virtual void setPosition( threeVector p ) { _position = p; }
 
+      double& operator[]( int i ) { return _position[i]; }
+
       point& operator= ( threeVector );
+//      threeVector operator+ ( const point& ) const;
+      threeVector operator- ( const point& ) const;
+      point operator+ ( const threeVector& ) const;
+
+      bool operator==( const point& ) const;
+
+      friend std::ostream& operator<< ( std::ostream&, point );
   };
 
+  std::ostream& operator<< ( std::ostream&, point );
 }
 
 #endif // __S3D__POINT_H__

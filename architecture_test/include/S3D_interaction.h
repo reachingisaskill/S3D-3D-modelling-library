@@ -5,10 +5,13 @@
 #include "S3D_vector.h"
 #include "S3D_line.h"
 #include "S3D_surface.h"
-#include "S3D_surfacemapping.h"
+#include "S3D_object_base.h"
+
+#include "stdexts.h"
 
 namespace S3D
 {
+  class object_base;
 
   // Stores the information describing an interaction between a light beam and a surface.
   class interaction
@@ -18,22 +21,22 @@ namespace S3D
       const line* _theLine;
       const object_base* _theObject;
       threeVector _surfaceNormal;
-      const surfaceMapping* _surfaceMapping;
-      double _cosIncidentAngle;
+      double _distance;
 
     public :
-      interaction( point, const line*, const object_base*, threeVector, const surfaceMapping* );
+      interaction();
 
-      const line* getLine() const { return this->_theLine; }
+      interaction( point, const line*, const object_base*, threeVector );
+
+      const point& getPoint() const { return this->_thePoint; }
+
+      const line& getLine() const { return *this->_theLine; }
 
       const object_base* getObject() const { return this->_theObject; }
 
-      threeVector getSurfaceNormal() const { return this->_surfaceNormal; }
+      const threeVector& getSurfaceNormal() const { return this->_surfaceNormal; }
 
-      const surfaceMapping* getSurfaceMapping() const { return this->_surfaceMapping; }
-
-      double getCosine() const { return this->_cosIncidentAngle; }
-
+      double getDistance() const { return this->_distance; }
   };
 }
 

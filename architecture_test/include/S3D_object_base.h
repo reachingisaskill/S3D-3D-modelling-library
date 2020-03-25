@@ -17,18 +17,9 @@ namespace S3D
     private:
       material_base* _material;
 
-      // Parameers to describe boundind ellipsoid
-      double _boundA; // Max extent x ish
-      double _boundB; // Max extent y ish
-      double _boundC; // Max extent z ish
-
-      threeVector _ellipse;
-
     protected:
       // Specify material and elliptical bound
-      object_base( material_base*, double, double, double );
-      // Specify material and spherical bound
-      object_base( material_base*, double );
+      object_base( material_base* );
 
       material_base* _getMaterial() { return _material; }
 
@@ -41,11 +32,12 @@ namespace S3D
 
       // Pure virtual functions to handle intersection, containment, collision, etc.
       virtual bool contains( const point& p ) const = 0;
+      // Strictly only if the distance from the start of the line is positive!!!
       virtual bool crosses( const line& ) const = 0;
-      virtual double distance( const line& ) const = 0;
-      virtual double distance( const point& ) const = 0;
       virtual interaction intersect( const line& ) const = 0;
 
+//      virtual double distance( const line& ) const = 0;
+//      virtual double distance( const point& ) const = 0;
   };
 }
 

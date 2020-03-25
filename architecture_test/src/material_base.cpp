@@ -7,11 +7,8 @@
 namespace S3D
 {
 
-  material_base::material_base() :
-    _reflectance( 1.0 ),
-    _absorption( 0.0 ),
-    _transmittance( 0.0 ),
-    _irradiance( 0.0 )
+  material_base::material_base( double N ) :
+    _refractiveIndex( N )
   {
   }
 }

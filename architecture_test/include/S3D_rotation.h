@@ -4,8 +4,6 @@
 
 #include "S3D_vector.h"
 
-#include "S3D_defs.h"
-
 
 namespace S3D
 {
@@ -56,8 +54,8 @@ namespace S3D
   double degreesToRadians( double );
   double radiansToDegrees( double );
 
-  double angle( threeVector, threeVector );
-  threeVector cross( threeVector, threeVector );
+  double vectorAngle( threeVector, threeVector );
+  threeVector crossProduct( threeVector, threeVector );
 
 
   rotation operator-( rotation );

@@ -2,8 +2,10 @@
 #ifndef __S3D__RAYTRACER_H__
 #define __S3D__RAYTRACER_H__
 
-#include "S3D_beam.h"
 #include "S3D_vector.h"
+#include "S3D_point.h"
+#include "S3D_beam.h"
+#include "S3D_interaction.h"
 #include "S3D_frame.h"
 
 namespace S3D
@@ -14,19 +16,24 @@ namespace S3D
     private:
       int _layer;
 
+      beam _currentBeam;
+
     protected:
-      // Recursive-style raytracing. Starting beam, initial position, direction.
-      virtual beam _traceRay( beam, threeVector, threeVector ) const;
+
     public:
       rayTracer();
 
       virtual ~rayTracer();
 
-      virtual beam traceRay( threeVector start, threeVector direction ) const;
+      // Called by the camera - primary interface to ray tracing
+      virtual beam traceRay( point start, threeVector direction );
+
+      virtual void traceLightSample( beam, point, const interaction& );
 
       // Can one point directly see anpther?
-      virtual bool isVisible( threeVector start, threeVector end ) const;
+      virtual bool isVisible( point start, point end ) const;
 
+      // Set the layer to render
       void setLayerNum( int l ) { _layer = l; }
   };
 
