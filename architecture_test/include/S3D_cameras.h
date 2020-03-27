@@ -7,6 +7,8 @@
 
 namespace S3D
 {
+////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Line Scan Camera
 
   class camera_lineScan : public camera_base
   {
@@ -31,6 +33,26 @@ namespace S3D
       virtual void shutter();
   };
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Perfect Pin Hole Camera
+
+  class camera_pinhole : public camera_base
+  {
+    private :
+
+    protected:
+
+    public:
+      // Position, Rotation, FieldofView
+      camera_pinhole( point, rotation, double );
+
+      // Make sure its virtual
+      virtual ~camera_pinhole();
+
+      // Override pure virtual function
+      virtual void shutter();
+  };
 }
 
 #endif // __S3D__CAMERAS_H__

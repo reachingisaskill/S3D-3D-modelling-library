@@ -3,6 +3,8 @@
 
 #include "S3D_defs.h"
 
+#include "logtastic.h"
+
 #include <cmath>
 
 
@@ -62,17 +64,21 @@ namespace S3D
 
   double surface::distance( const line& l ) const
   {
-    return ( (_position - l.getStart()) * _normal ) / ( std::fabs(_normal * l.getDirection() ) );
+    return ( (_position - l.getStart()) * _normal ) / ( ( _normal * l.getDirection() ) );
   }
 
 
   bool surface::crosses( const line& l ) const
   {
     if ( std::fabs( l.getDirection() * _normal ) < epsilon ) // Basically perpendicular to the normal
+    {
       return false;
+    }
     
     if ( this->distance( l ) <= 0.0 ) // Going backwards
+    {
       return false;
+    }
 
     return true;
   }

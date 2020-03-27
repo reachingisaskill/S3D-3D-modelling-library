@@ -28,11 +28,11 @@ namespace S3D
       double getRefractiveIndex() const { return _refractiveIndex; }
 
       // Returns the colour of a point on the container surface, parameterized by the surface mapping object
-      virtual colour getColour( interaction ) const = 0;
+      virtual colour getColour( const interaction& ) const = 0;
 
       // Handle the light-surface interaction
       // incoming direction, outgoing direction, inteaction details
-      virtual beam BRDF( threeVector, beam, const interaction& ) const = 0;
+      virtual beam scatter( threeVector, beam, const interaction& ) const = 0;
 
   };
 }

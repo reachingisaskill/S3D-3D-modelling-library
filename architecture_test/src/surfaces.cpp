@@ -33,7 +33,6 @@ namespace S3D
       return false;
 
     threeVector inter = this->intersect( l ) - l.getStart();
-    INFO_STREAM << "CROSSES INTERSECT: " << inter;
     if ( inter * l.getDirection() <= 0.0 ) // Going backwards
       return false;
 
@@ -44,7 +43,6 @@ namespace S3D
     if ( std::fabs(2.0*ref_inter[1]) > _widthY )
       return false;
 
-    INFO_LOG( "INTERSECTS!!!" );
     return true;
   }
 

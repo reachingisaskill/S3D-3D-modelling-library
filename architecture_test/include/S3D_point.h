@@ -24,6 +24,7 @@ namespace S3D
       virtual void setPosition( threeVector p ) { _position = p; }
 
       double& operator[]( int i ) { return _position[i]; }
+      const double& operator[]( int i ) const { return _position[i]; }
 
       point& operator= ( threeVector );
 //      threeVector operator+ ( const point& ) const;

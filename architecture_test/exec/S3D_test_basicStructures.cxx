@@ -1,5 +1,4 @@
 
-
 #include "S3D_manager.h"
 #include "S3D_version.h"
 #include "S3D_primitives.h"
@@ -144,6 +143,7 @@ int main( int, char** )
   threeVector test = makeThreeVector( 1.0, -1.0, std::sqrt(2.0) ).norm();
   S3D::surface s0( S3D::point( 0.0 ), S3D::rotation());
   S3D::surface s1( S3D::point( 0.0 ), S3D::rotation( makeThreeVector( 1.0, 1.0, 0.0 ), 0.25*S3D::PI ) );
+  S3D::surface s2( S3D::point( 1.0, 10.0, 3.0 ), S3D::rotation( makeThreeVector( 0.0, 1.0, 0.0 ), 0.5*S3D::PI ) );
 
   ASSERT_EQUAL( s0.getNormal(), S3D::unit_threeVector_z );
   ASSERT_EQUAL( s0.inFront( S3D::point( 0.0, 0.0, 1.0 ) ), true );
@@ -154,7 +154,21 @@ int main( int, char** )
   ASSERT_APPROX_EQUAL( s1.getNormal()[2], test[2] );
   ASSERT_EQUAL( s1.inFront( S3D::point( 1.0, 2.0, -3.0 ) ), false );
   ASSERT_EQUAL( s1.crosses( l2 ), false );
-  
+  ASSERT_EQUAL( s2.inFront( S3D::point( 10.0, 0.0, 0.0 ) ), true );
+  ASSERT_EQUAL( s2.inFront( S3D::point( 1.0-S3D::epsilon, 0.0, 0.0 ) ), false );
+
+  S3D::line l3( S3D::point( 0.0, 0.0, 1.0 ), makeThreeVector( 0.0, 0.0, -1.0 ) );
+  ASSERT_TRUE( s1.crosses( l3 ) );
+
+  S3D::line l4( S3D::point( 0.0, 0.0, 1.0 ), makeThreeVector( 0.0, 0.0, 1.0 ) );
+  ASSERT_FALSE( s1.crosses( l4 ) );
+
+  S3D::point inter1 = s1.intersect( l3 );
+  ASSERT_APPROX_EQUAL( inter1[0], 0.0 );
+  ASSERT_APPROX_EQUAL( inter1[1], 0.0 );
+  ASSERT_APPROX_EQUAL( inter1[2], 0.0 );
+
+ 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
   if ( ! testass::control::summarize() )

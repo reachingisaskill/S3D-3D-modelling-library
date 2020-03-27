@@ -4,7 +4,9 @@
 #include "S3D_defs.h"
 
 #include "logtastic.h"
+
 #include <cassert>
+#include <sstream>
 
 
 namespace S3D
@@ -41,8 +43,8 @@ namespace S3D
       return false;
     }
 
+    // Calculate the perpendicular distance of the line from the centre.
     double dist = l.distance( this->getPosition() );
-    if ( dist <= 0.0 ) return false;
     return ( dist <= this->getRadius() );
   }
 
@@ -62,15 +64,24 @@ namespace S3D
   interaction sphere::intersect( const line& l ) const
   {
     threeVector alpha = l.getStart() - this->getPosition();
-    double ad = alpha * l.getDirection().norm(); // Dot product
+    double ad = -alpha * l.getDirection(); // Dot product
     double a_sq = alpha * alpha;
     double r_sq = this->_radius*this->_radius;
 
-    double distance = -ad - std::sqrt( ad*ad + r_sq - a_sq );
+    double root = std::sqrt( ad*ad + r_sq - a_sq );
+    if ( ad > root ) // Is the interaction point outside
+    {
+      double distance = ad - root ;
+      point thePoint = l.getStart() + distance*l.getDirection();
+      return interaction( thePoint, &l, (object_base*) this, ( thePoint - this->getPosition() ).norm() );
+    }
+    else // or inside?
+    {
+      double distance = ad + root ;
+      point thePoint = l.getStart() + distance*l.getDirection();
+      return interaction( thePoint, &l, (object_base*) this, ( this->getPosition() - thePoint ).norm() );
+    }
 
-    point thePoint = l.getStart() + distance*l.getDirection();
-
-    return interaction( thePoint, &l, (object_base*) this, ( thePoint - this->getPosition() ).norm() );
   }
 
 
@@ -159,11 +170,11 @@ namespace S3D
     threeVector sep = p - this->getPosition();
     threeVector rotated_sep = this->getRotation() / sep;
 
-    if ( std::fabs(2.0*sep[0]) > _lengthX )
+    if ( std::fabs(2.0*rotated_sep[0]) > _lengthX )
       return false;
-    else if ( std::fabs(2.0*sep[1]) > _lengthY )
+    else if ( std::fabs(2.0*rotated_sep[1]) > _lengthY )
       return false;
-    else if ( std::fabs(2.0*sep[2]) > _lengthZ )
+    else if ( std::fabs(2.0*rotated_sep[2]) > _lengthZ )
       return false;
     else
       return true;
@@ -194,7 +205,6 @@ namespace S3D
     const surface_rectangle* current_surface = nullptr;
     double current_distance = 1.0e20;
 
-    INFO_LOG( "Calculating Box Intersect" );
     for ( unsigned int i = 0; i < 6; ++i )
     {
       if ( _surfaces[i].crosses( l ) )
@@ -202,9 +212,8 @@ namespace S3D
         point test = _surfaces[i].intersect( l );
         double distance = ( test - l.getStart() ) * l.getDirection();
 
-        if ( distance < 0.0 ) continue; // No going backwards!
+//        if ( distance < 0.0 ) continue; // No going backwards!
 
-        INFO_STREAM << "Test: " << test.getPosition() << " -- Dist = " << distance;
         if ( ( distance - current_distance ) < epsilon )
         {
           current_point = test;
@@ -216,12 +225,24 @@ namespace S3D
 
     if ( current_surface == nullptr )
     {
+      std::stringstream ss;
+      ss << "Line: " << l.getStart().getPosition() << " -> " << l.getDirection();
+      stdexts::exception ex( "Intersection of line with box surface could not be calculated.", ss.str() );
       FAILURE_LOG( "Line does not cross surface (box::intersect(...))" );
-      FAILURE_STREAM << "Line: " << l.getStart().getPosition() << " -> " << l.getDirection();
-      assert(false);
+      FAILURE_LOG( ss.str().c_str() );
+
+      EX_CREATE( ex );
+      THROW( ex );
     }
 
-    return interaction( current_point, &l, (object_base*) this, current_surface->getNormal() );
+    if ( ( current_point - l.getStart() ) * current_surface->getNormal() < 0.0 ) // Line pointing inwards
+    {
+      return interaction( current_point, &l, (object_base*) this, current_surface->getNormal() );
+    }
+    else // Line pointing outwards
+    {
+      return interaction( current_point, &l, (object_base*) this, -current_surface->getNormal() );
+    }
   }
 
 
@@ -275,5 +296,78 @@ namespace S3D
 //      assert( count < 4 );
 //    }
 //  }
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Box
+
+  square_plane::square_plane( material_base* mat, double x, double y ) :
+    object_base( mat ),
+    _surface( x, y )
+  {
+  }
+
+
+  void square_plane::_makeSurface()
+  {
+    _surface.setPosition( this->getPosition() );
+    _surface.setRotation( this->getRotation() );
+  }
+
+
+  void square_plane::setPosition( point pos )
+  {
+    base::setPosition( pos );
+    this->_makeSurface();
+  }
+
+
+  void square_plane::setRotation( rotation rot )
+  {
+    base::setRotation( rot );
+    this->_makeSurface();
+  }
+
+
+  void square_plane::rotate( rotation rot )
+  {
+    base::rotate( rot );
+    this->_makeSurface();
+  }
+
+
+  void square_plane::rotateAbout( rotation rot, point pos )
+  {
+    base::rotateAbout( rot, pos );
+    this->_makeSurface();
+  }
+
+
+  bool square_plane::contains( const point& p ) const
+  {
+    return ! _surface.inFront( p );
+  }
+
+
+  bool square_plane::crosses( const line& l ) const
+  {
+    return _surface.crosses( l );
+  }
+
+  interaction square_plane::intersect( const line& l ) const
+  {
+    point inter = _surface.intersect( l );
+    if ( _surface.inFront( l.getStart() ) )
+    {
+      return interaction( inter, &l, (object_base*) this, _surface.getNormal() );
+    }
+    else // Line from behind => reverse the normal
+    {
+      return interaction( inter, &l, (object_base*) this, -_surface.getNormal() );
+    }
+  }
+  
+
 }
 

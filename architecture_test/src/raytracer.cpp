@@ -1,3 +1,4 @@
+#define __DEBUG_OFF__
 
 #include "S3D_raytracer.h"
 
@@ -8,6 +9,9 @@
 #include "S3D_interaction.h"
 
 #include "logtastic.h"
+
+#include <sstream>
+
 
 namespace S3D
 {
@@ -33,50 +37,72 @@ namespace S3D
 
     interaction current_intersect;
 
-    INFO_STREAM << "Tracing ray from: " << start.getPosition() << " with direction: " << dir;
-    while( obj_it != obj_end )
+    try
     {
-      if ( (*obj_it)->crosses( the_ray ) )
+      DEBUG_STREAM << "Tracing ray from: " << start.getPosition() << " with direction: " << dir;
+      while( obj_it != obj_end )
       {
-        interaction intersect = (*obj_it)->intersect( the_ray );
-
-        if ( intersect.getDistance() < current_intersect.getDistance() )
+        if ( (*obj_it)->crosses( the_ray ) )
         {
-          current_intersect = intersect;
+          interaction intersect = (*obj_it)->intersect( the_ray );
+
+          if ( intersect.getDistance() < current_intersect.getDistance() )
+          {
+            current_intersect = intersect;
+          }
         }
+
+        ++obj_it;
       }
-
-      ++obj_it;
     }
-
-
-    if ( current_intersect.getObject() == nullptr )
+    catch( stdexts::exception& e )
     {
-      INFO_LOG( "No intersecting object found. Returning empty beam" );
+      std::stringstream ss;
+      ss << "Tracing ray from camera: " << start.getPosition() << " with direction: " << dir;
+      EX_LOG( e, ss.str() );
+      std::cerr << ELUCIDATE( e );
       return beam();
     }
 
-//    colour c( current_intersect.getObject()->getMaterial()->getColour( current_intersect ) );
-//    return beam( c, 1.0 );
-    
-    INFO_LOG( "Tracing Lights." );
-    INFO_STREAM << "Interaction: " << current_intersect.getPoint().getPosition() << " | " << current_intersect.getLine().getStart().getPosition() << " - " << current_intersect.getLine().getDirection();
 
-    LightMapT& lights = manager::getInstance()->_lights;
-    LightContainerT::iterator light_it = lights[_layer].begin();
-    LightContainerT::iterator light_end = lights[_layer].end();
+      if ( current_intersect.getObject() == nullptr )
+      {
+        DEBUG_LOG( "No intersecting object found. Returning empty beam" );
+        return beam();
+      }
+
+  //    colour c( current_intersect.getObject()->getMaterial()->getColour( current_intersect ) );
+  //    return beam( c, 1.0 );
+      
+      DEBUG_LOG( "Tracing Lights." );
+      DEBUG_STREAM << "Interaction: " << current_intersect.getPoint().getPosition() << " | " << current_intersect.getLine().getStart().getPosition() << " - " << current_intersect.getLine().getDirection();
+
+      LightMapT& lights = manager::getInstance()->_lights;
+      LightContainerT::iterator light_it = lights[_layer].begin();
+      LightContainerT::iterator light_end = lights[_layer].end();
 
 
-    while( light_it != light_end )
-    {
-      INFO_LOG( "Sampling Light Source" );
-      (*light_it)->sampleRays( current_intersect, this );
-      INFO_STREAM << " Current Beam: " << _currentBeam.red() << ", " << _currentBeam.green() << ", " << _currentBeam.blue();
-      ++light_it;
-    }
+      try
+      {
+        while( light_it != light_end )
+        {
+          DEBUG_LOG( "Sampling Light Source" );
+          (*light_it)->sampleRays( current_intersect, this );
+          DEBUG_STREAM << " Current Beam: " << _currentBeam.red() << ", " << _currentBeam.green() << ", " << _currentBeam.blue();
+          ++light_it;
+        }
+      }
+      catch( stdexts::exception& e )
+      {
+      std::stringstream ss;
+      ss << "Tracing ray from light source: " << start.getPosition() << " with direction: " << dir;
+      EX_LOG( e, ss.str() );
+      std::cerr << ELUCIDATE( e );
+      return beam();
+      }
 
-    INFO_STREAM << "Returning Current Beam." << _currentBeam.red() << ", " << _currentBeam.green() << ", " << _currentBeam.blue();
-    return _currentBeam;
+      DEBUG_STREAM << "Returning Current Beam." << _currentBeam.red() << ", " << _currentBeam.green() << ", " << _currentBeam.blue();
+      return _currentBeam;
   }
 
 
@@ -85,8 +111,9 @@ namespace S3D
     if ( isVisible( p, inter.getPoint() ) )
     {
       threeVector lightDir = (inter.getPoint() - p).norm();
-      _currentBeam += inter.getObject()->getMaterial()->BRDF( lightDir, b, inter );
+      _currentBeam += inter.getObject()->getMaterial()->scatter( lightDir, b, inter );
     }
+    else DEBUG_LOG( "SHADOW!" );
   }
 
 
@@ -96,27 +123,23 @@ namespace S3D
     line the_beam( start, separation );
     double distance = separation.mod();
 
+
     ObjectMapT& objectMap = manager::getInstance()->_objects;
     ObjectContainerT::iterator obj_it = objectMap[_layer].begin();
-
-    INFO_STREAM << "Checking visibility between: " << start.getPosition() << " and: " << end.getPosition();
     while( obj_it != objectMap[_layer].end() )
     {
       if ( (*obj_it)->crosses( the_beam ) )
       {
-        INFO_STREAM << "INTERSECTING Object : " << (*obj_it);
         interaction intersect = (*obj_it)->intersect( the_beam );
 
 //        if ( ( intersect.getDistance() - distance ) < epsilon )
         if ( ( distance - intersect.getDistance() ) > epsilon )
         {
-          INFO_LOG( "Points are not visible!" );
           return false;
         }
       }
       ++obj_it;
     }
-    INFO_LOG( "Points are visible!" );
     return true;
   }
 

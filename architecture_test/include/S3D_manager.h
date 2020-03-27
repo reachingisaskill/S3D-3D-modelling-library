@@ -82,7 +82,7 @@ namespace S3D
 
 
       void addMaterial( std::string, material_base* );
-      const material_base* getMaterial( std::string ) const;
+      material_base* getMaterial( std::string );
       void removeMaterial( std::string );
 
 

@@ -204,7 +204,7 @@ namespace S3D
   }
 
 
-  const material_base* manager::getMaterial( std::string name ) const
+  material_base* manager::getMaterial( std::string name )
   {
     MaterialMapT::const_iterator found = _materials.find( name );
     if ( found == _materials.end() )

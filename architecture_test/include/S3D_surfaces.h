@@ -21,6 +21,9 @@ namespace S3D
       
       virtual bool crosses( const line& ) const;
 
+      double getLengthX() const { return _widthX; }
+      double getLengthY() const { return _widthY; }
+
       // virtual point intersect( const line& ) const; // Use base class variant
   };
 }
