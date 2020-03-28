@@ -26,6 +26,7 @@ namespace S3D
     public :
       interaction();
 
+      // Point of interaction, line from viewer, object hit, surface normal vector
       interaction( point, const line*, const object_base*, threeVector );
 
       const point& getPoint() const { return this->_thePoint; }

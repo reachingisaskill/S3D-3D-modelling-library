@@ -14,7 +14,9 @@ namespace S3D
     _lights(),
     _materials(),
     _inVisibleLayers(),
-    _lastFrame()
+    _lastFrame(),
+    _lightSamplesPerArea( 10 ),
+    _ambientLight( 0.0, 0.0, 0.0 )
   {
     INFO_LOG( "S3D Manager instantiated" );
   }

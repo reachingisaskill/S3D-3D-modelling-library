@@ -29,16 +29,20 @@ int main( int, char** )
   S3D::material_base* world_mat = (S3D::material_base*) new S3D::material_phong( S3D::colour( 0.5, 0.5, 0.5 ), 1.0, 0.0, 0 );
   man->addMaterial( "world", world_mat );
 
-  S3D::material_base* room_mat = (S3D::material_base*) new S3D::material_phong( S3D::colour( 0.5, 0.5, 0.5 ), 0.7, 0.3, 1 );
+  S3D::material_base* room_mat = (S3D::material_base*) new S3D::material_phong( S3D::colour( 0.5, 0.5, 0.5 ), 0.5, 0.1, 1 );
   man->addMaterial( "room", room_mat );
 
-  S3D::material_base* sph_mat = (S3D::material_base*) new S3D::material_phong( S3D::colour( 1.0, 0.0, 0.0 ), 0.4, 0.5, 2 );
-  man->addMaterial( "sphere", sph_mat );
+  S3D::material_base* sph1_mat = (S3D::material_base*) new S3D::material_phong( S3D::colour( 1.0, 0.0, 0.0 ), 0.5, 0.3, 5 );
+  man->addMaterial( "sphere", sph1_mat );
 
-  S3D::material_base* box_mat = (S3D::material_base*) new S3D::material_phong( S3D::colour( 0.0, 0.0, 1.0 ), 0.4, 0.5, 2 );
+  S3D::material_base* sph2_mat = (S3D::material_base*) new S3D::material_phong( S3D::colour( 1.0, 0.0, 0.0 ), 0.5, 1.0, 50 );
+  man->addMaterial( "sphere_shiny", sph2_mat );
+
+  S3D::material_base* box_mat = (S3D::material_base*) new S3D::material_phong( S3D::colour( 0.0, 0.0, 0.5 ), 0.5, 0.1, 5 );
   man->addMaterial( "box", box_mat );
 
-  S3D::material_phong::setAmbientLight( S3D::beam( 0.3, 0.3, 0.3 ) );
+  man->setAmbientLight( S3D::beam( 0.02, 0.02, 0.02 ) );
+  man->setLightSampleRate( 500 );
 
 
 
@@ -69,14 +73,19 @@ int main( int, char** )
   man->addObject( wall3 );
 
 
-  INFO_LOG( "Making test sphere." );
-  S3D::object_base* test_sphere = (S3D::object_base*) new S3D::sphere( sph_mat, 1.0 );
-  test_sphere->setPosition( S3D::point( 1.0, 0.0, 1.0 ) );
-  man->addObject( test_sphere );
+  INFO_LOG( "Making dull test sphere." );
+  S3D::object_base* test_sphere1 = (S3D::object_base*) new S3D::sphere( sph1_mat, 1.0 );
+  test_sphere1->setPosition( S3D::point( 2.0, -2.0, 1.0 ) );
+  man->addObject( test_sphere1 );
+
+  INFO_LOG( "Making shiny test sphere." );
+  S3D::object_base* test_sphere2 = (S3D::object_base*) new S3D::sphere( sph2_mat, 1.0 );
+  test_sphere2->setPosition( S3D::point( -2.0, -2.0, 1.0 ) );
+  man->addObject( test_sphere2 );
 
   INFO_LOG( "Making test box." );
   S3D::object_base* test_box = (S3D::object_base*) new S3D::box( box_mat, 2.0, 1.0, 5.0 );
-  test_box->setPosition( S3D::point( -2.0, -1.0, 2.5 ) );
+  test_box->setPosition( S3D::point( -1.0, 1.0, 2.5 ) );
   test_box->setRotation( S3D::rotation( S3D::unit_threeVector_z, S3D::PI/5.0 ) );
   man->addObject( test_box );
 
@@ -97,20 +106,20 @@ int main( int, char** )
   man->setCamera( camera );
 
 
-  INFO_LOG( "Adding point light source." );
-//  S3D::light_base* the_light = (S3D::light_base*) new S3D::light_pointSource( S3D::colour( 1.0, 1.0, 1.0 ),  1000.0 );
-//  the_light->setPosition( S3D::point( 1.0, -5.0, 20.0 ) );
-//  man->addLight( the_light );
+  INFO_LOG( "Adding light sources." );
 
   S3D::light_spotlight* the_light = new S3D::light_spotlight( S3D::colour( 1.0, 1.0, 1.0 ),  1.0, 1.0 );
-  the_light->setPosition( S3D::point( 1.0, -5.0, 20.0 ) );
+  the_light->setPosition( S3D::point( 1.0, 0.0, 20.0 ) );
   the_light->setRotation( S3D::rotation( S3D::unit_threeVector_x, S3D::PI ) );
-  the_light->setNumSamples( 10 );
   man->addLight( (S3D::light_base*)the_light );
 
-  S3D::light_base* another_light = (S3D::light_base*) new S3D::light_pointSource( S3D::colour( 0.1, 0.1, 1.0 ),  2000.0 );
-  another_light->setPosition( S3D::point( -2.0, -5.0, 5.0 ) );
-  man->addLight( another_light );
+  S3D::light_circle* another_light = new S3D::light_circle( S3D::colour( 1.0, 1.0, 1.0 ),  1.0, 1.0 );
+  another_light->setPosition( S3D::point( -5.0, -5.0, 3.0 ) );
+  another_light->setRotation( S3D::rotation( S3D::unit_threeVector_z, -S3D::PI/4 ) * S3D::rotation( S3D::unit_threeVector_x, -S3D::PI/2.0 ) );
+  man->addLight( (S3D::light_base*)another_light );
+
+//  S3D::light_base* another_light = (S3D::light_base*) new S3D::light_pointSource( S3D::colour( 0.1, 0.1, 1.0 ),  2000.0 );
+//  man->addLight( another_light );
 
   INFO_LOG( "Rendering scene." );
   const S3D::frame* f = man->getFrame();

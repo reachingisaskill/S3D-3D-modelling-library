@@ -57,6 +57,9 @@ namespace S3D
 
       stdexts::autoPtr<frame> _lastFrame;
 
+      unsigned int _lightSamplesPerArea;
+      beam _ambientLight;
+
       void _addBase( base* );
       void _removeBase( base* );
       bool _isVisibleLayer( int ) const;
@@ -71,6 +74,12 @@ namespace S3D
       void setWorld( object_base*, int = 0 );
       const object_base* getWorld() const;
       bool worldContains( point ) const;
+
+      void setAmbientLight( beam b ) { _ambientLight = b; }
+      beam getAmbientLight() const { return _ambientLight; }
+
+      void setLightSampleRate( unsigned int i ) { _lightSamplesPerArea = i; }
+      unsigned int getLightSampleRate() const { return _lightSamplesPerArea; }
 
 
       void addObject( object_base*, int layer = 0);

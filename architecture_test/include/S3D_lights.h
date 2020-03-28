@@ -28,9 +28,9 @@ namespace S3D
   class light_spotlight : public light_base
   {
     private:
-      unsigned int _numSamples;
       double _angularStdDev;
       double _radius;
+      double _area;
 
     protected:
       threeVector _getDirection() const;
@@ -39,11 +39,31 @@ namespace S3D
       // Position, brightness, radius
       light_spotlight( colour, double, double );
 
-      void setNumSamples( unsigned int i ) { _numSamples = i; }
-      unsigned int getNumSamples() const { return _numSamples; }
+      double getArea() const { return _area; }
 
       void setStdDev( unsigned int i ) { _angularStdDev = i; }
       unsigned int getStdDev() const { return _angularStdDev; }
+
+      void sampleRays( const interaction&, rayTracer* ) const;
+  };
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Circular Area Light
+
+  class light_circle : public light_base
+  {
+    private:
+      double _radius;
+      double _area;
+    protected:
+      threeVector _getDirection() const;
+
+    public:
+      // Colour, brightness, radius
+      light_circle( colour, double, double );
+
+      double getArea() const { return _area; }
 
       void sampleRays( const interaction&, rayTracer* ) const;
   };

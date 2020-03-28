@@ -3,6 +3,7 @@
 #include "S3D_materials.h"
 
 #include "S3D_defs.h"
+#include "S3D_manager.h"
 
 #include "logtastic.h"
 
@@ -38,7 +39,7 @@ namespace S3D
 ////////////////////////////////////////////////////////////////////////////////////////////////////
   // Phong Reflection Model
 
-  material_phong::material_phong( colour amb, double dif, double spec, int shin ) :
+  material_phong::material_phong( colour amb, double dif, double spec, double shin ) :
     _ambient_coef( amb ),
     _diffuse_coef( dif ),
     _specular_coef( spec ),
@@ -53,11 +54,18 @@ namespace S3D
     threeVector R = incomingDir - 2.0*inter.getSurfaceNormal() * L_dot_N;
     DEBUG_STREAM << "Incoming = " << incomingDir <<  " -- L dot N = " << L_dot_N << " --  R = " << R;
 
-    beam the_beam = this->_ambient_light * _ambient_coef;
+    // Ambient light added by the raytracer as it varies with sampling frequencies, etc.
+//    beam the_beam = manager::getInstance()->getAmbientLight() * _ambient_coef * ( 1.0 / manager::getInstance()->getLightSampleRate() );
 
-    the_beam += beam_in *  -L_dot_N * _diffuse_coef;
+    beam the_beam = beam_in *  -L_dot_N * _diffuse_coef * _ambient_coef;
+    DEBUG_STREAM << "Plus Diffuse component: " << the_beam.red() << ", " << the_beam.green() << ", " << the_beam.blue();
 
-    the_beam += beam_in * std::pow( inter.getLine().getDirection() * R, _shininess_factor );
+    double specular_product = -inter.getLine().getDirection() * R;
+    if ( specular_product > 0.0 )
+    {
+      the_beam += beam_in * _specular_coef * std::pow( specular_product, _shininess_factor );
+    }
+    DEBUG_STREAM << "Plus specular component: " << the_beam.red() << ", " << the_beam.green() << ", " << the_beam.blue();
 
     return the_beam;
     

@@ -31,7 +31,7 @@ namespace S3D
       virtual colour getColour( const interaction& ) const = 0;
 
       // Handle the light-surface interaction
-      // incoming direction, outgoing direction, inteaction details
+      // incoming direction, beam, inteaction details
       virtual beam scatter( threeVector, beam, const interaction& ) const = 0;
 
   };

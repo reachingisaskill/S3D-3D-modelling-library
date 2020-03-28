@@ -91,6 +91,9 @@ namespace S3D
           DEBUG_STREAM << " Current Beam: " << _currentBeam.red() << ", " << _currentBeam.green() << ", " << _currentBeam.blue();
           ++light_it;
         }
+        DEBUG_LOG( "Estimating ambient component" );
+        _currentBeam += manager::getInstance()->getAmbientLight() * current_intersect.getObject()->getMaterial()->getColour( current_intersect );
+        DEBUG_STREAM << " Current Beam: " << _currentBeam.red() << ", " << _currentBeam.green() << ", " << _currentBeam.blue();
       }
       catch( stdexts::exception& e )
       {
