@@ -27,7 +27,7 @@ namespace S3D
 
     public:
       // Call the light tracing routines, sampling the emitted rays.
-      virtual void sampleRays( const interaction&, rayTracer* ) const = 0;
+      virtual beam sampleRays( const interaction&, const rayTracer* ) const = 0;
 
   };
 }

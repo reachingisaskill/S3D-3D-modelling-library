@@ -15,20 +15,24 @@ namespace S3D
   {
     private:
       int _layer;
-
-      beam _currentBeam;
+      unsigned int _maxDepth;
+//      beam _currentBeam;
 
     protected:
+      // Recursive implementation
+      virtual beam _traceRay( point start, threeVector direction, unsigned int depth=0 ) const;
 
     public:
       rayTracer();
 
       virtual ~rayTracer();
 
-      // Called by the camera - primary interface to ray tracing
-      virtual beam traceRay( point start, threeVector direction );
+      void setMaxDepth( unsigned int d ) { _maxDepth = d; }
 
-      virtual void traceLightSample( beam, point, const interaction& );
+      // Called by the camera - primary interface to ray tracing
+      virtual beam traceRay( point start, threeVector direction ) const;
+
+      virtual beam traceLightSample( beam, point, const interaction& ) const;
 
       // Can one point directly see anpther?
       virtual bool isVisible( point start, point end ) const;

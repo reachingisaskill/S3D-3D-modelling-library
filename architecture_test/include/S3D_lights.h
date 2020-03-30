@@ -18,7 +18,7 @@ namespace S3D
       // Position and brightness
       light_pointSource( colour, double );
 
-      void sampleRays( const interaction&, rayTracer* ) const;
+      beam sampleRays( const interaction&, const rayTracer* ) const;
   };
 
 
@@ -44,7 +44,7 @@ namespace S3D
       void setStdDev( unsigned int i ) { _angularStdDev = i; }
       unsigned int getStdDev() const { return _angularStdDev; }
 
-      void sampleRays( const interaction&, rayTracer* ) const;
+      beam sampleRays( const interaction&, const rayTracer* ) const;
   };
 
 
@@ -65,7 +65,7 @@ namespace S3D
 
       double getArea() const { return _area; }
 
-      void sampleRays( const interaction&, rayTracer* ) const;
+      beam sampleRays( const interaction&, const rayTracer* ) const;
   };
 
 }

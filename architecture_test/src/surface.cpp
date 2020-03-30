@@ -75,7 +75,7 @@ namespace S3D
       return false;
     }
     
-    if ( this->distance( l ) <= 0.0 ) // Going backwards
+    if ( this->distance( l ) < epsilon ) // Going backwards
     {
       return false;
     }

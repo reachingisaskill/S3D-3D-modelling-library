@@ -45,7 +45,7 @@ namespace S3D
   const colour colour_grey = colour( 0.5, 0.5, 0.5 );
   const colour colour_darkGrey = colour( 0.25, 0.25, 0.25 );
 
-  const double epsilon = 1.0e-12;
+  const double epsilon = 1.0e-9;
 }
 
 

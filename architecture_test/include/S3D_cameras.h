@@ -20,7 +20,7 @@ namespace S3D
 
     public:
       // Position, Rotation, size_x, size_y
-      camera_lineScan( point, rotation, double, double );
+      camera_lineScan( rayTracer*, double, double );
 
       // Use the implicit copy, and move constructors
 //      camera_linescan( const camera_linescan& );
@@ -45,7 +45,7 @@ namespace S3D
 
     public:
       // Position, Rotation, FieldofView
-      camera_pinhole( point, rotation, double );
+      camera_pinhole( rayTracer*, double );
 
       // Make sure its virtual
       virtual ~camera_pinhole();
@@ -53,6 +53,32 @@ namespace S3D
       // Override pure virtual function
       virtual void shutter();
   };
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Pin Hole Camera with random sampling
+
+  class camera_sampledPinhole : public camera_base
+  {
+    private :
+      unsigned int _sampleRate;
+
+    protected:
+
+    public:
+      // raytracer, FieldofView, samples per pixel
+      camera_sampledPinhole( rayTracer*, double, unsigned int sampleRate = 1 );
+
+      // Set Samples per pixel
+      void setSampleRate( unsigned int i ) { _sampleRate = i; }
+
+      // Make sure its virtual
+      virtual ~camera_sampledPinhole();
+
+      // Override pure virtual function
+      virtual void shutter();
+  };
+
 }
 
 #endif // __S3D__CAMERAS_H__

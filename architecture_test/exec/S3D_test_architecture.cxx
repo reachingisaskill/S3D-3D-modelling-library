@@ -17,7 +17,8 @@ void addSomeShapes();
 
 int main( int, char** )
 {
-  logtastic::addLogFile( "./architecture_test.log" );
+  logtastic::setLogFileDirectory( "./test_data/" );
+  logtastic::addLogFile( "architecture_test.log" );
   logtastic::init( "Testing S3D Manager Functionality", S3D_VERSION_NUMBER );
 
   S3D::manager::createInstance();
@@ -35,14 +36,14 @@ int main( int, char** )
   S3D::material_base* sph1_mat = (S3D::material_base*) new S3D::material_phong( S3D::colour( 1.0, 0.0, 0.0 ), 0.5, 0.3, 5 );
   man->addMaterial( "sphere", sph1_mat );
 
-  S3D::material_base* sph2_mat = (S3D::material_base*) new S3D::material_phong( S3D::colour( 1.0, 0.0, 0.0 ), 0.5, 1.0, 50 );
+  S3D::material_base* sph2_mat = (S3D::material_base*) new S3D::material_blinn( S3D::colour( 1.0, 0.0, 0.0 ), 0.5, 1.0, 50 );
   man->addMaterial( "sphere_shiny", sph2_mat );
 
   S3D::material_base* box_mat = (S3D::material_base*) new S3D::material_phong( S3D::colour( 0.0, 0.0, 0.5 ), 0.5, 0.1, 5 );
   man->addMaterial( "box", box_mat );
 
   man->setAmbientLight( S3D::beam( 0.02, 0.02, 0.02 ) );
-  man->setLightSampleRate( 500 );
+  man->setLightSampleRate( 100 );
 
 
 
@@ -90,18 +91,11 @@ int main( int, char** )
   man->addObject( test_box );
 
 
-//  INFO_LOG( "Added line scan camera." );
-//  S3D::rotation camera_rot( makeThreeVector(1.0, 0.0, 0.0), -0.5*S3D::PI );
-//  S3D::point camera_pos( 0.0, -5.0, 2.0 );
-//  S3D::camera_base* camera = (S3D::camera_base*) new S3D::camera_lineScan( camera_pos, camera_rot, 20.0, 20.0 );
-//  camera->setPixels( 500, 500 );
-//  man->setCamera( camera );
-
-
   INFO_LOG( "Added pinhole camera." );
-  S3D::rotation camera_rot = S3D::rotation( S3D::unit_threeVector_x, -S3D::PI/8 ) * S3D::rotation( S3D::unit_threeVector_x, -0.5*S3D::PI );
-  S3D::point camera_pos( 0.0, -15.0, 10.0 );
-  S3D::camera_base* camera = (S3D::camera_base*) new S3D::camera_pinhole( camera_pos, camera_rot, S3D::degreesToRadians( 90.0 ) );
+  S3D::rayTracer* tracer = new S3D::rayTracer();
+  S3D::camera_base* camera = (S3D::camera_base*) new S3D::camera_pinhole( tracer, S3D::degreesToRadians( 90.0 ) );
+  camera->setPosition( S3D::point( 0.0, -15.0, 10.0 ) );
+  camera->setRotation( S3D::rotation( S3D::unit_threeVector_x, -S3D::PI/8 ) * S3D::rotation( S3D::unit_threeVector_x, -0.5*S3D::PI ) );
   camera->setPixels( 500, 500 );
   man->setCamera( camera );
 

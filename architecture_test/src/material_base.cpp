@@ -3,6 +3,8 @@
 
 #include "S3D_frame.h"
 
+#include "logtastic.h"
+
 
 namespace S3D
 {
@@ -11,5 +13,6 @@ namespace S3D
     _refractiveIndex( N )
   {
   }
+
 }
 

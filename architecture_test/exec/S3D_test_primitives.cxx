@@ -22,6 +22,7 @@ int main( int, char** )
   testass::control::init( "S3D", "Primitive Shape Tests" );
   testass::control::get()->setVerbosity( testass::control::verb_short );
 
+  logtastic::setLogFileDirectory( "./test_data/" );
   logtastic::addLogFile( "./primitives_test.log" );
   logtastic::init( "Testing S3D Primitives", S3D_VERSION_NUMBER );
 
@@ -32,13 +33,14 @@ int main( int, char** )
 
   INFO_LOG( "Making basic material" );
   S3D::material_base* mat = (S3D::material_base*) new S3D::material_simple( S3D::colour( 1.0, 0.0, 0.0 ) );
+  mat->setRefractiveIndex( 1.5 );
   man->addMaterial( "simple", mat );
   S3D::material_base* world_mat = (S3D::material_base*) new S3D::material_simple( S3D::colour( 0.0, 0.3, 0.8 ) );
   man->addMaterial( "room", world_mat );
 
 
   INFO_LOG( "Making world sphere" );
-  S3D::object_base* world = (S3D::object_base*) new S3D::sphere( mat, 100.0 );
+  S3D::object_base* world = (S3D::object_base*) new S3D::sphere( world_mat, 100.0 );
   man->setWorld( world, 1 );
 
 
@@ -106,6 +108,10 @@ int main( int, char** )
     ASSERT_APPROX_EQUAL( inter.getSurfaceNormal()[1], 0.0 );
     ASSERT_APPROX_EQUAL( inter.getSurfaceNormal()[2], -1.0 );
 
+    ASSERT_APPROX_EQUAL( inter.getTransmission()[0], 0.0 );
+    ASSERT_APPROX_EQUAL( inter.getTransmission()[1], 0.0 );
+    ASSERT_APPROX_EQUAL( inter.getTransmission()[2], 1.0 );
+
     inter = sph1->intersect( l2 );
     ASSERT_APPROX_EQUAL( inter.getPoint()[0], 1.0 );
     ASSERT_APPROX_EQUAL( inter.getPoint()[1], 1.0 );
@@ -114,6 +120,10 @@ int main( int, char** )
     ASSERT_APPROX_EQUAL( inter.getSurfaceNormal()[0], 0.0 );
     ASSERT_APPROX_EQUAL( inter.getSurfaceNormal()[1], 0.0 );
     ASSERT_APPROX_EQUAL( inter.getSurfaceNormal()[2], -1.0 );
+
+    ASSERT_APPROX_EQUAL( inter.getTransmission()[0], 0.0 );
+    ASSERT_APPROX_EQUAL( inter.getTransmission()[1], 0.0 );
+    ASSERT_APPROX_EQUAL( inter.getTransmission()[2], 1.0 );
 
     inter = sph1->intersect( l3 );
     ASSERT_APPROX_EQUAL( inter.getPoint()[0], 11.0 );
@@ -159,6 +169,8 @@ int main( int, char** )
 
     line l1( p1, v1 );
     line l2( p6, makeThreeVector( -1.0, 0.0, 0.0 ) );
+    line l3( point( 0.49999, 0.0, 0.0) , v1 );
+    line l4( point( 0.50001, 0.0, 0.0) , v1 );
 
 
     // Surface Centers
@@ -257,6 +269,13 @@ int main( int, char** )
     ASSERT_APPROX_EQUAL( inter.getPoint()[1], 0.0 );
     ASSERT_APPROX_EQUAL( inter.getPoint()[2], 0.0 );
     
+    ASSERT_TRUE( b1->crosses( l3 ) );
+    inter = b1->intersect( l3 );
+    ASSERT_APPROX_EQUAL( inter.getPoint()[0], 0.49999 );
+    ASSERT_APPROX_EQUAL( inter.getPoint()[1], 0.0 );
+    ASSERT_APPROX_EQUAL( inter.getPoint()[2], 1.5 );
+
+    ASSERT_FALSE( b2->crosses( l4 ) );
   }
 
 

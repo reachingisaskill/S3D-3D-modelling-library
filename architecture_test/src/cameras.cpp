@@ -2,6 +2,8 @@
 #include "S3D_cameras.h"
 
 #include "S3D_defs.h"
+#include "S3D_random.h"
+
 
 namespace S3D
 {
@@ -9,8 +11,8 @@ namespace S3D
 ////////////////////////////////////////////////////////////////////////////////////////////////////
   // LINE SCAN CAMERA
 
-  camera_lineScan::camera_lineScan( point p, rotation d, double x, double y ) :
-    camera_base( p, d, 0.0 ),
+  camera_lineScan::camera_lineScan( rayTracer* rt, double x, double y ) :
+    camera_base( rt, 0.0 ),
     _width( x ),
     _height( y )
   {
@@ -49,8 +51,8 @@ namespace S3D
 ////////////////////////////////////////////////////////////////////////////////////////////////////
   // PINHOLE CAMERA
 
-  camera_pinhole::camera_pinhole( point p, rotation d, double fov ) :
-    camera_base( p, d, fov )
+  camera_pinhole::camera_pinhole( rayTracer* rt, double fov ) :
+    camera_base( rt, fov )
   {
   }
 
@@ -85,6 +87,57 @@ namespace S3D
         beam b = this->_getRayTracer()->traceRay( beam_start, beam_direction );
 
         f->pixel( i, j ) = b;
+      }
+    }
+    this->_setFrame( f );
+  }
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+  // SAMPLING PINHOLE CAMERA
+
+  camera_sampledPinhole::camera_sampledPinhole( rayTracer* rt, double fov, unsigned int sampleRate ) :
+    camera_base( rt, fov ),
+    _sampleRate( sampleRate )
+  {
+  }
+
+  camera_sampledPinhole::~camera_sampledPinhole()
+  {
+  }
+
+  void camera_sampledPinhole::shutter()
+  {
+    unsigned int pX = this->getPixelsX();
+    unsigned int pY = this->getPixelsY();
+    frame* f = new frame( pX, pY );
+
+    point beam_start = this->getPosition();
+    threeVector camera_direction = this->getRotation().rotateVector( defaultDirection );
+    double ratio = std::tan( 0.5*this->getFieldOfView() ) / pX;
+
+    for ( unsigned int i = 0; i < pX; ++i )
+    {
+      for ( unsigned int j = 0; j < pY; ++j )
+      {
+        beam b( 0.0, 0.0, 0.0 );
+        for ( unsigned int k = 0; k < _sampleRate; ++k )
+        {
+          double x = (double)i + random::uniformDouble();
+          double y = (double)j + random::uniformDouble();
+
+          double phi_x = std::atan(( x - (pX / 2.0) ) * ratio);
+          rotation rotX( unit_threeVector_y, phi_x );
+
+          double phi_y = -std::atan(( y - (pY / 2.0) ) * ratio);
+          rotation rotY( unit_threeVector_x, phi_y );
+
+          threeVector beam_direction = this->getRotation().rotateVector( rotX( rotY( defaultDirection ) ) );
+        
+          b += this->_getRayTracer()->traceRay( beam_start, beam_direction );
+        }
+
+        f->pixel( i, j ) = b *  ( 1.0 / _sampleRate );
       }
     }
     this->_setFrame( f );

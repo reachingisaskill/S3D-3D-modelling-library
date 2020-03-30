@@ -72,8 +72,12 @@ namespace S3D
       beam operator*( const colour& ) const;
       beam& operator+=( const beam& );
       beam& operator*=( double );
-
+    
+      friend beam operator*( double, const beam& );
   };
+
+
+  beam operator*( double d, const beam& b );
 }
 
 #endif // __S3D__BEAM_H__

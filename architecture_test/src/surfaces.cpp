@@ -29,18 +29,17 @@ namespace S3D
 
   bool surface_rectangle::crosses( const line& l ) const
   {
-    if ( std::fabs( l.getDirection() * this->getNormal() ) < epsilon ) // Basically perpendicular to the normal
-      return false;
-
     threeVector inter = this->intersect( l ) - l.getStart();
-    if ( inter * l.getDirection() <= 0.0 ) // Going backwards
+    if ( inter * l.getDirection() < epsilon ) // Going backwards
       return false;
 
     threeVector ref_inter = this->getRotation() / ( this->intersect( l ) - this->getPosition() );
 
-    if ( std::fabs(2.0*ref_inter[0]) > _widthX )
+//    if ( std::fabs(2.0*ref_inter[0]) > _widthX )
+    if ( ( std::fabs(2.0*ref_inter[0]) - _widthX ) > epsilon )
       return false;
-    if ( std::fabs(2.0*ref_inter[1]) > _widthY )
+//    if ( std::fabs(2.0*ref_inter[1]) > _widthY )
+    if ( ( std::fabs(2.0*ref_inter[1]) - _widthY ) > epsilon )
       return false;
 
     return true;

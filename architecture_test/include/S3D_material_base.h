@@ -26,6 +26,11 @@ namespace S3D
       virtual ~material_base() {}
 
       double getRefractiveIndex() const { return _refractiveIndex; }
+      void setRefractiveIndex( double i ) { _refractiveIndex = i; }
+
+      virtual double getTransmissionProb( const interaction& ) const = 0;
+
+      virtual double getReflectionProb( const interaction& ) const = 0;
 
       // Returns the colour of a point on the container surface, parameterized by the surface mapping object
       virtual colour getColour( const interaction& ) const = 0;

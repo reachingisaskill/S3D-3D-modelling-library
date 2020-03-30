@@ -23,6 +23,7 @@ int main( int, char** )
   testass::control::init( "S3D", "Testing The Ray Tracer" );
   testass::control::get()->setVerbosity( testass::control::verb_short );
 
+  logtastic::setLogFileDirectory( "./test_data/" );
   logtastic::addLogFile( "./raytracer_test.log" );
   logtastic::init( "Testing S3D Basics", S3D_VERSION_NUMBER );
 

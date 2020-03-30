@@ -23,7 +23,10 @@ namespace S3D
 
       material_base* _getMaterial() { return _material; }
 
-      bool _bounded( const point& ) const;
+      // Parameters: Incoming Dir, surface normal
+//      threeVector _calculateSnellsLawIn( threeVector, threeVector ) const;
+//      threeVector _calculateSnellsLawOut( threeVector, threeVector ) const;
+//      threeVector _calculateReflection( threeVector, threeVector ) const;
 
     public:
       virtual ~object_base();

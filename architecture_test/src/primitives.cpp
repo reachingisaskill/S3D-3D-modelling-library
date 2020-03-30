@@ -1,7 +1,9 @@
+#define __DEBUG_OFF__
 
 #include "S3D_primitives.h"
 
 #include "S3D_defs.h"
+#include "S3D_manager.h"
 
 #include "logtastic.h"
 
@@ -38,7 +40,7 @@ namespace S3D
       return true;
     }
 
-    if ( ( this->getPosition() - l.getStart() ) * l.getDirection() <= 0.0 ) // Going backwards
+    if ( ( this->getPosition() - l.getStart() ) * l.getDirection() <= epsilon ) // Going backwards / self interaction
     {
       return false;
     }
@@ -73,13 +75,17 @@ namespace S3D
     {
       double distance = ad - root ;
       point thePoint = l.getStart() + distance*l.getDirection();
-      return interaction( thePoint, &l, (object_base*) this, ( thePoint - this->getPosition() ).norm() );
+      threeVector normal = ( thePoint - this->getPosition() ).norm();
+      double indexRatio = manager::getInstance()->getWorld()->getMaterial()->getRefractiveIndex() / this->getMaterial()->getRefractiveIndex();
+      return interaction( thePoint, &l, (object_base*) this, normal, indexRatio  );
     }
     else // or inside?
     {
       double distance = ad + root ;
       point thePoint = l.getStart() + distance*l.getDirection();
-      return interaction( thePoint, &l, (object_base*) this, ( this->getPosition() - thePoint ).norm() );
+      threeVector normal = ( this->getPosition() - thePoint ).norm();
+      double indexRatio = this->getMaterial()->getRefractiveIndex() / manager::getInstance()->getWorld()->getMaterial()->getRefractiveIndex();
+      return interaction( thePoint, &l, (object_base*) this, normal, indexRatio );
     }
 
   }
@@ -183,19 +189,12 @@ namespace S3D
 
   bool box::crosses( const line& l ) const
   {
-    if ( this->contains( l.getStart() ) )
+    for ( unsigned int i = 0; i < 6; ++i )
     {
-      return true;
+      if ( _surfaces[i].crosses( l ) )
+        return true;
     }
-    else
-    {
-      for ( unsigned int i = 0; i < 6; ++i )
-      {
-        if ( _surfaces[i].crosses( l ) )
-          return true;
-      }
-      return false;
-    }
+    return false;
   }
 
 
@@ -213,7 +212,7 @@ namespace S3D
         double distance = ( test - l.getStart() ) * l.getDirection();
 
 //        if ( distance < 0.0 ) continue; // No going backwards!
-
+        DEBUG_STREAM << "Testing distance: " << distance << ", " << current_distance;
         if ( ( distance - current_distance ) < epsilon )
         {
           current_point = test;
@@ -237,11 +236,15 @@ namespace S3D
 
     if ( ( current_point - l.getStart() ) * current_surface->getNormal() < 0.0 ) // Line pointing inwards
     {
-      return interaction( current_point, &l, (object_base*) this, current_surface->getNormal() );
+      threeVector normal = current_surface->getNormal();
+      double indexRatio = manager::getInstance()->getWorld()->getMaterial()->getRefractiveIndex() / this->getMaterial()->getRefractiveIndex();
+      return interaction( current_point, &l, (object_base*) this, normal, indexRatio );
     }
     else // Line pointing outwards
     {
-      return interaction( current_point, &l, (object_base*) this, -current_surface->getNormal() );
+      threeVector normal = -current_surface->getNormal();
+      double indexRatio = this->getMaterial()->getRefractiveIndex() / manager::getInstance()->getWorld()->getMaterial()->getRefractiveIndex();
+      return interaction( current_point, &l, (object_base*) this, normal, indexRatio );
     }
   }
 
@@ -360,11 +363,19 @@ namespace S3D
     point inter = _surface.intersect( l );
     if ( _surface.inFront( l.getStart() ) )
     {
-      return interaction( inter, &l, (object_base*) this, _surface.getNormal() );
+      threeVector normal = _surface.getNormal();
+//      threeVector trans = _calculateSnellsLawIn( l.getDirection(), normal );
+//      threeVector ref = _calculateReflection( l.getDirection(), normal );
+      double indexRatio = manager::getInstance()->getWorld()->getMaterial()->getRefractiveIndex() / this->getMaterial()->getRefractiveIndex();
+      return interaction( inter, &l, (object_base*) this, normal, indexRatio );
     }
     else // Line from behind => reverse the normal
     {
-      return interaction( inter, &l, (object_base*) this, -_surface.getNormal() );
+      threeVector normal = -_surface.getNormal();
+//      threeVector trans = _calculateSnellsLawIn( l.getDirection(), normal );
+//      threeVector ref = _calculateReflection( l.getDirection(), normal );
+      double indexRatio = this->getMaterial()->getRefractiveIndex() / manager::getInstance()->getWorld()->getMaterial()->getRefractiveIndex();
+      return interaction( inter, &l, (object_base*) this, normal, indexRatio );
     }
   }
   

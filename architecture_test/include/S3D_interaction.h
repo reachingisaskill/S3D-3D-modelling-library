@@ -17,17 +17,20 @@ namespace S3D
   class interaction
   {
     private:
-      point _thePoint;
-      const line* _theLine;
-      const object_base* _theObject;
-      threeVector _surfaceNormal;
-      double _distance;
+      point _thePoint; // Interaction point
+      const line* _theLine; // Line traced from previous point
+      const object_base* _theObject; // Object intersected by line
+      double _distance; // Distance traveled by beam
+      double _distanceSq; // Distance traveled by beam squared
+
+      threeVector _surfaceNormal; // Surface normal at interaction
+      double _refIndexRatio;
 
     public :
       interaction();
 
-      // Point of interaction, line from viewer, object hit, surface normal vector
-      interaction( point, const line*, const object_base*, threeVector );
+      // Point of interaction, line from viewer, object hit, surface normal vector, ratio of refractive indices ( n_1 / n_2 )
+      interaction( point, const line*, const object_base*, threeVector, double );
 
       const point& getPoint() const { return this->_thePoint; }
 
@@ -38,7 +41,16 @@ namespace S3D
       const threeVector& getSurfaceNormal() const { return this->_surfaceNormal; }
 
       double getDistance() const { return this->_distance; }
+
+      double getDistanceSquared() const { return this->_distanceSq; }
+
+      double getIndexRatio() const { return _refIndexRatio; }
+
+      threeVector getTransmission() const;
+
+      threeVector getReflection() const;
   };
+
 }
 
 #endif // __S3D__INTERACTION_H__

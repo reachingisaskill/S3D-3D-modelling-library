@@ -23,6 +23,7 @@ int main( int, char** )
   testass::control::init( "S3D", "Testing Material Models" );
   testass::control::get()->setVerbosity( testass::control::verb_short );
 
+  logtastic::setLogFileDirectory( "./test_data/" );
   logtastic::addLogFile( "./materials_test.log" );
   logtastic::init( "Testing Material Models", S3D_VERSION_NUMBER );
 
@@ -62,6 +63,15 @@ int main( int, char** )
   S3D::material_base* mat4 = (S3D::material_base*) new S3D::material_phong( S3D::colour( 0.5, 0.0, 0.5 ), 0.3, 0.3, 2 );
   man->addMaterial( "mat4", mat4 );
 
+  S3D::material_base* mat5 = (S3D::material_base*) new S3D::material_blinn( S3D::colour( 0.0, 1.0, 0.0 ), 0.3, 0.0, 2 );
+  man->addMaterial( "mat5", mat5 );
+
+  S3D::material_base* mat6 = (S3D::material_base*) new S3D::material_blinn( S3D::colour( 0.0, 0.5, 0.5 ), 0.0, 0.6, 3 );
+  man->addMaterial( "mat6", mat6 );
+
+  S3D::material_base* mat7 = (S3D::material_base*) new S3D::material_blinn( S3D::colour( 0.5, 0.5, 0.5 ), 0.4, 0.4, 2 );
+  man->addMaterial( "mat7", mat7 );
+
 
   INFO_LOG( "Making test objects and values" );
   S3D::beam test_beam1( 1.0, 1.0, 1.0 );
@@ -71,9 +81,11 @@ int main( int, char** )
   threeVector test_normal1 = makeThreeVector( 0.0, 0.0, 1.0 ).norm();
   threeVector test_normal2 = makeThreeVector( 0.0, 1.0, 1.0 ).norm();
   threeVector test_normal3 = S3D::rotation( S3D::unit_threeVector_x, 0.1 ) * makeThreeVector( 0.0, 0.0, 1.0 ).norm();
+  double indexRatio = 1.0 / 1.5;
 
   double diff_factor = std::cos( 0.1 );
   double spec_factor = std::cos( 0.2 );
+  double blinn_factor = std::cos( 0.1 );
 
   S3D::object_base* test_obj1 = (S3D::object_base*) new S3D::square_plane( mat, 1.0, 1.0 );
 
@@ -84,63 +96,100 @@ int main( int, char** )
 
   man->setAmbientLight( S3D::beam( 1.0, 1.0, 1.0 ) );
 
-  S3D::interaction test_inter1( test_point, &test_line1, test_obj1, test_normal1 );
+  S3D::interaction test_inter1( test_point, &test_line1, test_obj1, test_normal1, indexRatio );
 
   beam result = mat0->scatter( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter1 );
-  ASSERT_APPROX_EQUAL( result.red(),   1.0 );
+  ASSERT_APPROX_EQUAL( result.red(),   0.0 ); // Ambient only
   ASSERT_APPROX_EQUAL( result.green(), 0.0 );
   ASSERT_APPROX_EQUAL( result.blue(),  0.0 );
 
   result = mat1->scatter( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter1 );
-  ASSERT_APPROX_EQUAL( result.red(),   1.0 + 0.6 );
-  ASSERT_APPROX_EQUAL( result.green(), 0.0 + 0.6 );
-  ASSERT_APPROX_EQUAL( result.blue(),  0.0 + 0.6 );
+  ASSERT_APPROX_EQUAL( result.red(),   1.0 * 0.6 ); // Lambertian
+  ASSERT_APPROX_EQUAL( result.green(), 0.0 * 0.6 );
+  ASSERT_APPROX_EQUAL( result.blue(),  0.0 * 0.6 );
 
   result = mat2->scatter( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter1 );
-  ASSERT_APPROX_EQUAL( result.red(),   0.0 + 0.6 );
-  ASSERT_APPROX_EQUAL( result.green(), 1.0 + 0.6 );
-  ASSERT_APPROX_EQUAL( result.blue(),  0.0 + 0.6 );
+  ASSERT_APPROX_EQUAL( result.red(),   1.0 * 0.6 ); // Pure Specular
+  ASSERT_APPROX_EQUAL( result.green(), 1.0 * 0.6 );
+  ASSERT_APPROX_EQUAL( result.blue(),  1.0 * 0.6 );
 
   result = mat4->scatter( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter1 );
-  ASSERT_APPROX_EQUAL( result.red(),   0.5 + 0.3 + 0.3 );
-  ASSERT_APPROX_EQUAL( result.green(), 0.0 + 0.3 + 0.3 );
-  ASSERT_APPROX_EQUAL( result.blue(),  0.5 + 0.3 + 0.3 );
+  ASSERT_APPROX_EQUAL( result.red(),   0.5 * 0.3 + 0.3 ); // Head on Phong-Blinn
+  ASSERT_APPROX_EQUAL( result.green(), 0.0 * 0.3 + 0.3 );
+  ASSERT_APPROX_EQUAL( result.blue(),  0.5 * 0.3 + 0.3 );
 
 
-  S3D::interaction test_inter2( test_point, &test_line1, test_obj1, test_normal2 );
+  S3D::interaction test_inter2( test_point, &test_line1, test_obj1, test_normal2, indexRatio );
 
   result = mat0->scatter( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter2 );
-  ASSERT_APPROX_EQUAL( result.red(),   1.0 );
+  ASSERT_APPROX_EQUAL( result.red(),   0.0 ); // Ambient only
   ASSERT_APPROX_EQUAL( result.green(), 0.0 );
   ASSERT_APPROX_EQUAL( result.blue(),  0.0 );
 
   result = mat1->scatter( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter2 );
-  ASSERT_APPROX_EQUAL( result.red(),   1.0 + 0.6 / std::sqrt(2.0) );
-  ASSERT_APPROX_EQUAL( result.green(), 0.0 + 0.6 / std::sqrt(2.0) );
-  ASSERT_APPROX_EQUAL( result.blue(),  0.0 + 0.6 / std::sqrt(2.0) );
+  ASSERT_APPROX_EQUAL( result.red(),   1.0 * 0.6 / std::sqrt(2.0) ); // Lambertian
+  ASSERT_APPROX_EQUAL( result.green(), 0.0 * 0.6 / std::sqrt(2.0) );
+  ASSERT_APPROX_EQUAL( result.blue(),  0.0 * 0.6 / std::sqrt(2.0) );
 
   result = mat2->scatter( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter2 );
-  ASSERT_APPROX_EQUAL( result.red(),   0.0 + 0.0 );
-  ASSERT_APPROX_EQUAL( result.green(), 1.0 + 0.0 );
-  ASSERT_APPROX_EQUAL( result.blue(),  0.0 + 0.0 );
+  ASSERT_APPROX_EQUAL( result.red(),   0.0 ); // Pure Specular
+  ASSERT_APPROX_EQUAL( result.green(), 0.0 ); // Cos(pi/2) = 0.0
+  ASSERT_APPROX_EQUAL( result.blue(),  0.0 );
 
-  result = mat3->scatter( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter2 );
-  ASSERT_APPROX_EQUAL( result.red(),   0.0 + 0.0 );
-  ASSERT_APPROX_EQUAL( result.green(), 0.0 + 0.0 );
-  ASSERT_APPROX_EQUAL( result.blue(),  1.0 + 0.0 );
+  result = mat4->scatter( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter2 );
+  ASSERT_APPROX_EQUAL( result.red(),   0.5 * 0.3 / std::sqrt(2.0) ); // Phong, unseen specular
+  ASSERT_APPROX_EQUAL( result.green(), 0.0 * 0.3 / std::sqrt(2.0) );
+  ASSERT_APPROX_EQUAL( result.blue(),  0.5 * 0.3 / std::sqrt(2.0) );
 
 
-  S3D::interaction test_inter3( test_point, &test_line1, test_obj1, test_normal3 );
+  S3D::interaction test_inter3( test_point, &test_line1, test_obj1, test_normal3, indexRatio );
 
   result = mat3->scatter( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter3 );
-  ASSERT_APPROX_EQUAL( result.red(),   0.0 + 0.6 * std::pow( spec_factor, 3 ) );
-  ASSERT_APPROX_EQUAL( result.green(), 0.0 + 0.6 * std::pow( spec_factor, 3 ) );
-  ASSERT_APPROX_EQUAL( result.blue(),  1.0 + 0.6 * std::pow( spec_factor, 3 ) );
+  ASSERT_APPROX_EQUAL( result.red(),   0.6 * std::pow( spec_factor, 3 ) );
+  ASSERT_APPROX_EQUAL( result.green(), 0.6 * std::pow( spec_factor, 3 ) );
+  ASSERT_APPROX_EQUAL( result.blue(),  0.6 * std::pow( spec_factor, 3 ) );
 
   result = mat4->scatter( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter3 );
-  ASSERT_APPROX_EQUAL( result.red(),   0.5 + 0.3 * diff_factor + 0.3 * std::pow( spec_factor, 2 ) );
-  ASSERT_APPROX_EQUAL( result.green(), 0.0 + 0.3 * diff_factor + 0.3 * std::pow( spec_factor, 2 ) );
-  ASSERT_APPROX_EQUAL( result.blue(),  0.5 + 0.3 * diff_factor + 0.3 * std::pow( spec_factor, 2 ) );
+  ASSERT_APPROX_EQUAL( result.red(),   0.5 * 0.3 * diff_factor + 0.3 * std::pow( spec_factor, 2 ) );
+  ASSERT_APPROX_EQUAL( result.green(), 0.0 * 0.3 * diff_factor + 0.3 * std::pow( spec_factor, 2 ) );
+  ASSERT_APPROX_EQUAL( result.blue(),  0.5 * 0.3 * diff_factor + 0.3 * std::pow( spec_factor, 2 ) );
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  SECTION( "Phong-Blinn Model" );
+
+  man->setAmbientLight( S3D::beam( 1.0, 1.0, 1.0 ) );
+
+  S3D::interaction test_inter4( test_point, &test_line1, test_obj1, test_normal1, indexRatio );
+
+  result = mat5->scatter( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter4 );
+  ASSERT_APPROX_EQUAL( result.red(),   0.0 * 0.3 ); // Lambertian
+  ASSERT_APPROX_EQUAL( result.green(), 1.0 * 0.3 );
+  ASSERT_APPROX_EQUAL( result.blue(),  0.0 * 0.3 );
+
+  result = mat6->scatter( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter4 );
+  ASSERT_APPROX_EQUAL( result.red(),   0.6 ); // Specular
+  ASSERT_APPROX_EQUAL( result.green(), 0.6 );
+  ASSERT_APPROX_EQUAL( result.blue(),  0.6 );
+
+  result = mat7->scatter( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter4 );
+  ASSERT_APPROX_EQUAL( result.red(),   0.5 * 0.4 + 0.4 );
+  ASSERT_APPROX_EQUAL( result.green(), 0.5 * 0.4 + 0.4 );
+  ASSERT_APPROX_EQUAL( result.blue(),  0.5 * 0.4 + 0.4 );
+
+
+  S3D::interaction test_inter5( test_point, &test_line1, test_obj1, test_normal3, indexRatio );
+
+  result = mat5->scatter( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter5 );
+  ASSERT_APPROX_EQUAL( result.red(),   0.0 * 0.3 * diff_factor );
+  ASSERT_APPROX_EQUAL( result.green(), 1.0 * 0.3 * diff_factor );
+  ASSERT_APPROX_EQUAL( result.blue(),  0.0 * 0.3 * diff_factor );
+
+  result = mat7->scatter( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter5 );
+  ASSERT_APPROX_EQUAL( result.red(),   0.5 * 0.4 * diff_factor + 0.4 * std::pow( blinn_factor, 2 ) );
+  ASSERT_APPROX_EQUAL( result.green(), 0.5 * 0.4 * diff_factor + 0.4 * std::pow( blinn_factor, 2 ) );
+  ASSERT_APPROX_EQUAL( result.blue(),  0.5 * 0.4 * diff_factor + 0.4 * std::pow( blinn_factor, 2 ) );
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -157,8 +206,4 @@ int main( int, char** )
   logtastic::stop();
   return 0;
 }
-
-
-
-
 

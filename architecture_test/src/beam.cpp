@@ -141,5 +141,13 @@ namespace S3D
 
     return *this;
   }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Friend Functions
+
+  beam operator*( double d, const beam& b )
+  {
+    return b.operator*( d );
+  }
 }
 

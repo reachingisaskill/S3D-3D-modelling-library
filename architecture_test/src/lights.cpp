@@ -5,9 +5,7 @@
 #include "S3D_frame.h"
 #include "S3D_raytracer.h"
 #include "S3D_manager.h"
-
-#include <cstdlib>
-#include <ctime>
+#include "S3D_random.h"
 
 
 namespace S3D
@@ -21,11 +19,11 @@ namespace S3D
   {
   }
 
-  void light_pointSource::sampleRays( const interaction& inter, rayTracer* tracer ) const
+  beam light_pointSource::sampleRays( const interaction& inter, const rayTracer* tracer ) const
   {
     beam b( this->_getColour(), this->_getRadiance() );
     double distance_dimming = 1.0/( 4.0*PI*inter.getDistance()*inter.getDistance() );
-    tracer->traceLightSample( b*distance_dimming, this->getPosition(), inter );
+    return tracer->traceLightSample( b*distance_dimming, this->getPosition(), inter );
   }
 
 
@@ -38,7 +36,7 @@ namespace S3D
     _radius( std::fabs( r ) ),
     _area( PI*r*r )
   {
-    srand( time( nullptr ) );
+    random::reset();
   }
 
 
@@ -48,33 +46,39 @@ namespace S3D
   }
 
 
-  void light_spotlight::sampleRays( const interaction& inter, rayTracer* tracer ) const
+  beam light_spotlight::sampleRays( const interaction& inter, const rayTracer* tracer ) const
   {
-    beam b( this->_getColour(), this->_getRadiance() );
+    beam b_in( this->_getColour(), this->_getRadiance() );
     unsigned int numSamples = manager::getInstance()->getLightSampleRate() / this->getArea();
-    b *= 1.0 / numSamples;
+    b_in *= 1.0 / numSamples;
     threeVector direction = _getDirection();
     double gaus_const = 1.0 / ( _angularStdDev * std::sqrt( 2.0 * PI ) );
 
+    beam b_out( 0.0, 0.0, 0.0 );
     for ( unsigned int i = 0; i <= numSamples; ++i )
     {
-      double r1 = static_cast<double>( rand() ) / static_cast<double>( RAND_MAX );
-      double r2 = static_cast<double>( rand() ) / static_cast<double>( RAND_MAX );
+//      double r1 = static_cast<double>( rand() ) / static_cast<double>( RAND_MAX );
+//      double r2 = static_cast<double>( rand() ) / static_cast<double>( RAND_MAX );
+//
+//      double radius = _radius * std::sqrt( r1 );
+//      double theta = r2 * 2.0 * PI;
+//
+//      double x = radius * std::cos( theta );
+//      double y = radius * std::sin( theta );
 
-      double radius = _radius * std::sqrt( r1 );
-      double theta = r2 * 2.0 * PI;
+//      threeVector pos = makeThreeVector( x, y, 0.0 );
 
-      double x = radius * std::cos( theta );
-      double y = radius * std::sin( theta );
+      twoVector plane_pos = random::uniformCircularPlane( _radius );
+      threeVector pos = makeThreeVector( plane_pos[0], plane_pos[1], 0.0 );
 
-      threeVector pos = makeThreeVector( x, y, 0.0 );
 
       point start( this->getPosition() + this->getRotation()*pos );
       double angle = std::acos( direction * ( inter.getPoint() - start ).norm() );
       double scale = gaus_const * std::exp( -0.5*std::pow( angle/_angularStdDev, 2 ) ); 
 
-      tracer->traceLightSample( b*scale, start, inter );
+      b_out +=tracer->traceLightSample( b_in*scale, start, inter );
     }
+    return b_out;
   }
 
 
@@ -96,29 +100,23 @@ namespace S3D
   }
 
 
-  void light_circle::sampleRays( const interaction& inter, rayTracer* tracer ) const
+  beam light_circle::sampleRays( const interaction& inter, const rayTracer* tracer ) const
   {
-    beam b( this->_getColour(), this->_getRadiance() );
+    beam b_in( this->_getColour(), this->_getRadiance() );
     unsigned int numSamples = manager::getInstance()->getLightSampleRate() / this->getArea();
-    b *= 1.0 / numSamples;
+    b_in *= 1.0 / numSamples;
 
+    beam b_out( 0.0, 0.0, 0.0 );
     for ( unsigned int i = 0; i <= numSamples; ++i )
     {
-      double r1 = static_cast<double>( rand() ) / static_cast<double>( RAND_MAX );
-      double r2 = static_cast<double>( rand() ) / static_cast<double>( RAND_MAX );
-
-      double radius = _radius * std::sqrt( r1 );
-      double theta = r2 * 2.0 * PI;
-
-      double x = radius * std::cos( theta );
-      double y = radius * std::sin( theta );
-
-      threeVector pos = makeThreeVector( x, y, 0.0 );
+      twoVector plane_pos = random::uniformCircularPlane( _radius );
+      threeVector pos = makeThreeVector( plane_pos[0], plane_pos[1], 0.0 );
 
       point start( this->getPosition() + this->getRotation()*pos );
 
-      tracer->traceLightSample( b, start, inter );
+      b_out += tracer->traceLightSample( b_in, start, inter );
     }
+    return b_out;
   }
 }
 
