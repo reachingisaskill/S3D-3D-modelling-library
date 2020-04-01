@@ -133,6 +133,31 @@ namespace S3D
       virtual beam scatter( threeVector, beam, const interaction& ) const;
   };
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Diffuse Material
+
+  class material_lambertian : public material_base
+  {
+    private:
+      colour _albedo;
+
+    protected:
+
+    public:
+      material_lambertian( colour );
+
+      virtual double getTransmissionProb( const interaction& ) const { return 0.0; }
+
+      virtual double getReflectionProb( const interaction& ) const { return 1.0; }
+
+      virtual colour getColour( const interaction& ) const { return this->_albedo; }
+
+      virtual beam scatter( threeVector, beam, const interaction& ) const;
+
+      virtual threeVector sampleReflection( const interaction& ) const;
+
+  };
+
 }
 
 #endif // __S3D__MATERIALS_H__

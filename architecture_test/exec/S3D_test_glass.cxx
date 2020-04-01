@@ -5,6 +5,7 @@
 #include "S3D_materials.h"
 #include "S3D_lights.h"
 #include "S3D_cameras.h"
+#include "S3D_recursiveraytracer.h"
 #include "S3D_defs.h"
 
 #include "logtastic.h"
@@ -108,10 +109,10 @@ int main( int, char** )
 
 
   INFO_LOG( "Adding pinhole camera." );
-  S3D::rayTracer* tracer = new S3D::rayTracer();
+  S3D::tracer_recursive* tracer = new S3D::tracer_recursive();
   tracer->setMaxDepth( 3 );
 //  S3D::camera_base* camera = (S3D::camera_base*) new S3D::camera_pinhole( tracer, S3D::degreesToRadians( 90.0 ) );
-  S3D::camera_base* camera = (S3D::camera_base*) new S3D::camera_sampledPinhole( tracer, S3D::degreesToRadians( 90.0 ), 100 );
+  S3D::camera_base* camera = (S3D::camera_base*) new S3D::camera_sampledPinhole( tracer, S3D::degreesToRadians( 90.0 ), 10 );
   camera->setPosition( S3D::point( 0.0, -15.0, 5.0 ) );
   camera->setRotation( S3D::rotation( S3D::unit_threeVector_x, -0.5*S3D::PI ) );
   camera->setPixels( 500, 500 );

@@ -48,6 +48,18 @@ namespace S3D
       return makeTwoVector( r1, r2 );
     }
 
+
+    threeVector uniformHemisphere( threeVector normal )
+    {
+      double r1 = uniformDouble();
+      double r2 = uniformDouble();
+
+      double r = std::sqrt( r1 );
+      double theta = r2 * 2.0 * PI;
+
+      return normal + makeThreeVector( r * std::cos( theta ), r * std::sin( theta ), r1 );
+    }
+
   }
 }
 

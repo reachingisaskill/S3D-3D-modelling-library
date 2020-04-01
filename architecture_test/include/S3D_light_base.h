@@ -10,7 +10,7 @@
 
 namespace S3D
 {
-  class rayTracer;
+  class tracer_base;
 
   class light_base : public base
   {
@@ -27,7 +27,7 @@ namespace S3D
 
     public:
       // Call the light tracing routines, sampling the emitted rays.
-      virtual beam sampleRays( const interaction&, const rayTracer* ) const = 0;
+      virtual beam sampleRays( const interaction&, const tracer_base* ) const = 0;
 
   };
 }

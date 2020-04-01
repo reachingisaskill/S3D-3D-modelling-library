@@ -5,7 +5,7 @@
 #include "S3D_materials.h"
 #include "S3D_lights.h"
 #include "S3D_cameras.h"
-#include "S3D_recursiveraytracer.h"
+#include "S3D_pathtracer.h"
 #include "S3D_defs.h"
 
 #include "logtastic.h"
@@ -13,14 +13,14 @@
 #include <iostream>
 
 
-void addSomeShapes();
-
+const double light_samples_per_area = 0.0;
+const double camera_samples_per_pixel = 200.0;
 
 int main( int, char** )
 {
   logtastic::setLogFileDirectory( "./test_data/" );
-  logtastic::addLogFile( "architecture_test.log" );
-  logtastic::init( "Testing S3D Manager Functionality", S3D_VERSION_NUMBER );
+  logtastic::addLogFile( "pathtracer_test.log" );
+  logtastic::init( "Testing S3D Path Tracer Functionality", S3D_VERSION_NUMBER );
 
   S3D::manager::createInstance();
 
@@ -28,23 +28,23 @@ int main( int, char** )
 
 
   INFO_LOG( "Making basic material" );
-  S3D::material_base* world_mat = (S3D::material_base*) new S3D::material_phong( S3D::colour( 0.5, 0.5, 0.5 ), 1.0, 0.0, 0 );
+  S3D::material_base* world_mat = (S3D::material_base*) new S3D::material_lambertian( S3D::colour( 0.5, 0.5, 0.5 ) );
   man->addMaterial( "world", world_mat );
 
-  S3D::material_base* room_mat = (S3D::material_base*) new S3D::material_phong( S3D::colour( 0.5, 0.5, 0.5 ), 0.5, 0.1, 1 );
+  S3D::material_base* room_mat = (S3D::material_base*) new S3D::material_lambertian( S3D::colour( 0.5, 0.5, 0.5 ) );
   man->addMaterial( "room", room_mat );
 
-  S3D::material_base* sph1_mat = (S3D::material_base*) new S3D::material_phong( S3D::colour( 1.0, 0.0, 0.0 ), 0.5, 0.3, 5 );
-  man->addMaterial( "sphere", sph1_mat );
+  S3D::material_base* sph1_mat = (S3D::material_base*) new S3D::material_lambertian( S3D::colour( 1.0, 0.0, 0.0 ) );
+  man->addMaterial( "sphere1", sph1_mat );
 
-  S3D::material_base* sph2_mat = (S3D::material_base*) new S3D::material_blinn( S3D::colour( 1.0, 0.0, 0.0 ), 0.5, 1.0, 50 );
-  man->addMaterial( "sphere_shiny", sph2_mat );
+  S3D::material_base* sph2_mat = (S3D::material_base*) new S3D::material_lambertian( S3D::colour( 1.0, 0.0, 0.0 ) );
+  man->addMaterial( "sphere2", sph2_mat );
 
-  S3D::material_base* box_mat = (S3D::material_base*) new S3D::material_phong( S3D::colour( 0.0, 0.0, 0.5 ), 0.5, 0.1, 5 );
+  S3D::material_base* box_mat = (S3D::material_base*) new S3D::material_lambertian( S3D::colour( 0.0, 0.0, 0.5 ) );
   man->addMaterial( "box", box_mat );
 
-  man->setAmbientLight( S3D::beam( 0.02, 0.02, 0.02 ) );
-  man->setLightSampleRate( 100 );
+  man->setAmbientLight( S3D::beam( 0.0, 0.0, 0.0 ) );
+  man->setLightSampleRate( light_samples_per_area );
 
 
 
@@ -75,28 +75,30 @@ int main( int, char** )
   man->addObject( wall3 );
 
 
-  INFO_LOG( "Making dull test sphere." );
+  INFO_LOG( "Making test sphere 1." );
   S3D::object_base* test_sphere1 = (S3D::object_base*) new S3D::sphere( sph1_mat, 1.0 );
   test_sphere1->setPosition( S3D::point( 2.0, -2.0, 1.0 ) );
   man->addObject( test_sphere1 );
 
-  INFO_LOG( "Making shiny test sphere." );
+  INFO_LOG( "Making test sphere 2." );
   S3D::object_base* test_sphere2 = (S3D::object_base*) new S3D::sphere( sph2_mat, 1.0 );
   test_sphere2->setPosition( S3D::point( -2.0, -2.0, 1.0 ) );
   man->addObject( test_sphere2 );
 
-  INFO_LOG( "Making test box." );
-  S3D::object_base* test_box = (S3D::object_base*) new S3D::box( box_mat, 2.0, 1.0, 5.0 );
-  test_box->setPosition( S3D::point( -1.0, 1.0, 2.5 ) );
-  test_box->setRotation( S3D::rotation( S3D::unit_threeVector_z, S3D::PI/5.0 ) );
-  man->addObject( test_box );
+//  INFO_LOG( "Making test box." );
+//  S3D::object_base* test_box = (S3D::object_base*) new S3D::box( box_mat, 2.0, 1.0, 5.0 );
+//  test_box->setPosition( S3D::point( -1.0, 1.0, 2.5 ) );
+//  test_box->setRotation( S3D::rotation( S3D::unit_threeVector_z, S3D::PI/5.0 ) );
+//  man->addObject( test_box );
 
 
-  INFO_LOG( "Added pinhole camera." );
-  S3D::tracer_recursive* tracer = new S3D::tracer_recursive();
-  S3D::camera_base* camera = (S3D::camera_base*) new S3D::camera_pinhole( tracer, S3D::degreesToRadians( 90.0 ) );
-  camera->setPosition( S3D::point( 0.0, -15.0, 10.0 ) );
-  camera->setRotation( S3D::rotation( S3D::unit_threeVector_x, -S3D::PI/8 ) * S3D::rotation( S3D::unit_threeVector_x, -0.5*S3D::PI ) );
+  INFO_LOG( "Adding pinhole camera." );
+  S3D::tracer_pathtracer* tracer = new S3D::tracer_pathtracer();
+  tracer->setMaxDepth( 100 );
+  tracer->setKillProb( 0.1 );
+  S3D::camera_base* camera = (S3D::camera_base*) new S3D::camera_sampledPinhole( tracer, S3D::degreesToRadians( 90.0 ), camera_samples_per_pixel );
+  camera->setPosition( S3D::point( 0.0, -15.0, 5.0 ) );
+  camera->setRotation( S3D::rotation( S3D::unit_threeVector_x, -0.5*S3D::PI ) );
   camera->setPixels( 500, 500 );
   man->setCamera( camera );
 

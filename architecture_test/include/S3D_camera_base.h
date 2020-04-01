@@ -7,13 +7,13 @@
 #include "S3D_rotation.h"
 #include "S3D_beam.h"
 #include "S3D_frame.h"
-#include "S3D_raytracer.h"
 #include "S3D_base.h"
 
 #include "stdexts.h"
 
 namespace S3D
 {
+  class tracer_base;
 
   class camera_base : public base
   {
@@ -22,20 +22,20 @@ namespace S3D
       unsigned int _pixelsX;
       unsigned int _pixelsY;
       frame* _frame;
-      rayTracer* _rayTracer;
+      tracer_base* _rayTracer;
 
     protected:
       void _setFrame( frame* f ) { _frame = f; }
-      rayTracer* _getRayTracer() { return this->_rayTracer; }
+      tracer_base* _getRayTracer() { return this->_rayTracer; }
 
     public:
       // Ray Tracer, FieldOfView
-      camera_base( rayTracer*, double=0.0 );
+      camera_base( tracer_base*, double=0.0 );
 
       virtual ~camera_base();
 
       // Set the rayTracer object - takes ownership
-      void setRayTracer( rayTracer* );
+      void setRayTracer( tracer_base* );
 
       // Set the size of the frame
       virtual void setPixels( unsigned int x, unsigned int y );

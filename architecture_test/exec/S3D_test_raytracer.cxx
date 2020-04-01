@@ -5,6 +5,7 @@
 #include "S3D_materials.h"
 #include "S3D_lights.h"
 #include "S3D_cameras.h"
+#include "S3D_recursiveraytracer.h"
 #include "S3D_defs.h"
 
 #include "logtastic.h"
@@ -25,6 +26,7 @@ int main( int, char** )
 
   logtastic::setLogFileDirectory( "./test_data/" );
   logtastic::addLogFile( "./raytracer_test.log" );
+  logtastic::setPrintToScreenLimit( logtastic::error );
   logtastic::init( "Testing S3D Basics", S3D_VERSION_NUMBER );
 
   S3D::manager::createInstance();
@@ -59,7 +61,8 @@ int main( int, char** )
   the_sphere->setPosition( point( 0.0 ) );
   man->addObject( the_sphere, 0 );
 
-  rayTracer rt;
+  tracer_recursive rt;
+  rt.setup();
 
   ASSERT_EQUAL( rt.isVisible( p1, p2 ), false );
   ASSERT_EQUAL( rt.isVisible( p3, p2 ), true );

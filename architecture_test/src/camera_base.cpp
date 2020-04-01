@@ -1,12 +1,14 @@
 
 #include "S3D_camera_base.h"
 
+#include "S3D_tracer_base.h"
+
 #include <utility>
 
 namespace S3D
 {
 
-  camera_base::camera_base( rayTracer* rt, double f ) :
+  camera_base::camera_base( tracer_base* rt, double f ) :
     base(),
     _fieldOfView( f ),
     _pixelsX( 800 ),
@@ -32,7 +34,7 @@ namespace S3D
   }
 
 
-  void camera_base::setRayTracer( rayTracer* rt )
+  void camera_base::setRayTracer( tracer_base* rt )
   {
     if ( this->_rayTracer != nullptr )
     {

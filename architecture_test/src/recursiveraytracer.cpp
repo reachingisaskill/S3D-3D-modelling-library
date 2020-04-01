@@ -1,6 +1,6 @@
 #define __DEBUG_OFF__
 
-#include "S3D_raytracer.h"
+#include "S3D_recursiveraytracer.h"
 
 #include "S3D_defs.h"
 #include "S3D_line.h"
@@ -17,25 +17,23 @@
 namespace S3D
 {
 
-  rayTracer::rayTracer() :
-    _layer( 0 ),
+  tracer_recursive::tracer_recursive() :
     _maxDepth( 1 )
-//    _currentBeam()
   {
   }
 
-  rayTracer::~rayTracer()
+  tracer_recursive::~tracer_recursive()
   {
   }
 
 
-  beam rayTracer::_traceRay( point start, threeVector dir, unsigned int depth ) const
+  beam tracer_recursive::_traceRay( point start, threeVector dir, unsigned int depth ) const
   {
     line the_ray( start, dir );
 
-    ObjectMapT& objectMap = manager::getInstance()->_objects;
-    ObjectContainerT::iterator obj_it = objectMap[_layer].begin();
-    ObjectContainerT::iterator obj_end = objectMap[_layer].end();
+    const ObjectListT& objects = _getObjects();
+    ObjectListT::const_iterator obj_it = objects.begin();
+    ObjectListT::const_iterator obj_end = objects.end();
 
     interaction current_intersect;
 
@@ -110,9 +108,9 @@ namespace S3D
 
 
     DEBUG_LOG( "Tracing Lights." );
-    LightMapT& lights = manager::getInstance()->_lights;
-    LightContainerT::iterator light_it = lights[_layer].begin();
-    LightContainerT::iterator light_end = lights[_layer].end();
+    const LightListT& lights = _getLights();
+    LightListT::const_iterator light_it = lights.begin();
+    LightListT::const_iterator light_end = lights.end();
 
     try
     {
@@ -141,54 +139,9 @@ namespace S3D
   }
 
 
-  beam rayTracer::traceRay( point start, threeVector dir ) const
+  beam tracer_recursive::traceRay( point start, threeVector dir ) const
   {
     return this->_traceRay( start, dir ); // Starts the recursive function
-  }
-
-
-  beam rayTracer::traceLightSample( beam b, point p, const interaction& inter ) const
-  {
-    if ( isVisible( p, inter.getPoint() ) )
-    {
-      threeVector lightDir = (inter.getPoint() - p).norm();
-      return inter.getObject()->getMaterial()->scatter( lightDir, b, inter );
-    }
-    else 
-    {
-      return beam( 0.0, 0.0, 0.0 );
-    }
-  }
-
-
-  bool rayTracer::isVisible( point start, point end ) const
-  {
-    threeVector separation = end - start;
-    line the_beam( start, separation );
-    double distanceSq = separation.square();
-
-
-    ObjectMapT& objectMap = manager::getInstance()->_objects;
-    ObjectContainerT::iterator obj_it = objectMap[_layer].begin();
-    while( obj_it != objectMap[_layer].end() )
-    {
-      if ( (*obj_it)->crosses( the_beam ) )
-      {
-        interaction intersect = (*obj_it)->intersect( the_beam );
-
-        // TODO: Why does this cause problems!?!?!?!?!
-//        if ( ( intersect.getDistance() - distance ) < epsilon )
-//        if ( ( intersect.getDistance() > epsilon ) && ( intersect.getDistance() < distance ) )
-
-//        if ( ( distance - intersect.getDistance() ) > epsilon )
-        if ( ( distanceSq - intersect.getDistanceSquared() ) > epsilon )
-        {
-          return false;
-        }
-      }
-      ++obj_it;
-    }
-    return true;
   }
 
 }

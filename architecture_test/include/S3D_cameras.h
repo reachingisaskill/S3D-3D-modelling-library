@@ -20,7 +20,7 @@ namespace S3D
 
     public:
       // Position, Rotation, size_x, size_y
-      camera_lineScan( rayTracer*, double, double );
+      camera_lineScan( tracer_base*, double, double );
 
       // Use the implicit copy, and move constructors
 //      camera_linescan( const camera_linescan& );
@@ -45,7 +45,7 @@ namespace S3D
 
     public:
       // Position, Rotation, FieldofView
-      camera_pinhole( rayTracer*, double );
+      camera_pinhole( tracer_base*, double );
 
       // Make sure its virtual
       virtual ~camera_pinhole();
@@ -62,12 +62,14 @@ namespace S3D
   {
     private :
       unsigned int _sampleRate;
+      unsigned int _numThreads;
 
     protected:
+      void runSample( unsigned int, unsigned int ) const;
 
     public:
       // raytracer, FieldofView, samples per pixel
-      camera_sampledPinhole( rayTracer*, double, unsigned int sampleRate = 1 );
+      camera_sampledPinhole( tracer_base*, double, unsigned int sampleRate = 1 );
 
       // Set Samples per pixel
       void setSampleRate( unsigned int i ) { _sampleRate = i; }
@@ -77,6 +79,8 @@ namespace S3D
 
       // Override pure virtual function
       virtual void shutter();
+
+      void setNumThreads( unsigned int n ) { _numThreads = n; }
   };
 
 }

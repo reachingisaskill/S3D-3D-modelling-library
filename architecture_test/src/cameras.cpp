@@ -3,6 +3,7 @@
 
 #include "S3D_defs.h"
 #include "S3D_random.h"
+#include "S3D_tracer_base.h"
 
 
 namespace S3D
@@ -11,7 +12,7 @@ namespace S3D
 ////////////////////////////////////////////////////////////////////////////////////////////////////
   // LINE SCAN CAMERA
 
-  camera_lineScan::camera_lineScan( rayTracer* rt, double x, double y ) :
+  camera_lineScan::camera_lineScan( tracer_base* rt, double x, double y ) :
     camera_base( rt, 0.0 ),
     _width( x ),
     _height( y )
@@ -24,6 +25,7 @@ namespace S3D
 
   void camera_lineScan::shutter()
   {
+    this->_getRayTracer()->setup();
     frame* f = new frame( this->getPixelsX(), this->getPixelsY() );
     unsigned int pX = this->getPixelsX();
     unsigned int pY = this->getPixelsY();
@@ -51,7 +53,7 @@ namespace S3D
 ////////////////////////////////////////////////////////////////////////////////////////////////////
   // PINHOLE CAMERA
 
-  camera_pinhole::camera_pinhole( rayTracer* rt, double fov ) :
+  camera_pinhole::camera_pinhole( tracer_base* rt, double fov ) :
     camera_base( rt, fov )
   {
   }
@@ -62,6 +64,7 @@ namespace S3D
 
   void camera_pinhole::shutter()
   {
+    this->_getRayTracer()->setup();
     frame* f = new frame( this->getPixelsX(), this->getPixelsY() );
     unsigned int pX = this->getPixelsX();
     unsigned int pY = this->getPixelsY();
@@ -96,7 +99,7 @@ namespace S3D
 ////////////////////////////////////////////////////////////////////////////////////////////////////
   // SAMPLING PINHOLE CAMERA
 
-  camera_sampledPinhole::camera_sampledPinhole( rayTracer* rt, double fov, unsigned int sampleRate ) :
+  camera_sampledPinhole::camera_sampledPinhole( tracer_base* rt, double fov, unsigned int sampleRate ) :
     camera_base( rt, fov ),
     _sampleRate( sampleRate )
   {
@@ -108,6 +111,7 @@ namespace S3D
 
   void camera_sampledPinhole::shutter()
   {
+    this->_getRayTracer()->setup();
     unsigned int pX = this->getPixelsX();
     unsigned int pY = this->getPixelsY();
     frame* f = new frame( pX, pY );

@@ -11,7 +11,6 @@
 #include "S3D_camera_base.h"
 #include "S3D_light_base.h"
 #include "S3D_frame.h"
-#include "S3D_raytracer.h"
 
 #include <vector>
 #include <set>
@@ -21,6 +20,11 @@
 namespace S3D
 {
 
+  // Forward Declarations
+  class tracer_base;
+
+
+  // Typedefs for later
   typedef std::set< base* > BaseContainerT;
 
   typedef std::set< object_base* > ObjectContainerT;
@@ -32,10 +36,11 @@ namespace S3D
   typedef std::map< std::string, material_base* > MaterialMapT;
 
 
+  // Manager Class definition
   class manager : public stdexts::singleton< manager >
   {
     friend class stdexts::singleton< manager >;
-    friend class rayTracer;
+    friend class tracer_base;
 
     private:
       manager();

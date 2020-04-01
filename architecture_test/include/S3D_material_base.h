@@ -39,6 +39,10 @@ namespace S3D
       // incoming direction, beam, inteaction details
       virtual beam scatter( threeVector, beam, const interaction& ) const = 0;
 
+      virtual threeVector sampleReflection( const interaction& ) const;
+
+      virtual threeVector sampleTransmission( const interaction& ) const;
+
   };
 }
 

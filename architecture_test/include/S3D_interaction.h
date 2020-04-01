@@ -49,6 +49,8 @@ namespace S3D
       threeVector getTransmission() const;
 
       threeVector getReflection() const;
+
+      double getAttenuation() const { return -this->_theLine->getDirection() * _surfaceNormal; }
   };
 
 }

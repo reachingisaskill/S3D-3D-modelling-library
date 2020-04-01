@@ -1,9 +1,11 @@
-#define __DEBUG_OFF__
+//#define __DEBUG_OFF__
 
 #include "S3D_materials.h"
 
 #include "S3D_defs.h"
 #include "S3D_manager.h"
+#include "S3D_interaction.h"
+#include "S3D_random.h"
 
 #include "logtastic.h"
 
@@ -150,9 +152,35 @@ namespace S3D
   {
     DEBUG_LOG( "Perfect mirror - np additional light" );
 
-      return beam( 0.0, 0.0, 0.0 );
+    return beam( 0.0, 0.0, 0.0 );
   }
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Lambertian Model
+
+  material_lambertian::material_lambertian( colour col ) :
+    _albedo( col )
+  {
+  }
+
+
+  beam material_lambertian::scatter( threeVector incomingDir, beam beam_in, const interaction& inter ) const
+  {
+    DEBUG_LOG( "Lambertian scattering" );
+    double L_dot_N = incomingDir * inter.getSurfaceNormal();
+
+    beam the_beam = beam_in *  -L_dot_N * _albedo;
+    DEBUG_STREAM << "Albedo component: " << the_beam.red() << ", " << the_beam.green() << ", " << the_beam.blue();
+
+    return the_beam;
+  }
+
+
+  threeVector material_lambertian::sampleReflection( const interaction& inter ) const
+  {
+    return random::uniformHemisphere( inter.getSurfaceNormal() );
+  }
 
 }
 
