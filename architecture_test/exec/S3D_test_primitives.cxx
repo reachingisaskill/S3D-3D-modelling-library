@@ -133,6 +133,28 @@ int main( int, char** )
     ASSERT_APPROX_EQUAL( inter.getSurfaceNormal()[0], -1.0 );
     ASSERT_APPROX_EQUAL( inter.getSurfaceNormal()[1], 0.0 );
     ASSERT_APPROX_EQUAL( inter.getSurfaceNormal()[2], 0.0 );
+    
+
+    object_base* sph3 = (object_base*) new sphere( mat, 1.0 );
+    sph3->setPosition( point( 0.0, 0.0, 0.0 ) );
+    man->addObject( sph3 );
+
+    unsigned int counter_pos = 0;
+    unsigned int counter_dir = 0;
+    for ( unsigned int i = 0; i < 1000000; ++i ) // Sample the plane and make sure they point the right direction!
+    {
+      line test = sph3->sampleEmission();
+
+      if ( std::fabs( test.getStart().getPosition().mod() - 1.0 ) > TESTASS_APPROX_LIMIT ) // Should all lie on unit sphere
+        counter_pos += 1;
+
+      threeVector normal = test.getStart().getPosition(); // Same as position vector
+      if ( ( test.getDirection() * normal ) < 0.0 ) // if going backwards
+        counter_dir += 1;
+    }
+
+    ASSERT_EQUAL( counter_pos, (unsigned int) 0 );
+    ASSERT_EQUAL( counter_dir, (unsigned int) 0 );
   }
 
 
@@ -278,6 +300,8 @@ int main( int, char** )
     ASSERT_FALSE( b2->crosses( l4 ) );
   }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Square Planar Surfaace
 
   SECTION( "Square Planar Surface" );
   {
@@ -335,102 +359,33 @@ int main( int, char** )
     ASSERT_APPROX_EQUAL( inter.getSurfaceNormal()[1], 0.0 );
     ASSERT_APPROX_EQUAL( inter.getSurfaceNormal()[2], -1.0/std::sqrt(2.0) );
 
+    square_plane* sqp2 = new square_plane( mat, 1.0, 1.0 );
+    sqp2->setPosition( point( 0.0, 5.0, 0.0 ) );
+    sqp2->setRotation( rotation( unit_threeVector_x, 2.0*PI/3.0 ) );
+    man->addObject( (object_base*) sqp );
+
+    unsigned int counter1 = 0;
+    unsigned int counter2 = 0;
+    threeVector normal_1 = r1.rotateVector( defaultDirection );
+    threeVector normal_2 = rotation( unit_threeVector_x, 2.0*PI/3.0 ).rotateVector( defaultDirection );
+    for ( unsigned int i = 0; i < 1000000; ++i ) // Sample the plane and make sure they point the right direction!
+    {
+      line test1 = sqp->sampleEmission();
+      line test2 = sqp2->sampleEmission();
+
+      if ( ( test1.getDirection() * normal_1 ) < 0.0 ) // if going backwards
+        counter1 += 1;
+      if ( ( test2.getDirection() * normal_2 ) < 0.0 ) // if going backwards
+        counter2 += 1;
+    }
+
+    ASSERT_EQUAL( counter1, (unsigned int)0 );
+    ASSERT_EQUAL( counter2, (unsigned int)0 );
 
 
         
   }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//  SECTION( "Cylinder" );
-//
-//  threeVector p1 = makeThreeVector( 0.0, 0.0, 0.0 );
-//  threeVector p2 = makeThreeVector( 0.0, 0.0, 5.0 );
-//  threeVector p3 = makeThreeVector( 2.0, 0.0, 0.0 );
-//  threeVector p4 = makeThreeVector( 0.0, -2.0, -5.0 );
-//  threeVector p5 = makeThreeVector( 0.0, 0.0, 5.00000000001 );
-//  threeVector p6 = makeThreeVector( -2.0000000000001, 0.0, 0.0 );
-//  threeVector p7 = makeThreeVector( 100.0, 0.0, 0.0 );
-//  threeVector p8 = makeThreeVector( 107.071067811865475, -7.071067811865475, 0.0 ); // Just Inside
-//  threeVector p9 = makeThreeVector( 100.0, 14.1421356237, 0.0 );
-//  threeVector p10 = makeThreeVector( 107.07106781188, -7.07106781188, 0.0 ); // Just Outside
-//  threeVector p11 = makeThreeVector( 100.0, 14.1421356239, 0.0 );
-//  // threeVector p12 = makeThreeVector( 114.1421356237, 14.1421356237, 0.0 );
-//  threeVector p12 = makeThreeVector( 107.07106781185, -7.07106781185, 0.0 ); // Inside
-//  threeVector p13 = makeThreeVector( 107.07106781188, -7.07106781188, 0.0 ); // Outside
-//  threeVector p14 = makeThreeVector( 109.0, 9.0, 0.0 );
-//
-//  S3D::rotation r1( makeThreeVector( 0.0, 0.0, 1.0 ), 0.5*S3D::PI );
-//  S3D::rotation r2( makeThreeVector( 1.0, 1.0, 0.0 ), 0.5*S3D::PI );
-//
-//  S3D::cylinder* c1 = S3D::addObject( new S3D::cylinder( 2.0, 10.0, p1 ) );
-//  S3D::cylinder* c2 = S3D::addObject( new S3D::cylinder( 2.0, 20.0, p1, r1 ) );
-//  S3D::cylinder* c3 = S3D::addObject( new S3D::cylinder( 10.0, 20.0, p7, r2 ) );
-//
-//  ASSERT_EQUAL( c1->getDirection(), c2->getDirection() );
-//  ASSERT_EQUAL( c1->getCenter(), p1 );
-//
-//  // Surface Centers
-//  ASSERT_APPROX_EQUAL( ( c1->surfaces()[0]->getCenter() - makeThreeVector( 0.0, 0.0, 5.0 ) ).mod(), 0.0 );
-//  ASSERT_APPROX_EQUAL( ( c1->surfaces()[1]->getCenter() - makeThreeVector( 0.0, 0.0, 0.0 ) ).mod(), 0.0 );
-//  ASSERT_APPROX_EQUAL( ( c1->surfaces()[2]->getCenter() - makeThreeVector( 0.0, 0.0, -5.0 ) ).mod(), 0.0 );
-//
-//  ASSERT_APPROX_EQUAL( ( c3->surfaces()[0]->getCenter() - makeThreeVector( 100.0 + 7.0710678118654755, -7.0710678118654755, 0.0 ) ).mod(), 0.0 );
-//  ASSERT_APPROX_EQUAL( ( c3->surfaces()[1]->getCenter() - makeThreeVector( 100.0, 0.0, 0.0 ) ).mod(), 0.0 );
-//  ASSERT_APPROX_EQUAL( ( c3->surfaces()[2]->getCenter() - makeThreeVector( 100.0 - 7.0710678118654755, 7.0710678118654755, 0.0 ) ).mod(), 0.0 );
-//
-//  // Surface Directions
-//
-//  ASSERT_APPROX_EQUAL( ( c1->surfaces()[0]->getDirection() - S3D::defaultDirection ).mod(), 0.0 );
-//  ASSERT_APPROX_EQUAL( ( c1->surfaces()[1]->getDirection() + c1->surfaces()[2]->getDirection() ).mod(), 0.0 );
-//  ASSERT_EQUAL( c1->surfaces()[0]->getDirection(), c1->surfaces()[1]->getDirection() );
-//
-//  ASSERT_APPROX_EQUAL( ( c3->surfaces()[0]->getDirection() - makeThreeVector( 1.0, -1.0, 0.0 ).norm() ).mod(), 0.0 );
-//  ASSERT_APPROX_EQUAL( ( c3->surfaces()[1]->getDirection() + c3->surfaces()[2]->getDirection() ).mod(), 0.0 );
-//  ASSERT_EQUAL( c3->surfaces()[0]->getDirection(), c3->surfaces()[1]->getDirection() );
-//
-//  // Point Containement
-//  
-//  ASSERT_TRUE( c1->contains( &p1 ) );
-//  ASSERT_TRUE( c1->Contains( &p1 ) );
-//  ASSERT_TRUE( c1->contains( &p2 ) );
-//  ASSERT_FALSE( c1->Contains( &p2 ) );
-//  ASSERT_TRUE( c1->contains( &p3 ) );
-//  ASSERT_FALSE( c1->Contains( &p3 ) );
-//  ASSERT_TRUE( c1->contains( &p4 ) );
-//  ASSERT_FALSE( c1->contains( &p5 ) );
-//  ASSERT_FALSE( c1->Contains( &p5 ) );
-//  ASSERT_FALSE( c1->contains( &p6 ) );
-//  ASSERT_FALSE( c1->Contains( &p6 ) );
-//  ASSERT_FALSE( c1->contains( &p7 ) );
-//  ASSERT_FALSE( c1->contains( &p8 ) );
-//  ASSERT_FALSE( c1->contains( &p9 ) );
-//  ASSERT_FALSE( c1->contains( &p10 ) );
-//  ASSERT_FALSE( c1->contains( &p11 ) );
-//  ASSERT_FALSE( c1->contains( &p12 ) );
-//  ASSERT_FALSE( c1->contains( &p13 ) );
-//
-//  ASSERT_FALSE( c3->contains( &p1 ) );
-//  ASSERT_FALSE( c3->contains( &p2 ) );
-//  ASSERT_FALSE( c3->contains( &p3 ) );
-//  ASSERT_FALSE( c3->contains( &p4 ) );
-//  ASSERT_FALSE( c3->contains( &p5 ) );
-//  ASSERT_FALSE( c3->contains( &p6 ) );
-//  ASSERT_TRUE( c3->contains( &p7 ) );
-//  ASSERT_TRUE( c3->Contains( &p7 ) );
-//  ASSERT_TRUE( c3->contains( &p8 ) );
-//  ASSERT_TRUE( c3->Contains( &p8 ) );
-//  ASSERT_TRUE( c3->contains( &p9 ) );
-//  ASSERT_TRUE( c3->Contains( &p9 ) );
-//  ASSERT_FALSE( c3->contains( &p10 ) );
-//  ASSERT_FALSE( c3->Contains( &p10 ) );
-//  ASSERT_FALSE( c3->contains( &p11 ) );
-//  ASSERT_FALSE( c3->Contains( &p11 ) );
-//  ASSERT_TRUE( c3->contains( &p12 ) );
-//  ASSERT_FALSE( c3->contains( &p13 ) );
-//  ASSERT_FALSE( c3->contains( &p14 ) );
-//
-//
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
   if ( ! testass::control::summarize() )

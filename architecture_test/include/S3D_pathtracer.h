@@ -17,7 +17,7 @@ namespace S3D
       double _killProb;
 
     protected:
-      beam _pathTrace( point start, threeVector direction, unsigned int depth = 0 ) const;
+      beam _pathTrace( point start, threeVector direction, unsigned int depth = 0 );
 
     public:
       tracer_pathtracer();
@@ -32,7 +32,7 @@ namespace S3D
       void setKillProb( double );
 
       // Interface for camera to trace a single ray
-      virtual beam traceRay( point start, threeVector direction ) const;
+      virtual beam traceRay( point start, threeVector direction );
 
   };
 

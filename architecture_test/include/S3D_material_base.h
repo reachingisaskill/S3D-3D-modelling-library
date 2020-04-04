@@ -4,6 +4,8 @@
 
 #include "S3D_base.h"
 #include "S3D_beam.h"
+#include "S3D_defs.h"
+#include "S3D_texture.h"
 
 #include "stdexts.h"
 
@@ -17,6 +19,7 @@ namespace S3D
     private:
       // Relative refractive index
       double _refractiveIndex;
+      double _emissivity;
 
     protected:
 
@@ -32,16 +35,27 @@ namespace S3D
 
       virtual double getReflectionProb( const interaction& ) const = 0;
 
-      // Returns the colour of a point on the container surface, parameterized by the surface mapping object
-      virtual colour getColour( const interaction& ) const = 0;
+      // Returns the colour of a point on the container surface, parameterized by some surface mapping object
+      virtual colour getColour( surfacemap ) const = 0;
 
-      // Handle the light-surface interaction
-      // incoming direction, beam, inteaction details
-      virtual beam scatter( threeVector, beam, const interaction& ) const = 0;
+      // Returns the coloured emission of a point on the object surface, parameterized by the surface mapping object
+      virtual beam getEmission( surfacemap map ) const { return beam( this->getColour( map ), _emissivity ); }
+
+      // Handle the light-surface reflection
+      //   incoming direction, beam, inteaction details
+      virtual beam BRDF( threeVector, beam, const interaction& ) const = 0;
+
+      // Handle the light-surface transmission
+      //   incoming direction, beam, inteaction details
+      virtual beam BTDF( threeVector, beam b, const interaction& ) const { return b; }
 
       virtual threeVector sampleReflection( const interaction& ) const;
 
       virtual threeVector sampleTransmission( const interaction& ) const;
+
+      void setEmissivity( double e ) { _emissivity = e; }
+
+      bool isLightSource() const { return ( this->_emissivity > epsilon ); }
 
   };
 }

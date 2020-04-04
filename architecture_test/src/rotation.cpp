@@ -193,5 +193,17 @@ namespace S3D
     return result;
   }
 
+  threeVector findPerpendicular( threeVector v1 )
+  {
+    if ( ( std::fabs( v1.norm() * unit_threeVector_z)  - 1.0 ) < epsilon )
+    {
+      return unit_threeVector_x;
+    }
+    else
+    {
+      return crossProduct( v1, unit_threeVector_z ).norm();
+    }
+  }
+
 }
 

@@ -98,22 +98,22 @@ int main( int, char** )
 
   S3D::interaction test_inter1( test_point, &test_line1, test_obj1, test_normal1, indexRatio );
 
-  beam result = mat0->scatter( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter1 );
+  beam result = mat0->BRDF( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter1 );
   ASSERT_APPROX_EQUAL( result.red(),   0.0 ); // Ambient only
   ASSERT_APPROX_EQUAL( result.green(), 0.0 );
   ASSERT_APPROX_EQUAL( result.blue(),  0.0 );
 
-  result = mat1->scatter( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter1 );
+  result = mat1->BRDF( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter1 );
   ASSERT_APPROX_EQUAL( result.red(),   1.0 * 0.6 ); // Lambertian
   ASSERT_APPROX_EQUAL( result.green(), 0.0 * 0.6 );
   ASSERT_APPROX_EQUAL( result.blue(),  0.0 * 0.6 );
 
-  result = mat2->scatter( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter1 );
+  result = mat2->BRDF( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter1 );
   ASSERT_APPROX_EQUAL( result.red(),   1.0 * 0.6 ); // Pure Specular
   ASSERT_APPROX_EQUAL( result.green(), 1.0 * 0.6 );
   ASSERT_APPROX_EQUAL( result.blue(),  1.0 * 0.6 );
 
-  result = mat4->scatter( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter1 );
+  result = mat4->BRDF( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter1 );
   ASSERT_APPROX_EQUAL( result.red(),   0.5 * 0.3 + 0.3 ); // Head on Phong-Blinn
   ASSERT_APPROX_EQUAL( result.green(), 0.0 * 0.3 + 0.3 );
   ASSERT_APPROX_EQUAL( result.blue(),  0.5 * 0.3 + 0.3 );
@@ -121,22 +121,22 @@ int main( int, char** )
 
   S3D::interaction test_inter2( test_point, &test_line1, test_obj1, test_normal2, indexRatio );
 
-  result = mat0->scatter( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter2 );
+  result = mat0->BRDF( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter2 );
   ASSERT_APPROX_EQUAL( result.red(),   0.0 ); // Ambient only
   ASSERT_APPROX_EQUAL( result.green(), 0.0 );
   ASSERT_APPROX_EQUAL( result.blue(),  0.0 );
 
-  result = mat1->scatter( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter2 );
+  result = mat1->BRDF( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter2 );
   ASSERT_APPROX_EQUAL( result.red(),   1.0 * 0.6 / std::sqrt(2.0) ); // Lambertian
   ASSERT_APPROX_EQUAL( result.green(), 0.0 * 0.6 / std::sqrt(2.0) );
   ASSERT_APPROX_EQUAL( result.blue(),  0.0 * 0.6 / std::sqrt(2.0) );
 
-  result = mat2->scatter( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter2 );
+  result = mat2->BRDF( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter2 );
   ASSERT_APPROX_EQUAL( result.red(),   0.0 ); // Pure Specular
   ASSERT_APPROX_EQUAL( result.green(), 0.0 ); // Cos(pi/2) = 0.0
   ASSERT_APPROX_EQUAL( result.blue(),  0.0 );
 
-  result = mat4->scatter( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter2 );
+  result = mat4->BRDF( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter2 );
   ASSERT_APPROX_EQUAL( result.red(),   0.5 * 0.3 / std::sqrt(2.0) ); // Phong, unseen specular
   ASSERT_APPROX_EQUAL( result.green(), 0.0 * 0.3 / std::sqrt(2.0) );
   ASSERT_APPROX_EQUAL( result.blue(),  0.5 * 0.3 / std::sqrt(2.0) );
@@ -144,12 +144,12 @@ int main( int, char** )
 
   S3D::interaction test_inter3( test_point, &test_line1, test_obj1, test_normal3, indexRatio );
 
-  result = mat3->scatter( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter3 );
+  result = mat3->BRDF( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter3 );
   ASSERT_APPROX_EQUAL( result.red(),   0.6 * std::pow( spec_factor, 3 ) );
   ASSERT_APPROX_EQUAL( result.green(), 0.6 * std::pow( spec_factor, 3 ) );
   ASSERT_APPROX_EQUAL( result.blue(),  0.6 * std::pow( spec_factor, 3 ) );
 
-  result = mat4->scatter( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter3 );
+  result = mat4->BRDF( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter3 );
   ASSERT_APPROX_EQUAL( result.red(),   0.5 * 0.3 * diff_factor + 0.3 * std::pow( spec_factor, 2 ) );
   ASSERT_APPROX_EQUAL( result.green(), 0.0 * 0.3 * diff_factor + 0.3 * std::pow( spec_factor, 2 ) );
   ASSERT_APPROX_EQUAL( result.blue(),  0.5 * 0.3 * diff_factor + 0.3 * std::pow( spec_factor, 2 ) );
@@ -163,17 +163,17 @@ int main( int, char** )
 
   S3D::interaction test_inter4( test_point, &test_line1, test_obj1, test_normal1, indexRatio );
 
-  result = mat5->scatter( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter4 );
+  result = mat5->BRDF( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter4 );
   ASSERT_APPROX_EQUAL( result.red(),   0.0 * 0.3 ); // Lambertian
   ASSERT_APPROX_EQUAL( result.green(), 1.0 * 0.3 );
   ASSERT_APPROX_EQUAL( result.blue(),  0.0 * 0.3 );
 
-  result = mat6->scatter( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter4 );
+  result = mat6->BRDF( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter4 );
   ASSERT_APPROX_EQUAL( result.red(),   0.6 ); // Specular
   ASSERT_APPROX_EQUAL( result.green(), 0.6 );
   ASSERT_APPROX_EQUAL( result.blue(),  0.6 );
 
-  result = mat7->scatter( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter4 );
+  result = mat7->BRDF( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter4 );
   ASSERT_APPROX_EQUAL( result.red(),   0.5 * 0.4 + 0.4 );
   ASSERT_APPROX_EQUAL( result.green(), 0.5 * 0.4 + 0.4 );
   ASSERT_APPROX_EQUAL( result.blue(),  0.5 * 0.4 + 0.4 );
@@ -181,12 +181,12 @@ int main( int, char** )
 
   S3D::interaction test_inter5( test_point, &test_line1, test_obj1, test_normal3, indexRatio );
 
-  result = mat5->scatter( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter5 );
+  result = mat5->BRDF( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter5 );
   ASSERT_APPROX_EQUAL( result.red(),   0.0 * 0.3 * diff_factor );
   ASSERT_APPROX_EQUAL( result.green(), 1.0 * 0.3 * diff_factor );
   ASSERT_APPROX_EQUAL( result.blue(),  0.0 * 0.3 * diff_factor );
 
-  result = mat7->scatter( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter5 );
+  result = mat7->BRDF( makeThreeVector( 0.0, 0.0, -1.0 ), test_beam1, test_inter5 );
   ASSERT_APPROX_EQUAL( result.red(),   0.5 * 0.4 * diff_factor + 0.4 * std::pow( blinn_factor, 2 ) );
   ASSERT_APPROX_EQUAL( result.green(), 0.5 * 0.4 * diff_factor + 0.4 * std::pow( blinn_factor, 2 ) );
   ASSERT_APPROX_EQUAL( result.blue(),  0.5 * 0.4 * diff_factor + 0.4 * std::pow( blinn_factor, 2 ) );

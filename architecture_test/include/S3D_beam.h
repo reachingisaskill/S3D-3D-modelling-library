@@ -30,6 +30,7 @@ namespace S3D
 
       bool operator==( const colour& ) const;
       bool operator!=( const colour& c ) const { return ! colour::operator==( c ); }
+      colour operator*( double ) const;
   };
 
 
@@ -70,6 +71,7 @@ namespace S3D
       beam operator+( const beam& ) const;
       beam operator*( double ) const;
       beam operator*( const colour& ) const;
+      beam operator*( const beam& ) const;
       beam& operator+=( const beam& );
       beam& operator*=( double );
     

@@ -1,7 +1,10 @@
+#define __DEBUG_OFF__
 
 #include "S3D_random.h"
 
 #include "S3D_defs.h"
+
+#include "logtastic.h"
 
 #include <cmath>
 #include <cstdlib>
@@ -22,6 +25,13 @@ namespace S3D
     {
       double r = static_cast<double>( rand() ) / static_cast<double>( RAND_MAX );
       return r;
+    }
+
+
+    int uniformInt( int lower , int upper )
+    {
+      int r = rand() % ( upper - lower );
+      return r + lower;
     }
 
 
@@ -57,7 +67,41 @@ namespace S3D
       double r = std::sqrt( r1 );
       double theta = r2 * 2.0 * PI;
 
-      return normal + makeThreeVector( r * std::cos( theta ), r * std::sin( theta ), r1 );
+      threeVector direction = makeThreeVector( r * std::cos( theta ), r * std::sin( theta ), r1 );
+
+      double angle = vectorAngle( normal, unit_threeVector_z );
+
+      DEBUG_STREAM << "Direction = " << direction << ", Angle = " << angle;
+
+      if ( angle < epsilon ) // Already pointing the right direction.
+      {
+        DEBUG_LOG( "Parallel to normal" );
+        return direction;
+      }
+      else if ( ( PI - angle ) < epsilon ) // Pointing in the opposite direction
+      {
+        DEBUG_LOG( "Anti-parallel to normal" );
+        return -direction;
+      }
+      else
+      {
+        rotation rot = rotation( crossProduct( normal, unit_threeVector_z ), -angle );
+        threeVector result = rot.rotateVector( direction );
+        DEBUG_STREAM << "Rotating: " << result;
+        return result;
+      }
+    }
+
+
+    threeVector uniformHemisphere( rotation direction )
+    {
+      double r1 = uniformDouble();
+      double r2 = uniformDouble();
+
+      double r = std::sqrt( r1 );
+      double theta = r2 * 2.0 * PI;
+
+      return direction.rotateVector( makeThreeVector( r * std::cos( theta ), r * std::sin( theta ), r1 ) );
     }
 
   }

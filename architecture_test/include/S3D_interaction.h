@@ -6,6 +6,7 @@
 #include "S3D_line.h"
 #include "S3D_surface.h"
 #include "S3D_object_base.h"
+#include "S3D_texture.h"
 
 #include "stdexts.h"
 
@@ -22,6 +23,7 @@ namespace S3D
       const object_base* _theObject; // Object intersected by line
       double _distance; // Distance traveled by beam
       double _distanceSq; // Distance traveled by beam squared
+      surfacemap _surfacemap;
 
       threeVector _surfaceNormal; // Surface normal at interaction
       double _refIndexRatio;
@@ -43,6 +45,8 @@ namespace S3D
       double getDistance() const { return this->_distance; }
 
       double getDistanceSquared() const { return this->_distanceSq; }
+
+      surfacemap getSurfaceMap() const { return this->_surfacemap; }
 
       double getIndexRatio() const { return _refIndexRatio; }
 

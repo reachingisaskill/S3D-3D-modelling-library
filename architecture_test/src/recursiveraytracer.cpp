@@ -1,4 +1,4 @@
-#define __DEBUG_OFF__
+//#define __DEBUG_OFF__
 
 #include "S3D_recursiveraytracer.h"
 
@@ -27,7 +27,7 @@ namespace S3D
   }
 
 
-  beam tracer_recursive::_traceRay( point start, threeVector dir, unsigned int depth ) const
+  beam tracer_recursive::_traceRay( point start, threeVector dir, unsigned int depth )
   {
     line the_ray( start, dir );
 
@@ -117,12 +117,13 @@ namespace S3D
       while( light_it != light_end )
       {
         DEBUG_LOG( "Sampling Light Source" );
-        currentBeam += (*light_it)->sampleRays( current_intersect, this );
+//        currentBeam += (*light_it)->sampleRays( current_intersect, this );
+        currentBeam += sampleLight( (*light_it), current_intersect );
         DEBUG_STREAM << " Current Beam: " << currentBeam.red() << ", " << currentBeam.green() << ", " << currentBeam.blue();
         ++light_it;
       }
       DEBUG_LOG( "Estimating ambient component" );
-      currentBeam += manager::getInstance()->getAmbientLight() * current_intersect.getObject()->getMaterial()->getColour( current_intersect );
+      currentBeam += manager::getInstance()->getAmbientLight() * current_intersect.getObject()->getMaterial()->getColour( current_intersect.getSurfaceMap() );
       DEBUG_STREAM << " Current Beam: " << currentBeam.red() << ", " << currentBeam.green() << ", " << currentBeam.blue();
     }
     catch( stdexts::exception& e )
@@ -139,7 +140,7 @@ namespace S3D
   }
 
 
-  beam tracer_recursive::traceRay( point start, threeVector dir ) const
+  beam tracer_recursive::traceRay( point start, threeVector dir )
   {
     return this->_traceRay( start, dir ); // Starts the recursive function
   }

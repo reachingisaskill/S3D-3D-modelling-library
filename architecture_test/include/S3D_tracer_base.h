@@ -2,21 +2,31 @@
 #ifndef __S3D__TRACER_BASE_H__
 #define __S3D__TRACER_BASE_H__
 
+#include "S3D_vector.h"
+#include "S3D_point.h"
+#include "S3D_line.h"
+#include "S3D_beam.h"
+#include "S3D_interaction.h"
 #include "S3D_manager.h"
 
+#include <set>
 
 namespace S3D
 {
 
   // Using typedefs as will probably switch to acceleration structures in the future
   typedef ObjectContainerT ObjectListT;
-  typedef LightContainerT LightListT;
+  typedef ObjectContainerT LightListT;
 
 
   class tracer_base
   {
     private:
-      int _layer;
+      std::set< int > _layers;
+      double _lightSamplesPerArea;
+      double _totalLightArea;
+      unsigned int _numLightSamples;
+
       ObjectListT _objectList;
       LightListT _lightList;
 
@@ -27,7 +37,12 @@ namespace S3D
 
       const LightListT& _getLights() const { return _lightList; }
 
-      interaction getInteraction( line& l ) const;
+      interaction getInteraction( line& l );
+
+      const object_base* _chooseLight() const;
+
+      // Override in derived classes to be called during setup proceedure.
+      virtual void _additionalSetup() {}
 
     public:
       virtual ~tracer_base() {}
@@ -36,17 +51,31 @@ namespace S3D
       virtual void setup();
 
       // Called by the camera - primary interface to ray tracing
-      virtual beam traceRay( point start, threeVector direction ) const = 0;
+      virtual beam traceRay( point start, threeVector direction ) = 0;
+
+      // Estimate the light emitted from and object that is seen at an interaction point.
+      virtual beam sampleLight( const object_base*, const interaction& );
+
+      // Estimate the light received at an interaction point from all sources of light in the scene.
+      // No. Samples, interaction vertex
+      virtual beam sampleAllLights( const interaction& );
 
       // Trace a "shadow ray" or a specific light ray from a light source
-      virtual beam traceLightSample( beam, point, const interaction& ) const;
+      virtual beam traceLightSample( beam, point, const interaction& );
 
       // Can one point directly see anpther?
-      virtual bool isVisible( point start, point end ) const;
+      virtual bool isVisible( point start, point end, threeVector Normal ) const;
       
 
-      // Set the layer to render
-      void setLayerNum( int l ) { _layer = l; }
+      // Total area of all light emitting surfaces.
+      double getTotalLightArea() const { return _totalLightArea; }
+
+      // Choose the layers to render
+      void addLayer( int );
+      void removeLayer( int );
+
+      // Set the number of light samples per unit area
+      void setLightSampleRate( double s ) { _lightSamplesPerArea = s; }
   };
 }
 

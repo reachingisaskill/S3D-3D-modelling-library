@@ -5,6 +5,8 @@
 #include "S3D_random.h"
 #include "S3D_tracer_base.h"
 
+#include "logtastic.h"
+
 
 namespace S3D
 {
@@ -147,5 +149,74 @@ namespace S3D
     this->_setFrame( f );
   }
 
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Perspective Camera
+
+
+  camera_perspective::camera_perspective( tracer_base* rt, double fov, double width, double height ) :
+    camera_base( rt, fov ),
+    _width( width ),
+    _height( height ),
+    _sampleRate( 1.0 )
+  {
+  }
+
+  camera_perspective::~camera_perspective()
+  {
+  }
+
+  void camera_perspective::shutter()
+  {
+    this->_getRayTracer()->setup();
+    unsigned int pX = this->getPixelsX();
+    unsigned int pY = this->getPixelsY();
+    frame* f = new frame( pX, pY );
+
+    // Position marks the centre of image plane (in front of the focal point!)
+    point camera_start = this->getPosition();
+    threeVector camera_direction = this->getRotation().rotateVector( defaultDirection );
+    double fov = 0.5*this->getFieldOfView();
+
+    for ( unsigned int i = 0; i < pX; ++i )
+    {
+      for ( unsigned int j = 0; j < pY; ++j )
+      {
+        beam b( 0.0, 0.0, 0.0 );
+        for ( unsigned int k = 0; k < _sampleRate; ++k )
+        {
+          double pixel_x = (double)i + random::uniformDouble();
+          double pixel_y = (double)j + random::uniformDouble();
+
+          threeVector startPos = makeThreeVector( ( ( pixel_x - 0.5*pX ) / pX ) * _width, ( ( pixel_y - 0.5*pY ) / pY ) * _height, 0.0 );
+
+          double x = ( ( pixel_x - 0.5*pX ) / pX ) * _width * ( 1.0 + std::tan( fov ) );
+          double y = ( ( pixel_y - 0.5*pY ) / pX ) * _height * ( 1.0 + std::tan( (pY/pX)*fov ) );
+
+          threeVector secondPos = makeThreeVector( x, y, 1.0 );
+
+          DEBUG_STREAM << "startPos = " << startPos << "secondPos = " << secondPos << " FOV = " << fov;
+
+          point beam_start = camera_start + this->getRotation().rotateVector( startPos );
+          point beam_next = camera_start + this->getRotation().rotateVector( secondPos );
+          threeVector beam_direction = beam_next - beam_start;
+
+
+//          double x = ( pixel_x - pX/2.0 ) * _length * std::tan( fov );
+//          double y = ( pixel_y - pY/2.0 ) * _length * std::tan( (pY/pX)*fov );
+//
+//          point beam_start = camera_start + this->getRotation().rotateVector( makeThreeVector( x, y, 0.0 ) );
+//          threeVector beam_direction = beam_start - focal_point;
+
+        
+          b += this->_getRayTracer()->traceRay( beam_start, beam_direction );
+        }
+
+        f->pixel( i, j ) = b *  ( 1.0 / _sampleRate );
+      }
+    }
+    this->_setFrame( f );
+  }
 }
 

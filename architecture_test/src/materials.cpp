@@ -1,4 +1,4 @@
-//#define __DEBUG_OFF__
+#define __DEBUG_OFF__
 
 #include "S3D_materials.h"
 
@@ -21,13 +21,13 @@ namespace S3D
   }
 
 
-  colour material_simple::getColour( const interaction& ) const
+  colour material_simple::getColour( surfacemap ) const
   {
     return _colour;
   }
 
 
-  beam material_simple::scatter( threeVector incomingDir, beam beam_in, const interaction& inter) const
+  beam material_simple::BRDF( threeVector incomingDir, beam beam_in, const interaction& inter) const
   {
     beam theBeam = beam_in*_colour; // Weight the reflected light by the _colour
     
@@ -50,14 +50,11 @@ namespace S3D
   }
 
 
-  beam material_phong::scatter( threeVector incomingDir, beam beam_in, const interaction& inter ) const
+  beam material_phong::BRDF( threeVector incomingDir, beam beam_in, const interaction& inter ) const
   {
     double L_dot_N = incomingDir * inter.getSurfaceNormal();
     threeVector R = incomingDir - 2.0*inter.getSurfaceNormal() * L_dot_N;
     DEBUG_STREAM << "PHONG Incoming = " << incomingDir <<  " -- L dot N = " << L_dot_N << " --  R = " << R;
-
-    // Ambient light added by the raytracer as it varies with sampling frequencies, etc.
-//    beam the_beam = manager::getInstance()->getAmbientLight() * _ambient_coef * ( 1.0 / manager::getInstance()->getLightSampleRate() );
 
     beam the_beam = beam_in *  -L_dot_N * _diffuse_coef * _ambient_coef;
     DEBUG_STREAM << "Plus Diffuse component: " << the_beam.red() << ", " << the_beam.green() << ", " << the_beam.blue();
@@ -84,7 +81,7 @@ namespace S3D
   }
 
 
-  beam material_blinn::scatter( threeVector incomingDir, beam beam_in, const interaction& inter ) const
+  beam material_blinn::BRDF( threeVector incomingDir, beam beam_in, const interaction& inter ) const
   {
     double L_dot_N = incomingDir * inter.getSurfaceNormal();
     threeVector H = ( -inter.getLine().getDirection() - incomingDir ).norm();
@@ -131,11 +128,16 @@ namespace S3D
   }
 
 
-  beam material_glass::scatter( threeVector, beam, const interaction& ) const
+  beam material_glass::BRDF( threeVector direction, beam b, const interaction& inter ) const
   {
-    DEBUG_LOG( "Perfect Glass - no additional light" );
+    DEBUG_LOG( "Perfect Glass. Only reflection is perfectly specular" );
+    DEBUG_STREAM << "   Dot product = " << direction * inter.getReflection();
 
-    return beam( 0.0, 0.0, 0.0 );
+    // Dot product should always be negative
+    if ( ( 1.0 + direction * inter.getReflection() ) < epsilon )
+      return b;
+    else
+      return beam( 0.0, 0.0, 0.0 );
   }
 
 
@@ -148,11 +150,16 @@ namespace S3D
   }
 
 
-  beam material_mirror::scatter( threeVector, beam, const interaction& ) const
+  beam material_mirror::BRDF( threeVector direction, beam b, const interaction& inter ) const
   {
-    DEBUG_LOG( "Perfect mirror - np additional light" );
+    DEBUG_LOG( "Perfect Mirror. Only reflection is perfectly specular" );
+    DEBUG_STREAM << "   Dot product = " << direction * inter.getReflection();
 
-    return beam( 0.0, 0.0, 0.0 );
+    // Dot product should always be negative
+    if ( ( 1.0 + direction * inter.getReflection() ) < epsilon )
+      return b;
+    else
+      return beam( 0.0, 0.0, 0.0 );
   }
 
 
@@ -160,18 +167,19 @@ namespace S3D
   // Lambertian Model
 
   material_lambertian::material_lambertian( colour col ) :
-    _albedo( col )
+    _albedo( col ),
+    _BRDFConstant( 1.0 / PI )
   {
   }
 
 
-  beam material_lambertian::scatter( threeVector incomingDir, beam beam_in, const interaction& inter ) const
+  beam material_lambertian::BRDF( threeVector incomingDir, beam beam_in, const interaction& inter ) const
   {
     DEBUG_LOG( "Lambertian scattering" );
     double L_dot_N = incomingDir * inter.getSurfaceNormal();
 
-    beam the_beam = beam_in *  -L_dot_N * _albedo;
-    DEBUG_STREAM << "Albedo component: " << the_beam.red() << ", " << the_beam.green() << ", " << the_beam.blue();
+    beam the_beam = beam_in *  -L_dot_N * _albedo * _BRDFConstant;
+    DEBUG_STREAM << "Albedo component: " << L_dot_N << " | " << the_beam.red() << ", " << the_beam.green() << ", " << the_beam.blue();
 
     return the_beam;
   }
@@ -182,5 +190,56 @@ namespace S3D
     return random::uniformHemisphere( inter.getSurfaceNormal() );
   }
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Pure Light Source
+
+  material_lightsource::material_lightsource( colour col, double e ) :
+    _colour( col )
+  {
+    this->setEmissivity( e );
+  }
+
+
+  beam material_lightsource::BRDF( threeVector, beam, const interaction& ) const
+  {
+    DEBUG_LOG( "Perfect light source acting as a perfect black." );
+    return beam( 0.0, 0.0, 0.0 );
+  }
+
+
+  threeVector material_lightsource::sampleReflection( const interaction& inter ) const
+  {
+    return inter.getReflection();
+  }
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Glowing lambertian
+
+  material_glowing::material_glowing( colour col, double e ) :
+    _colour( col ),
+    _BRDFConstant( 1.0 / PI )
+  {
+    this->setEmissivity( e );
+  }
+
+
+  beam material_glowing::BRDF( threeVector incomingDir, beam beam_in, const interaction& inter ) const
+  {
+    DEBUG_LOG( "Glowing Lambertian scattering" );
+    double L_dot_N = incomingDir * inter.getSurfaceNormal();
+
+    beam the_beam = beam_in *  -L_dot_N * _colour * _BRDFConstant;
+    DEBUG_STREAM << "Albedo component: " << L_dot_N << " | " << the_beam.red() << ", " << the_beam.green() << ", " << the_beam.blue();
+
+    return the_beam;
+  }
+
+
+  threeVector material_glowing::sampleReflection( const interaction& inter ) const
+  {
+    return random::uniformHemisphere( inter.getSurfaceNormal() );
+  }
 }
 

@@ -9,7 +9,8 @@ namespace S3D
 {
 
   material_base::material_base( double N ) :
-    _refractiveIndex( N )
+    _refractiveIndex( N ),
+    _emissivity( 0.0 )
   {
   }
 

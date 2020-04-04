@@ -43,6 +43,8 @@ namespace S3D
       virtual const rotation& getRotation() const { return _rotation; }
       virtual void setRotation( const rotation& );
 
+      // Total area of the surface (infinite surface set to zero.)
+      virtual double getArea() const { return 0.0; }
 
       virtual bool inFront( const point& ) const;
 
@@ -57,6 +59,7 @@ namespace S3D
       // Returns the X-Y vector of the location of intersect in the plane of the surface.
       virtual twoVector planarIntersect( const line& );
 
+      virtual point sampleSurface() const;
 
       virtual void rotate( rotation );
       virtual void rotateAbout( rotation, point );

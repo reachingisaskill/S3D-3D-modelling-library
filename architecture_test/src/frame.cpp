@@ -95,6 +95,7 @@ namespace S3D
   }
 
 
+  // Dump to a BMP file appling linear scaling.
   void frame::dump( std::string filename ) const
   {
     stdexts::bitmap bm( this->_pixelsX, this->_pixelsY );

@@ -62,7 +62,6 @@ namespace S3D
   {
     private :
       unsigned int _sampleRate;
-      unsigned int _numThreads;
 
     protected:
       void runSample( unsigned int, unsigned int ) const;
@@ -79,8 +78,35 @@ namespace S3D
 
       // Override pure virtual function
       virtual void shutter();
+  };
 
-      void setNumThreads( unsigned int n ) { _numThreads = n; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+  // (Multithreaded) Perspective Camera with random sampling
+
+  class camera_perspective : public camera_base
+  {
+    private :
+      double _length; // How far back the focal point is (means the camera "lens" is shorter!)
+      double _width;
+      double _height;
+      unsigned int _sampleRate;
+
+    protected:
+      void runSample( unsigned int, unsigned int ) const;
+
+    public:
+      // raytracer, FieldofView, width, height
+      camera_perspective( tracer_base*, double, double, double );
+
+      // Set Samples per pixel
+      void setSampleRate( unsigned int i ) { _sampleRate = i; }
+
+      // Make sure its virtual
+      virtual ~camera_perspective();
+
+      // Override pure virtual function
+      virtual void shutter();
   };
 
 }

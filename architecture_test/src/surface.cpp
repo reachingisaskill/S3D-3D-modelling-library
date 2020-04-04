@@ -1,3 +1,4 @@
+#define __DEBUG_OFF__
 
 #include "S3D_surface.h"
 
@@ -64,7 +65,9 @@ namespace S3D
 
   double surface::distance( const line& l ) const
   {
-    return ( (_position - l.getStart()) * _normal ) / ( ( _normal * l.getDirection() ) );
+    double result = ( (_position - l.getStart()) * _normal ) / ( ( _normal * l.getDirection() ) );
+    DEBUG_STREAM << "surface::distance() : Normal = " << getNormal() << " -- Norm * Dir = " << _normal * l.getDirection() << ". Result = " << result;
+    return result;
   }
 
 
@@ -95,6 +98,14 @@ namespace S3D
     threeVector inter = this->intersect( l ) - _position;
     threeVector planarVector = _rotation / inter;
     return makeTwoVector( planarVector[0], planarVector[1] );
+  }
+
+
+  // Not well defined for an infinite surface - just return the center.
+  //  This class must not be abstract - its needed elsewhere.
+  point surface::sampleSurface() const
+  {
+    return _position;
   }
 
 

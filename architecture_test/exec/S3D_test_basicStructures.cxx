@@ -6,6 +6,7 @@
 #include "S3D_lights.h"
 #include "S3D_cameras.h"
 #include "S3D_defs.h"
+#include "S3D_random.h"
 
 #include "logtastic.h"
 #include "testass.h"
@@ -169,7 +170,37 @@ int main( int, char** )
   ASSERT_APPROX_EQUAL( inter1[1], 0.0 );
   ASSERT_APPROX_EQUAL( inter1[2], 0.0 );
 
- 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  SECTION( "Random Samples ");
+
+  threeVector direction = S3D::unit_threeVector_x;
+
+  unsigned int counter = 0;
+  for ( unsigned int i = 0; i < 1000000; ++i ) // Sample the directions.
+  {
+    threeVector test = S3D::random::uniformHemisphere( direction );
+
+    if ( ( test * direction ) < 0.0 ) // if going backwards
+      counter += 1;
+  }
+  ASSERT_EQUAL( counter, (unsigned int)0 );
+
+
+  direction = S3D::rotation( S3D::unit_threeVector_z, 0.325 ).rotateVector( direction );
+
+  counter = 0;
+  for ( unsigned int i = 0; i < 1000000; ++i ) // Sample the directions.
+  {
+    threeVector test = S3D::random::uniformHemisphere( direction );
+
+    if ( ( test * direction ) < 0.0 ) // if going backwards
+      counter += 1;
+  }
+  ASSERT_EQUAL( counter, (unsigned int)0 );
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
   if ( ! testass::control::summarize() )

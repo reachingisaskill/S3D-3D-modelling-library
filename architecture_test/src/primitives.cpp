@@ -4,6 +4,7 @@
 
 #include "S3D_defs.h"
 #include "S3D_manager.h"
+#include "S3D_random.h"
 
 #include "logtastic.h"
 
@@ -71,7 +72,8 @@ namespace S3D
     double r_sq = this->_radius*this->_radius;
 
     double root = std::sqrt( ad*ad + r_sq - a_sq );
-    if ( ad > root ) // Is the interaction point outside
+//    if ( ad > root ) // Is the interaction point outside
+    if ( ( ad - root ) > epsilon ) // Is the interaction point outside
     {
       double distance = ad - root ;
       point thePoint = l.getStart() + distance*l.getDirection();
@@ -91,6 +93,34 @@ namespace S3D
   }
 
 
+  surfacemap sphere::sampleSurface() const
+  {
+    double r1 = random::uniformDouble();
+    double r2 = random::uniformDouble();
+
+    double theta = r1*2.0*PI;
+    double phi = std::acos( 2.0* r2 - 1 );
+
+    threeVector pos = makeThreeVector( std::cos(theta)*std::sin(phi), std::sin(theta)*std::sin(phi), std::cos(phi) );
+    return surfacemap( this->getPosition() + pos );
+  }
+
+
+  line sphere::sampleEmission() const
+  {
+    double r1 = random::uniformDouble();
+    double r2 = random::uniformDouble();
+
+    double theta = r1*2.0*PI;
+    double phi = std::acos( 2.0* r2 - 1 );
+
+//    rotation rot = rotation( unit_threeVector_z, theta ) * rotation( unit_threeVector_x, phi );
+    threeVector pos = makeThreeVector( std::cos(theta)*std::sin(phi), std::sin(theta)*std::sin(phi), std::cos(phi) );
+    rotation rot( crossProduct( defaultDirection, pos ), vectorAngle( defaultDirection, pos ) );
+    return line( this->getPosition() + _radius*pos, random::uniformHemisphere( rot ) );
+  }
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
   // Box
 
@@ -99,6 +129,7 @@ namespace S3D
     _lengthX( x ),
     _lengthY( y ),
     _lengthZ( z ),
+    _areaSum( 0.0 ),
     _surfaces()
   {
     _makeSurfaces();
@@ -138,8 +169,12 @@ namespace S3D
     _surfaces[5].setPosition( tmp );
     _surfaces[5].setRotation( rotation( unit_threeVector_y, PI ) );
 
+    _areaSum = 0.0;
     for ( unsigned int i = 0; i < 6; ++i )
+    {
       _surfaces[i].rotateAbout( this->getRotation(), this->getPosition() );
+      _areaSum += _surfaces[i].getArea();
+    }
   }
 
 
@@ -203,6 +238,7 @@ namespace S3D
     point current_point;
     const surface_rectangle* current_surface = nullptr;
     double current_distance = 1.0e20;
+    DEBUG_STREAM << "box::intersect() : Line = " << l.getStart().getPosition() << " -- " << l.getDirection();
 
     for ( unsigned int i = 0; i < 6; ++i )
     {
@@ -249,61 +285,55 @@ namespace S3D
   }
 
 
+  surfacemap box::sampleSurface() const
+  {
+    // Pick a random side of box, weighted by each surface area.
+    double randomArea = _areaSum*random::uniformDouble();
+    int planeId = 5;
+    double sum = 0.0;
+    for ( unsigned int i = 0; i < 5; ++i ) // Don't need to test for the 6th surface.
+    {
+      sum += _surfaces[i].getArea();
+      if ( randomArea < sum )
+      {
+        planeId = i;
+        break;
+      }
+    }
 
-//  double box::distance( const point& p ) const
-//  {
-//    if ( this->contains( p ) ) return 0.0;
-//
-//    // Count how many surfaces the point is infront of.
-//    unsigned int count = 0;
-//    bool[6] fronts = { false };
-//    surface *theSurfaces[3];
-//
-//    for ( unsigned int i = 0; i < 6; ++i )
-//    {
-//      if ( _surfaces[i].inFront( p ) )
-//      {
-//        fronts[i] = true;
-//        theSurfaces[count] = &_surfaces[i];
-//        count += 1;
-//      }
-//      else
-//        fronts[i] = false;
-//    }
-//
-//    // If only one, return the surface-point distance.
-//    if ( count == 1 )
-//    {
-//      for ( unsigned int i = 0; i < 6; ++i )
-//      {
-//        if ( fronts[i] )
-//        return _surfaces[i].distance( p );
-//      }
-//    }
-//
-//    // Find the closest edge.
-//    line edge = surfaceIntersection( *theSurfaces[0], *theSurfaces[1] );
-//    if ( count == 2 )
-//    {
-//      return edge.distance( p );
-//    }
-//    else if ( count == 3 )
-//    {
-//      // Find the closests vertex.
-//      point vertex = theSurfaces[2]->crosses( edge );
-//      return ( p - vertex ).mod();
-//    }
-//    else
-//    {
-//      FAIL_LOG( "Point is in front of too many surfaces, I broke maths..." );
-//      assert( count < 4 );
-//    }
-//  }
+    // Pick a random position on that plane
+    return surfacemap( _surfaces[planeId].sampleSurface() );
+  }
 
+
+  line box::sampleEmission() const
+  {
+    // Pick a random side of box, weighted by each surface area.
+    double randomArea = _areaSum*random::uniformDouble();
+    int planeId = 5;
+    double sum = 0.0;
+    for ( unsigned int i = 0; i < 5; ++i ) // Don't need to test for the 6th surface.
+    {
+      sum += _surfaces[i].getArea();
+      if ( randomArea < sum )
+      {
+        planeId = i;
+        break;
+      }
+    }
+
+    // Pick a random position on that plane
+    point pos = _surfaces[planeId].sampleSurface();
+
+    // Pick a random direction
+    threeVector dir = random::uniformHemisphere( _surfaces[planeId].getRotation() );
+
+    return line( pos, dir );
+  }
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-  // Box
+  // Square Plane
 
   square_plane::square_plane( material_base* mat, double x, double y ) :
     object_base( mat ),
@@ -364,21 +394,120 @@ namespace S3D
     if ( _surface.inFront( l.getStart() ) )
     {
       threeVector normal = _surface.getNormal();
-//      threeVector trans = _calculateSnellsLawIn( l.getDirection(), normal );
-//      threeVector ref = _calculateReflection( l.getDirection(), normal );
       double indexRatio = manager::getInstance()->getWorld()->getMaterial()->getRefractiveIndex() / this->getMaterial()->getRefractiveIndex();
       return interaction( inter, &l, (object_base*) this, normal, indexRatio );
     }
     else // Line from behind => reverse the normal
     {
       threeVector normal = -_surface.getNormal();
-//      threeVector trans = _calculateSnellsLawIn( l.getDirection(), normal );
-//      threeVector ref = _calculateReflection( l.getDirection(), normal );
       double indexRatio = this->getMaterial()->getRefractiveIndex() / manager::getInstance()->getWorld()->getMaterial()->getRefractiveIndex();
       return interaction( inter, &l, (object_base*) this, normal, indexRatio );
     }
   }
+
   
+  surfacemap square_plane::sampleSurface() const
+  {
+    point pos =  _surface.sampleSurface();
+    return surfacemap( pos );
+  }
+
+  
+  line square_plane::sampleEmission() const
+  {
+    point pos =  _surface.sampleSurface();
+    threeVector dir =  random::uniformHemisphere( _surface.getRotation() );
+    return line( pos, dir );
+  }
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Circular Plane
+
+  circular_plane::circular_plane( material_base* mat, double r ) :
+    object_base( mat ),
+    _surface( r )
+  {
+  }
+
+
+  void circular_plane::_makeSurface()
+  {
+    _surface.setPosition( this->getPosition() );
+    _surface.setRotation( this->getRotation() );
+  }
+
+
+  void circular_plane::setPosition( point pos )
+  {
+    base::setPosition( pos );
+    this->_makeSurface();
+  }
+
+
+  void circular_plane::setRotation( rotation rot )
+  {
+    base::setRotation( rot );
+    this->_makeSurface();
+  }
+
+
+  void circular_plane::rotate( rotation rot )
+  {
+    base::rotate( rot );
+    this->_makeSurface();
+  }
+
+
+  void circular_plane::rotateAbout( rotation rot, point pos )
+  {
+    base::rotateAbout( rot, pos );
+    this->_makeSurface();
+  }
+
+
+  bool circular_plane::contains( const point& p ) const
+  {
+    return ! _surface.inFront( p );
+  }
+
+
+  bool circular_plane::crosses( const line& l ) const
+  {
+    return _surface.crosses( l );
+  }
+
+  interaction circular_plane::intersect( const line& l ) const
+  {
+    point inter = _surface.intersect( l );
+    if ( _surface.inFront( l.getStart() ) )
+    {
+      threeVector normal = _surface.getNormal();
+      double indexRatio = manager::getInstance()->getWorld()->getMaterial()->getRefractiveIndex() / this->getMaterial()->getRefractiveIndex();
+      return interaction( inter, &l, (object_base*) this, normal, indexRatio );
+    }
+    else // Line from behind => reverse the normal
+    {
+      threeVector normal = -_surface.getNormal();
+      double indexRatio = this->getMaterial()->getRefractiveIndex() / manager::getInstance()->getWorld()->getMaterial()->getRefractiveIndex();
+      return interaction( inter, &l, (object_base*) this, normal, indexRatio );
+    }
+  }
+
+  
+  surfacemap circular_plane::sampleSurface() const
+  {
+    point pos =  _surface.sampleSurface();
+    return surfacemap( pos );
+  }
+
+  
+  line circular_plane::sampleEmission() const
+  {
+    point pos =  _surface.sampleSurface();
+    threeVector dir =  random::uniformHemisphere( _surface.getRotation() );
+    return line( pos, dir );
+  }
 
 }
 

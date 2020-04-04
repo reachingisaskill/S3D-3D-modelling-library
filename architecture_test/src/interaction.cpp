@@ -1,4 +1,4 @@
-//#define __DEBUG_OFF__
+#define __DEBUG_OFF__
 
 #include "S3D_interaction.h"
 
@@ -16,6 +16,7 @@ namespace S3D
     _theObject( nullptr ),
     _distance( 1.0e300 ),
     _distanceSq( 1.0e300 ),
+    _surfacemap(),
     _surfaceNormal(),
     _refIndexRatio()
   {
@@ -28,6 +29,7 @@ namespace S3D
     _theObject( s ),
     _distance( 0.0 ),
     _distanceSq( 0.0 ),
+    _surfacemap(),
     _surfaceNormal( norm ),
     _refIndexRatio( ref )
   {
@@ -48,7 +50,6 @@ namespace S3D
       return _theLine->getDirection();
     }
 
-
     double cos_theta_out = 1.0 - _refIndexRatio * _refIndexRatio * cos * cos;
 
     if ( cos_theta_out < 0.0 )
@@ -61,39 +62,14 @@ namespace S3D
 
     DEBUG_STREAM << "Cos theta_1 = " << cos << ", Cos theta_2 = " << -out * _surfaceNormal << ", In dot Out = " << _theLine->getDirection() * out;
     return out;
-
-
-
-//    threeVector cross = crossProduct( _theLine->getDirection(), _surfaceNormal );
-//    double cos = -_theLine->getDirection() * _surfaceNormal;
-//
-//    if ( cross_mod == 0.0 )
-//    {
-//      DEBUG_LOG( "Incoming vector perpendicular." );
-//      return _theLine->getDirection();
-//    }
-//
-//    
-//    if ( ( _refIndexRatio * cross_mod ) > 1.0 )
-//    {
-//      DEBUG_LOG( "Total internal reflection case." );
-//      return this->getReflection(); // Total internal reflection
-//    }
-//
-//    double cos = -_theLine->getDirection() * _surfaceNormal;
-//    double cos_theta_out = 1.0 - _refIndexRatio * _refIndexRatio * cos * cos;
-//
-////    threeVector out = _refIndexRatio * _theLine->getDirection() + ( _refIndexRatio * cos - std::sqrt( 1 - _refIndexRatio*_refIndexRatio * cross_mod*cross_mod ) ) * _surfaceNormal;
-//    threeVector out = _refIndexRatio * _theLine->getDirection() + ( _refIndexRatio * cos - std::sqrt( 1 - _refIndexRatio*_refIndexRatio * cross_mod*cross_mod ) ) * _surfaceNormal;
-//
-//    DEBUG_STREAM << "Cos theta_1 = " << cos << ", Cos theta_2 = " << -out * _surfaceNormal << ", In dot Out = " << _theLine->getDirection() * out;
-//    return out;
   }
 
 
   threeVector interaction::getReflection() const
   {
-    return _theLine->getDirection() - 2.0 * _surfaceNormal * _theLine->getDirection() * _surfaceNormal;
+    threeVector result = _theLine->getDirection() - 2.0 * _surfaceNormal * _theLine->getDirection() * _surfaceNormal;
+    DEBUG_STREAM << "Calculating reflected ray. Normal = " << _surfaceNormal << ". Vector = " << _theLine->getDirection() << ". Result = " << result;
+    return result;
   }
 
 }

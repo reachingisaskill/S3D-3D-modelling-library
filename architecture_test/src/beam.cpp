@@ -56,6 +56,15 @@ namespace S3D
   }
 
 
+  colour colour::operator*( double val ) const
+  {
+    return colour( _red*val, _green*val, _blue*val );
+  }
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+  // BEAM
+
 
   beam::beam() :
     _red( 0.0 ),
@@ -119,6 +128,16 @@ namespace S3D
     double green = this->_green * c.getGreen();
     double blue = this->_blue * c.getBlue();
     unsigned int ref = this->_numReflections;
+
+    return beam( red, green, blue, ref );
+  }
+
+  beam beam::operator*( const beam& c ) const
+  {
+    double red = this->_red * c.red();
+    double green = this->_green * c.green();
+    double blue = this->_blue * c.blue();
+    unsigned int ref = this->_numReflections + c._numReflections;
 
     return beam( red, green, blue, ref );
   }

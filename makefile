@@ -97,11 +97,11 @@ PROGNAMES = $(notdir ${PROGRAMS})
 
 
 
-.PHONY : program all _all build install clean buildall directories includes intro single_intro check_install check_head
+.PHONY : program all _all build install clean buildall directories includes intro single_intro check_install
 
 
 
-all : check_head intro directories ${LIBRARY} ${PROGRAMS}
+all : intro directories ${LIBRARY} ${PROGRAMS}
 	@echo "Make Completed Successfully"
 	@echo
 

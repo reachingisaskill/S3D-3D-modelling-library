@@ -56,6 +56,7 @@ namespace S3D
 
   double vectorAngle( threeVector, threeVector );
   threeVector crossProduct( threeVector, threeVector );
+  threeVector findPerpendicular( threeVector );
 
 
   rotation operator-( rotation );

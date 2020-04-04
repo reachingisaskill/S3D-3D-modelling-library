@@ -19,7 +19,7 @@ namespace S3D
 
     protected:
       // Recursive implementation
-      virtual beam _traceRay( point start, threeVector direction, unsigned int depth=0 ) const;
+      virtual beam _traceRay( point start, threeVector direction, unsigned int depth=0 );
 
     public:
       tracer_recursive();
@@ -29,7 +29,7 @@ namespace S3D
       void setMaxDepth( unsigned int d ) { _maxDepth = d; }
 
       // Called by the camera - primary interface to ray tracing
-      virtual beam traceRay( point start, threeVector direction ) const;
+      virtual beam traceRay( point start, threeVector direction );
 
   };
 

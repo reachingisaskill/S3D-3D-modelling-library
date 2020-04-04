@@ -26,9 +26,9 @@ namespace S3D
 
       virtual double getReflectionProb( const interaction& ) const { return 0.0; }
 
-      virtual colour getColour( const interaction& ) const;
+      virtual colour getColour( surfacemap ) const;
 
-      virtual beam scatter( threeVector, beam, const interaction& ) const;
+      virtual beam BRDF( threeVector, beam, const interaction& ) const;
   };
 
 
@@ -53,9 +53,9 @@ namespace S3D
 
       virtual double getReflectionProb( const interaction& ) const { return 0.0; }
 
-      virtual colour getColour( const interaction& ) const { return this->_ambient_coef; }
+      virtual colour getColour( surfacemap ) const { return this->_ambient_coef; }
 
-      virtual beam scatter( threeVector, beam, const interaction& ) const;
+      virtual beam BRDF( threeVector, beam, const interaction& ) const;
   };
 
 
@@ -80,9 +80,9 @@ namespace S3D
 
       virtual double getReflectionProb( const interaction& ) const { return 0.0; }
 
-      virtual colour getColour( const interaction& ) const { return this->_ambient_coef; }
+      virtual colour getColour( surfacemap ) const { return this->_ambient_coef; }
 
-      virtual beam scatter( threeVector, beam, const interaction& ) const;
+      virtual beam BRDF( threeVector, beam, const interaction& ) const;
   };
 
 
@@ -104,9 +104,9 @@ namespace S3D
 
       virtual double getReflectionProb( const interaction& ) const; // Return the fresnel coefficients
 
-      virtual colour getColour( const interaction& ) const { return this->_colour; }
+      virtual colour getColour( surfacemap ) const { return this->_colour; }
 
-      virtual beam scatter( threeVector, beam, const interaction& ) const;
+      virtual beam BRDF( threeVector, beam, const interaction& ) const;
   };
 
 
@@ -128,10 +128,11 @@ namespace S3D
 
       virtual double getReflectionProb( const interaction& ) const { return 1.0; }
 
-      virtual colour getColour( const interaction& ) const { return this->_colour; }
+      virtual colour getColour( surfacemap ) const { return this->_colour; }
 
-      virtual beam scatter( threeVector, beam, const interaction& ) const;
+      virtual beam BRDF( threeVector, beam, const interaction& ) const;
   };
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
   // Diffuse Material
@@ -140,6 +141,7 @@ namespace S3D
   {
     private:
       colour _albedo;
+      double _BRDFConstant;
 
     protected:
 
@@ -150,13 +152,69 @@ namespace S3D
 
       virtual double getReflectionProb( const interaction& ) const { return 1.0; }
 
-      virtual colour getColour( const interaction& ) const { return this->_albedo; }
+      virtual colour getColour( surfacemap ) const { return this->_albedo; }
 
-      virtual beam scatter( threeVector, beam, const interaction& ) const;
+      virtual beam BRDF( threeVector, beam, const interaction& ) const;
 
       virtual threeVector sampleReflection( const interaction& ) const;
 
   };
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Pure Light Source
+
+  class material_lightsource : public material_base
+  {
+    private:
+      colour _colour;
+
+    protected:
+
+    public:
+      material_lightsource( colour, double );
+
+      virtual double getTransmissionProb( const interaction& ) const { return 0.0; }
+
+      virtual double getReflectionProb( const interaction& ) const { return 0.0; }
+
+      virtual colour getColour( surfacemap ) const { return this->_colour; }
+
+      virtual beam BRDF( threeVector, beam, const interaction& ) const;
+
+      virtual threeVector sampleReflection( const interaction& ) const;
+
+  };
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Glowing Lambertian
+
+  class material_glowing : public material_base
+  {
+    private:
+      colour _colour;
+      double _BRDFConstant;
+
+    protected:
+
+    public:
+      material_glowing( colour, double );
+
+      virtual double getTransmissionProb( const interaction& ) const { return 0.0; }
+
+      virtual double getReflectionProb( const interaction& ) const { return 1.0; }
+
+      virtual colour getColour( surfacemap ) const { return this->_colour; }
+
+      virtual beam BRDF( threeVector, beam, const interaction& ) const;
+
+      virtual threeVector sampleReflection( const interaction& ) const;
+
+  };
+
+
+
 
 }
 

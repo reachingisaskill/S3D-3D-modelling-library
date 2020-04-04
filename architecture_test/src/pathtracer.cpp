@@ -1,4 +1,4 @@
-//#define __DEBUG_OFF__
+#define __DEBUG_OFF__
 
 #include "S3D_pathtracer.h"
 
@@ -46,10 +46,10 @@ namespace S3D
   }
 
 
-  beam tracer_pathtracer::_pathTrace( point start, threeVector dir, unsigned int depth ) const
+  beam tracer_pathtracer::_pathTrace( point start, threeVector dir, unsigned int depth )
   {
     line the_ray( start, dir );
-    double kill_factor = _killProb;
+    double kill_factor = ( depth < 5 ? 0.0 : _killProb );
     double roulette_factor = 1.0 / ( 1.0 - kill_factor );
 
     interaction current_intersect;
@@ -83,56 +83,51 @@ namespace S3D
       double r1 = random::uniformDouble();
 
       double prob_r = current_intersect.getObject()->getMaterial()->getReflectionProb( current_intersect );
-//      double prob_t = 1.0 - prob_r;
-      double attenuation = current_intersect.getAttenuation();
+      double prob_t = current_intersect.getObject()->getMaterial()->getTransmissionProb( current_intersect );
 
       if ( r1 < prob_r ) // Prob of reflection
       {
         DEBUG_LOG( "Launching recursive reflected ray." );
-        currentBeam += roulette_factor*attenuation*this->_pathTrace( current_intersect.getPoint(), current_intersect.getObject()->getMaterial()->sampleReflection( current_intersect ), depth + 1 );
+        threeVector direction = current_intersect.getObject()->getMaterial()->sampleReflection( current_intersect ).norm();
+        DEBUG_STREAM << "NORMAL = " << current_intersect.getSurfaceNormal() << "  --  Direction leaving intersect = " << direction;
+        beam incoming = roulette_factor*this->_pathTrace( current_intersect.getPoint(), direction, depth + 1 );
+
+        DEBUG_STREAM << "Returned recursive ray at object: " << current_intersect.getObject();
+        currentBeam += current_intersect.getObject()->getMaterial()->BRDF( -direction, incoming, current_intersect );
       }
-      else // otherwise transmission
+      else if ( r1 < ( prob_r + prob_t ) )
       {
         DEBUG_LOG( "Launching recursive transmitted ray." );
-        currentBeam += roulette_factor*attenuation*this->_pathTrace( current_intersect.getPoint(), current_intersect.getObject()->getMaterial()->sampleTransmission( current_intersect ), depth + 1 );
+        threeVector direction = current_intersect.getObject()->getMaterial()->sampleTransmission( current_intersect ).norm();
+        beam incoming = roulette_factor*this->_pathTrace( current_intersect.getPoint(), direction, depth + 1 );
+
+        currentBeam += current_intersect.getObject()->getMaterial()->BTDF( -direction, incoming, current_intersect );
+      }
+      else
+      {
+        DEBUG_LOG( "Path absorbed. Closing recursion" );
+        return beam( 0.0, 0.0, 0.0 );
       }
     }
     else
     {
-      DEBUG_LOG( "Max depth reached closing recursion." );
+      DEBUG_LOG( "End of path reached closing recursion." );
     }
 
+//    // Standard path tracing - just sample the emission from the vertex and return.
+//     currentBeam += current_intersect.getObject()->getMaterial()->getEmission( current_intersect.getSurfaceMap() );
 
-    DEBUG_LOG( "Tracing Lights." );
-    const LightListT& lights = _getLights();
-    LightListT::const_iterator light_it = lights.begin();
-    LightListT::const_iterator light_end = lights.end();
 
-    try
-    {
-      while( light_it != light_end )
-      {
-        DEBUG_LOG( "Sampling Light Source" );
-        currentBeam += (*light_it)->sampleRays( current_intersect, this );
-        DEBUG_STREAM << " Current Beam: " << currentBeam.red() << ", " << currentBeam.green() << ", " << currentBeam.blue();
-        ++light_it;
-      }
-    }
-    catch( stdexts::exception& e )
-    {
-      std::stringstream ss;
-      ss << "Tracing ray from light source: " << start.getPosition() << " with direction: " << dir;
-      EX_LOG( e, ss.str() );
-      std::cerr << ELUCIDATE( e );
-      return beam( 0.0, 0.0, 0.0 );
-    }
+    // Add light from other light sources.
+    DEBUG_STREAM << "Tracing Lights to object: " << current_intersect.getObject();
+    currentBeam += roulette_factor*sampleAllLights( current_intersect );
 
     DEBUG_STREAM << "Returning Current Beam." << currentBeam.red() << ", " << currentBeam.green() << ", " << currentBeam.blue();
     return currentBeam;
   }
 
 
-  beam tracer_pathtracer::traceRay( point start, threeVector dir ) const
+  beam tracer_pathtracer::traceRay( point start, threeVector dir )
   {
     return this->_pathTrace( start, dir ); // Starts the recursive function
   }

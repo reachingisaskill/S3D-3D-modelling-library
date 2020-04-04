@@ -34,6 +34,9 @@ int main( int, char** )
   S3D::material_base* room_mat = (S3D::material_base*) new S3D::material_phong( S3D::colour( 0.5, 0.5, 0.5 ), 0.5, 0.1, 1 );
   man->addMaterial( "room", room_mat );
 
+  S3D::material_base* light_mat = (S3D::material_base*) new S3D::material_lightsource( S3D::colour( 0.5, 0.5, 0.5 ), 0.1 );
+  man->addMaterial( "light", light_mat );
+
   S3D::material_base* sph1_mat = (S3D::material_base*) new S3D::material_phong( S3D::colour( 1.0, 0.0, 0.0 ), 0.5, 0.3, 5 );
   man->addMaterial( "sphere", sph1_mat );
 
@@ -44,7 +47,7 @@ int main( int, char** )
   man->addMaterial( "box", box_mat );
 
   man->setAmbientLight( S3D::beam( 0.02, 0.02, 0.02 ) );
-  man->setLightSampleRate( 100 );
+  man->setLightSampleRate( 10 );
 
 
 
@@ -103,15 +106,14 @@ int main( int, char** )
 
   INFO_LOG( "Adding light sources." );
 
-  S3D::light_spotlight* the_light = new S3D::light_spotlight( S3D::colour( 1.0, 1.0, 1.0 ),  1.0, 1.0 );
+  S3D::light_pointSource* the_light = new S3D::light_pointSource( S3D::colour( 1.0, 1.0, 1.0 ), 1.0 );
   the_light->setPosition( S3D::point( 1.0, 0.0, 20.0 ) );
-  the_light->setRotation( S3D::rotation( S3D::unit_threeVector_x, S3D::PI ) );
-  man->addLight( (S3D::light_base*)the_light );
+  man->addObject( (S3D::object_base*)the_light );
 
-  S3D::light_circle* another_light = new S3D::light_circle( S3D::colour( 1.0, 1.0, 1.0 ),  1.0, 1.0 );
+  S3D::circular_plane* another_light = new S3D::circular_plane( light_mat, 2.0 );
   another_light->setPosition( S3D::point( -5.0, -5.0, 3.0 ) );
   another_light->setRotation( S3D::rotation( S3D::unit_threeVector_z, -S3D::PI/4 ) * S3D::rotation( S3D::unit_threeVector_x, -S3D::PI/2.0 ) );
-  man->addLight( (S3D::light_base*)another_light );
+  man->addObject( (S3D::object_base*)another_light );
 
 //  S3D::light_base* another_light = (S3D::light_base*) new S3D::light_pointSource( S3D::colour( 0.1, 0.1, 1.0 ),  2000.0 );
 //  man->addLight( another_light );
