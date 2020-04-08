@@ -27,7 +27,7 @@ namespace S3D
       virtual interaction intersect( const line& ) const { return interaction(); }
 
       // Returns a random point on the surface of the object,
-      virtual surfacemap sampleSurface() const { return this->getPosition(); }
+      virtual surfacemap sampleSurface() const { return surfacemap( this->getPosition(), unit_threeVector_z ); }
 
       // Randomly samples the light seen at a given point
       //  ray tracer object required to perform visibility checks

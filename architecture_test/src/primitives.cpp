@@ -102,7 +102,7 @@ namespace S3D
     double phi = std::acos( 2.0* r2 - 1 );
 
     threeVector pos = makeThreeVector( std::cos(theta)*std::sin(phi), std::sin(theta)*std::sin(phi), std::cos(phi) );
-    return surfacemap( this->getPosition() + pos );
+    return surfacemap( this->getPosition() + pos, pos.norm() );
   }
 
 
@@ -302,7 +302,7 @@ namespace S3D
     }
 
     // Pick a random position on that plane
-    return surfacemap( _surfaces[planeId].sampleSurface() );
+    return surfacemap( _surfaces[planeId].sampleSurface(), _surfaces[planeId].getNormal() );
   }
 
 
@@ -409,7 +409,7 @@ namespace S3D
   surfacemap square_plane::sampleSurface() const
   {
     point pos =  _surface.sampleSurface();
-    return surfacemap( pos );
+    return surfacemap( pos, _surface.getNormal() );
   }
 
   
@@ -498,7 +498,7 @@ namespace S3D
   surfacemap circular_plane::sampleSurface() const
   {
     point pos =  _surface.sampleSurface();
-    return surfacemap( pos );
+    return surfacemap( pos, _surface.getNormal() );
   }
 
   

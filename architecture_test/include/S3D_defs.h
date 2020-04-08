@@ -28,6 +28,8 @@ namespace S3D
 
   const double PI = 3.1415926535897932384626434;
 
+  const double E = 2.7182818284590452353602875;
+
   const threeVector unit_threeVector_x = makeThreeVector( 1.0, 0.0, 0.0 );
   const threeVector unit_threeVector_y = makeThreeVector( 0.0, 1.0, 0.0 );
   const threeVector unit_threeVector_z = makeThreeVector( 0.0, 0.0, 1.0 );

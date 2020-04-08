@@ -1,7 +1,11 @@
 
 #include "S3D_frame.h"
 
+#include "S3D_defs.h"
+
 #include "stdexts.h"
+
+#include <cmath>
 
 
 namespace S3D
@@ -106,12 +110,12 @@ namespace S3D
       for ( unsigned int j = 0; j < this->_pixelsY; ++j )
       {
         const beam& b = this->pixel( i, j );
-        if ( b.red() > maxIntensity )
-          maxIntensity = b.red();
-        if ( b.green() > maxIntensity )
-          maxIntensity = b.green();
-        if ( b.blue() > maxIntensity )
-          maxIntensity = b.blue();
+        if ( std::log( 1.0 + b.red() ) > maxIntensity )
+          maxIntensity = std::log( 1.0 + b.red() );
+        if ( std::log( 1.0 + b.green() ) > maxIntensity )
+          maxIntensity = std::log( 1.0 + b.green() );
+        if ( std::log( 1.0 + b.blue() ) > maxIntensity )
+          maxIntensity = std::log( 1.0 + b.blue() );
       }
     }
 
@@ -120,12 +124,47 @@ namespace S3D
       for ( unsigned int j = 0; j < this->_pixelsY; ++j )
       {
         const beam& b = this->pixel( i, j );
-        bm.setPixel( i, j, stdexts::bitmap::pixel(b.red()/maxIntensity, b.green()/maxIntensity, b.blue()/maxIntensity) );
+        bm.setPixel( i, j, stdexts::bitmap::pixel( std::log( 1.0 + b.red() ) / maxIntensity,
+                                                   std::log( 1.0 + b.green() ) / maxIntensity,
+                                                   std::log( 1.0 + b.blue() ) / maxIntensity ) );
       }
     }
 
     bm.saveFile( filename );
   }
+
+
+//  // Dump to a BMP file appling linear scaling.
+//  void frame::dump( std::string filename ) const
+//  {
+//    stdexts::bitmap bm( this->_pixelsX, this->_pixelsY );
+//
+//    double maxIntensity = 0.0;
+//    for ( unsigned int i = 0; i < this->_pixelsX; ++i )
+//    {
+//      for ( unsigned int j = 0; j < this->_pixelsY; ++j )
+//      {
+//        const beam& b = this->pixel( i, j );
+//        if ( b.red() > maxIntensity )
+//          maxIntensity = b.red();
+//        if ( b.green() > maxIntensity )
+//          maxIntensity = b.green();
+//        if ( b.blue() > maxIntensity )
+//          maxIntensity = b.blue();
+//      }
+//    }
+//
+//    for ( unsigned int i = 0; i < this->_pixelsX; ++i )
+//    {
+//      for ( unsigned int j = 0; j < this->_pixelsY; ++j )
+//      {
+//        const beam& b = this->pixel( i, j );
+//        bm.setPixel( i, j, stdexts::bitmap::pixel( b.red()/maxIntensity, b.green()/maxIntensity, b.blue()/maxIntensity ) );
+//      }
+//    }
+//
+//    bm.saveFile( filename );
+//  }
 
 }
 

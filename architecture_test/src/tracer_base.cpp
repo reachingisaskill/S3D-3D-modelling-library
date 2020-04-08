@@ -109,6 +109,7 @@ namespace S3D
   {
     beam the_beam( 0.0, 0.0, 0.0 );
     double scaleFactor = 1.0 / (double)_numLightSamples;
+    double sample_prob_factor = _totalLightArea;
     DEBUG_STREAM << "Sampling all lights. " << _numLightSamples << " samples. Scale factor = " << scaleFactor;
 
     try
@@ -122,10 +123,14 @@ namespace S3D
 
         if ( isVisible( light_point.getPosition(), inter.getPoint(), inter.getSurfaceNormal() ) )
         {
-          threeVector lightDir = (inter.getPoint() - light_point.getPosition()).norm();
+          threeVector lightDir = (inter.getPoint() - light_point.getPosition());
           beam light_emission = light_obj->getMaterial()->getEmission( light_point );
 
-          the_beam += inter.getObject()->getMaterial()->BRDF( lightDir, light_emission, inter );
+//          beam light_received = light_emission * sample_prob_factor;
+//          beam light_received = light_emission * sample_prob_factor * (  std::fabs( lightDir.norm() * light_point.getNormal() / lightDir.square() ) );
+//          the_beam += inter.getObject()->getMaterial()->BRDF( lightDir.norm(), light_received, inter );
+
+          the_beam += inter.getObject()->getMaterial()->BRDF( lightDir.norm(), light_emission, inter );
         }
         DEBUG_STREAM << "  Current beam = " << the_beam.red() << ", " << the_beam.green() << ", " << the_beam.blue();
       }

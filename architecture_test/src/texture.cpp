@@ -6,12 +6,14 @@ namespace S3D
 {
 
   surfacemap::surfacemap() :
-    _sceneLocation()
+    _sceneLocation(),
+    _normal()
   {
   }
 
-  surfacemap::surfacemap( point p ) :
-    _sceneLocation( p )
+  surfacemap::surfacemap( point p, threeVector n ) :
+    _sceneLocation( p ),
+    _normal( n )
   {
   }
 

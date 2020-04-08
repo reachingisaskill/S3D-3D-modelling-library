@@ -16,11 +16,14 @@ namespace S3D
   class surfacemap
   {
     point _sceneLocation;
+    threeVector _normal;
+
     public:
       surfacemap();
-      surfacemap( point );
+      surfacemap( point, threeVector );
 
       point getPosition() const { return _sceneLocation; }
+      threeVector getNormal() const { return _normal; }
   };
 
 

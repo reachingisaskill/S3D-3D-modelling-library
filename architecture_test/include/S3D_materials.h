@@ -194,12 +194,14 @@ namespace S3D
   {
     private:
       colour _colour;
+      colour _albedo;
       double _BRDFConstant;
 
     protected:
 
     public:
-      material_glowing( colour, double );
+      // Colour, albedo, emission
+      material_glowing( colour, colour, double );
 
       virtual double getTransmissionProb( const interaction& ) const { return 0.0; }
 

@@ -196,19 +196,9 @@ namespace S3D
 
           threeVector secondPos = makeThreeVector( x, y, 1.0 );
 
-          DEBUG_STREAM << "startPos = " << startPos << "secondPos = " << secondPos << " FOV = " << fov;
-
           point beam_start = camera_start + this->getRotation().rotateVector( startPos );
           point beam_next = camera_start + this->getRotation().rotateVector( secondPos );
           threeVector beam_direction = beam_next - beam_start;
-
-
-//          double x = ( pixel_x - pX/2.0 ) * _length * std::tan( fov );
-//          double y = ( pixel_y - pY/2.0 ) * _length * std::tan( (pY/pX)*fov );
-//
-//          point beam_start = camera_start + this->getRotation().rotateVector( makeThreeVector( x, y, 0.0 ) );
-//          threeVector beam_direction = beam_start - focal_point;
-
         
           b += this->_getRayTracer()->traceRay( beam_start, beam_direction );
         }

@@ -32,10 +32,10 @@ int main( int, char** )
   S3D::material_base* world_mat = (S3D::material_base*) new S3D::material_lambertian( S3D::colour( 0.5, 0.5, 0.5 ) );
   man->addMaterial( "world", world_mat );
 
-  S3D::material_base* light_mat = (S3D::material_base*) new S3D::material_lightsource( S3D::colour( 1.0, 1.0, 1.0 ), 1.0 );
+  S3D::material_base* light_mat = (S3D::material_base*) new S3D::material_lightsource( S3D::colour( 1.0, 1.0, 1.0 ), 10.0 );
   man->addMaterial( "light", light_mat );
 
-  S3D::material_base* blue_light_mat = (S3D::material_base*) new S3D::material_lightsource( S3D::colour( 0.0, 0.0, 1.0 ), 1.0 );
+  S3D::material_base* blue_light_mat = (S3D::material_base*) new S3D::material_lightsource( S3D::colour( 0.0, 0.0, 1.0 ), 10.0 );
   man->addMaterial( "blue_light", blue_light_mat );
 
   S3D::material_base* sph1_mat = (S3D::material_base*) new S3D::material_lambertian( S3D::colour( 0.8, 0.0, 0.0 ) );
@@ -54,6 +54,7 @@ int main( int, char** )
   man->addMaterial( "blue", blue_mat );
 
   S3D::material_base* glass_mat = (S3D::material_base*) new S3D::material_glass( S3D::colour( 0.0, 0.0, 0.0 ) );
+  glass_mat->setRefractiveIndex( 1.5 );
   man->addMaterial( "glass", glass_mat );
 
   S3D::material_base* mirror_mat = (S3D::material_base*) new S3D::material_mirror( S3D::colour( 0.0, 0.0, 0.0 ) );
@@ -103,11 +104,11 @@ int main( int, char** )
   ceiling->setRotation( cr );
   man->addObject( ceiling );
 
-  S3D::object_base* shade = (S3D::object_base*) new S3D::square_plane( white_mat, 2.0, 2.0 );
-  S3D::rotation shade_r( S3D::unit_threeVector_x, S3D::PI/2.0 );
-  shade->setPosition( S3D::point( 0.0, -2.0, 7.5 ) );
-  shade->setRotation( shade_r );
-  man->addObject( shade );
+//  S3D::object_base* shade = (S3D::object_base*) new S3D::square_plane( white_mat, 2.0, 2.0 );
+//  S3D::rotation shade_r( S3D::unit_threeVector_x, S3D::PI/2.0 );
+//  shade->setPosition( S3D::point( 0.0, -2.0, 7.5 ) );
+//  shade->setRotation( shade_r );
+//  man->addObject( shade );
 
   S3D::object_base* front = (S3D::object_base*) new S3D::square_plane( white_mat, 10.0, 10.0 );
   S3D::rotation front_r( S3D::unit_threeVector_x, -S3D::PI/2.0 );
@@ -135,7 +136,7 @@ int main( int, char** )
   INFO_LOG( "Making test box." );
   S3D::object_base* test_box = (S3D::object_base*) new S3D::box( white_mat, 3.0, 1.0, 5.0 );
   test_box->setPosition( S3D::point( 3.0, -1.0, 2.5 ) );
-  test_box->setRotation( S3D::rotation( S3D::unit_threeVector_z, S3D::PI/5.0 ) );
+  test_box->setRotation( S3D::rotation( S3D::unit_threeVector_z, S3D::PI/4.0 ) );
   man->addObject( test_box );
 
 
@@ -181,13 +182,13 @@ int main( int, char** )
 
   INFO_LOG( "Rendering scene." );
   const S3D::frame* f = man->getFrame();
-  f->dump( std::string("camera_test_image.bmp") );
+  f->dump( std::string("pathtracing_test_image.bmp") );
 
 //  INFO_LOG( "Tracing a ray" );
 //  tracer->setup();
 //  for ( int i = 0; i < 100; ++i )
 //  {
-//    tracer->traceRay( S3D::point( 0.0, -15.0, 5.0 ), (S3D::point( 0.0, -10.0, 7.5 ) - S3D::point( 0.0, -15.0, 5.0 ) ).norm() );
+//    tracer->traceRay( S3D::point( 0.0, -4.99999, 5.0 ), (S3D::point( -1.0, -3.0, 1.0 ) - S3D::point( 0.0, -4.99999, 5.0  ) ).norm() );
 //  }
 
 

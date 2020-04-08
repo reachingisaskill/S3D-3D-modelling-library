@@ -19,7 +19,7 @@ namespace S3D
     private:
       // Relative refractive index
       double _refractiveIndex;
-      double _emissivity;
+      double _emittance;
 
     protected:
 
@@ -39,7 +39,7 @@ namespace S3D
       virtual colour getColour( surfacemap ) const = 0;
 
       // Returns the coloured emission of a point on the object surface, parameterized by the surface mapping object
-      virtual beam getEmission( surfacemap map ) const { return beam( this->getColour( map ), _emissivity ); }
+      virtual beam getEmission( surfacemap map ) const { return beam( this->getColour( map ), _emittance ); }
 
       // Handle the light-surface reflection
       //   incoming direction, beam, inteaction details
@@ -53,9 +53,9 @@ namespace S3D
 
       virtual threeVector sampleTransmission( const interaction& ) const;
 
-      void setEmissivity( double e ) { _emissivity = e; }
+      void setEmittance( double e ) { _emittance = e; }
 
-      bool isLightSource() const { return ( this->_emissivity > epsilon ); }
+      bool isLightSource() const { return ( this->_emittance > epsilon ); }
 
   };
 }

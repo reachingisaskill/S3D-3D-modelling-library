@@ -1,4 +1,4 @@
-#define __DEBUG_OFF__
+//#define __DEBUG_OFF__
 
 #include "S3D_materials.h"
 
@@ -27,11 +27,9 @@ namespace S3D
   }
 
 
-  beam material_simple::BRDF( threeVector incomingDir, beam beam_in, const interaction& inter) const
+  beam material_simple::BRDF( threeVector, beam beam_in, const interaction&) const
   {
     beam theBeam = beam_in*_colour; // Weight the reflected light by the _colour
-    
-    theBeam *= -inter.getSurfaceNormal() * incomingDir; // Effect of tilting away from lightsource
 
     theBeam *= _brdf_const;
 
@@ -56,7 +54,7 @@ namespace S3D
     threeVector R = incomingDir - 2.0*inter.getSurfaceNormal() * L_dot_N;
     DEBUG_STREAM << "PHONG Incoming = " << incomingDir <<  " -- L dot N = " << L_dot_N << " --  R = " << R;
 
-    beam the_beam = beam_in *  -L_dot_N * _diffuse_coef * _ambient_coef;
+    beam the_beam = beam_in * _diffuse_coef * _ambient_coef;
     DEBUG_STREAM << "Plus Diffuse component: " << the_beam.red() << ", " << the_beam.green() << ", " << the_beam.blue();
 
     double specular_product = -inter.getLine().getDirection() * R;
@@ -89,7 +87,7 @@ namespace S3D
 
     // Ambient light added by the raytracer as it varies with sampling frequencies, etc.
 
-    beam the_beam = beam_in *  -L_dot_N * _diffuse_coef * _ambient_coef;
+    beam the_beam = beam_in * _diffuse_coef * _ambient_coef;
     DEBUG_STREAM << "Plus Diffuse component: " << the_beam.red() << ", " << the_beam.green() << ", " << the_beam.blue();
 
     double specular_product = inter.getSurfaceNormal() * H;
@@ -173,13 +171,12 @@ namespace S3D
   }
 
 
-  beam material_lambertian::BRDF( threeVector incomingDir, beam beam_in, const interaction& inter ) const
+  beam material_lambertian::BRDF( threeVector, beam beam_in, const interaction& ) const
   {
     DEBUG_LOG( "Lambertian scattering" );
-    double L_dot_N = incomingDir * inter.getSurfaceNormal();
 
-    beam the_beam = beam_in *  -L_dot_N * _albedo * _BRDFConstant;
-    DEBUG_STREAM << "Albedo component: " << L_dot_N << " | " << the_beam.red() << ", " << the_beam.green() << ", " << the_beam.blue();
+    beam the_beam = beam_in * _albedo * _BRDFConstant;
+    DEBUG_STREAM << "Albedo component: " << the_beam.red() << ", " << the_beam.green() << ", " << the_beam.blue();
 
     return the_beam;
   }
@@ -197,7 +194,7 @@ namespace S3D
   material_lightsource::material_lightsource( colour col, double e ) :
     _colour( col )
   {
-    this->setEmissivity( e );
+    this->setEmittance( e );
   }
 
 
@@ -217,21 +214,22 @@ namespace S3D
 ////////////////////////////////////////////////////////////////////////////////////////////////////
   // Glowing lambertian
 
-  material_glowing::material_glowing( colour col, double e ) :
+  material_glowing::material_glowing( colour col, colour albedo, double e ) :
     _colour( col ),
+    _albedo( albedo ),
     _BRDFConstant( 1.0 / PI )
   {
-    this->setEmissivity( e );
+    this->setEmittance( e );
   }
 
 
-  beam material_glowing::BRDF( threeVector incomingDir, beam beam_in, const interaction& inter ) const
+  beam material_glowing::BRDF( threeVector, beam beam_in, const interaction& ) const
   {
     DEBUG_LOG( "Glowing Lambertian scattering" );
-    double L_dot_N = incomingDir * inter.getSurfaceNormal();
 
-    beam the_beam = beam_in *  -L_dot_N * _colour * _BRDFConstant;
-    DEBUG_STREAM << "Albedo component: " << L_dot_N << " | " << the_beam.red() << ", " << the_beam.green() << ", " << the_beam.blue();
+    beam the_beam = beam_in * _albedo * _BRDFConstant;
+    colour brdf = _albedo * _BRDFConstant;
+    DEBUG_STREAM << "BRDF Value = " << brdf.getRed() << ", " << brdf.getGreen() << ", " << brdf.getBlue();
 
     return the_beam;
   }
