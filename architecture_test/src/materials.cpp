@@ -1,4 +1,4 @@
-//#define __DEBUG_OFF__
+#define __DEBUG_OFF__
 
 #include "S3D_materials.h"
 
@@ -14,33 +14,30 @@ namespace S3D
 {
 
 
-  material_simple::material_simple( colour c ) :
+  material_simple::material_simple( spectrum c ) :
     _colour( c ),
     _brdf_const( 1.0 )
   {
   }
 
 
-  colour material_simple::getColour( surfacemap ) const
+  spectrum material_simple::getColour( surfacemap ) const
   {
     return _colour;
   }
 
 
-  beam material_simple::BRDF( threeVector, beam beam_in, const interaction&) const
+  spectrum material_simple::BRDF( threeVector, const interaction&) const
   {
-    beam theBeam = beam_in*_colour; // Weight the reflected light by the _colour
-
-    theBeam *= _brdf_const;
-
-    return theBeam;
+    return _brdf_const * _colour;
   }
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
   // Phong Reflection Model
 
-  material_phong::material_phong( colour amb, double dif, double spec, double shin ) :
-    _ambient_coef( amb ),
+  material_phong::material_phong( spectrum amb, double dif, double spec, double shin ) :
+    _albedo( amb ),
     _diffuse_coef( dif ),
     _specular_coef( spec ),
     _shininess_factor( shin )
@@ -48,30 +45,30 @@ namespace S3D
   }
 
 
-  beam material_phong::BRDF( threeVector incomingDir, beam beam_in, const interaction& inter ) const
+  spectrum material_phong::BRDF( threeVector incomingDir, const interaction& inter ) const
   {
     double L_dot_N = incomingDir * inter.getSurfaceNormal();
     threeVector R = incomingDir - 2.0*inter.getSurfaceNormal() * L_dot_N;
     DEBUG_STREAM << "PHONG Incoming = " << incomingDir <<  " -- L dot N = " << L_dot_N << " --  R = " << R;
 
-    beam the_beam = beam_in * _diffuse_coef * _ambient_coef;
-    DEBUG_STREAM << "Plus Diffuse component: " << the_beam.red() << ", " << the_beam.green() << ", " << the_beam.blue();
+    spectrum coefficient = _diffuse_coef * _albedo * -L_dot_N;
+    DEBUG_STREAM << "Plus Diffuse component: " << coefficient.red() << ", " << coefficient.green() << ", " << coefficient.blue();
 
     double specular_product = -inter.getLine().getDirection() * R;
     if ( specular_product > 0.0 )
     {
-      the_beam += beam_in * _specular_coef * std::pow( specular_product, _shininess_factor );
+      coefficient += spectrum( 1.0, 1.0, 1.0 ) * _specular_coef * std::pow( specular_product, _shininess_factor );
     }
-    DEBUG_STREAM << "Plus specular component: " << the_beam.red() << ", " << the_beam.green() << ", " << the_beam.blue();
+    DEBUG_STREAM << "Plus specular component: " << coefficient.red() << ", " << coefficient.green() << ", " << coefficient.blue();
 
-    return the_beam;
+    return coefficient;
   }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
   // Phong-Blinn Model
 
-  material_blinn::material_blinn( colour amb, double dif, double spec, double shin ) :
-    _ambient_coef( amb ),
+  material_blinn::material_blinn( spectrum amb, double dif, double spec, double shin ) :
+    _albedo( amb ),
     _diffuse_coef( dif ),
     _specular_coef( spec ),
     _shininess_factor( shin )
@@ -79,7 +76,7 @@ namespace S3D
   }
 
 
-  beam material_blinn::BRDF( threeVector incomingDir, beam beam_in, const interaction& inter ) const
+  spectrum material_blinn::BRDF( threeVector incomingDir, const interaction& inter ) const
   {
     double L_dot_N = incomingDir * inter.getSurfaceNormal();
     threeVector H = ( -inter.getLine().getDirection() - incomingDir ).norm();
@@ -87,25 +84,25 @@ namespace S3D
 
     // Ambient light added by the raytracer as it varies with sampling frequencies, etc.
 
-    beam the_beam = beam_in * _diffuse_coef * _ambient_coef;
-    DEBUG_STREAM << "Plus Diffuse component: " << the_beam.red() << ", " << the_beam.green() << ", " << the_beam.blue();
+    spectrum coefficient = _diffuse_coef * _albedo * -L_dot_N;
+    DEBUG_STREAM << "Plus Diffuse component: " << coefficient.red() << ", " << coefficient.green() << ", " << coefficient.blue();
 
     double specular_product = inter.getSurfaceNormal() * H;
     if ( specular_product > 0.0 )
     {
-      the_beam += beam_in * _specular_coef * std::pow( specular_product, _shininess_factor );
+      coefficient += spectrum( 1.0, 1.0, 1.0 ) * _specular_coef * std::pow( specular_product, _shininess_factor );
     }
-    DEBUG_STREAM << "Plus specular component: " << the_beam.red() << ", " << the_beam.green() << ", " << the_beam.blue();
+    DEBUG_STREAM << "Plus specular component: " << coefficient.red() << ", " << coefficient.green() << ", " << coefficient.blue();
 
-    return the_beam;
+    return coefficient;
   }
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
   // Glass Model
 
-  material_glass::material_glass( colour col ) :
-    _colour( col )
+  material_glass::material_glass( spectrum col ) :
+    _albedo( col )
   {
   }
 
@@ -126,59 +123,33 @@ namespace S3D
   }
 
 
-  beam material_glass::BRDF( threeVector direction, beam b, const interaction& inter ) const
-  {
-    DEBUG_LOG( "Perfect Glass. Only reflection is perfectly specular" );
-    DEBUG_STREAM << "   Dot product = " << direction * inter.getReflection();
-
-    // Dot product should always be negative
-    if ( ( 1.0 + direction * inter.getReflection() ) < epsilon )
-      return b;
-    else
-      return beam( 0.0, 0.0, 0.0 );
-  }
-
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
   // Mirror Model
 
-  material_mirror::material_mirror( colour col ) :
-    _colour( col )
+  material_mirror::material_mirror( spectrum col ) :
+    _albedo( col )
   {
-  }
-
-
-  beam material_mirror::BRDF( threeVector direction, beam b, const interaction& inter ) const
-  {
-    DEBUG_LOG( "Perfect Mirror. Only reflection is perfectly specular" );
-    DEBUG_STREAM << "   Dot product = " << direction * inter.getReflection();
-
-    // Dot product should always be negative
-    if ( ( 1.0 + direction * inter.getReflection() ) < epsilon )
-      return b;
-    else
-      return beam( 0.0, 0.0, 0.0 );
   }
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
   // Lambertian Model
 
-  material_lambertian::material_lambertian( colour col ) :
+  material_lambertian::material_lambertian( spectrum col ) :
     _albedo( col ),
     _BRDFConstant( 1.0 / PI )
   {
   }
 
 
-  beam material_lambertian::BRDF( threeVector, beam beam_in, const interaction& ) const
+  spectrum material_lambertian::BRDF( threeVector, const interaction& ) const
   {
     DEBUG_LOG( "Lambertian scattering" );
 
-    beam the_beam = beam_in * _albedo * _BRDFConstant;
-    DEBUG_STREAM << "Albedo component: " << the_beam.red() << ", " << the_beam.green() << ", " << the_beam.blue();
+    spectrum coefficient = _albedo * _BRDFConstant;
+    DEBUG_STREAM << "Albedo component: " << coefficient.red() << ", " << coefficient.green() << ", " << coefficient.blue();
 
-    return the_beam;
+    return coefficient;
   }
 
 
@@ -191,30 +162,31 @@ namespace S3D
 ////////////////////////////////////////////////////////////////////////////////////////////////////
   // Pure Light Source
 
-  material_lightsource::material_lightsource( colour col, double e ) :
+  material_lightsource::material_lightsource( spectrum col, double e ) :
     _colour( col )
   {
     this->setEmittance( e );
   }
 
 
-  beam material_lightsource::BRDF( threeVector, beam, const interaction& ) const
+  spectrum material_lightsource::BRDF( threeVector, const interaction& ) const
   {
     DEBUG_LOG( "Perfect light source acting as a perfect black." );
-    return beam( 0.0, 0.0, 0.0 );
+    return spectrum( 0.0, 0.0, 0.0 );
   }
 
 
-  threeVector material_lightsource::sampleReflection( const interaction& inter ) const
+  spectrum material_lightsource::BTDF( threeVector, const interaction& ) const
   {
-    return inter.getReflection();
+    DEBUG_LOG( "Perfect light source acting as a perfect black." );
+    return spectrum( 0.0, 0.0, 0.0 );
   }
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
   // Glowing lambertian
 
-  material_glowing::material_glowing( colour col, colour albedo, double e ) :
+  material_glowing::material_glowing( spectrum col, spectrum albedo, double e ) :
     _colour( col ),
     _albedo( albedo ),
     _BRDFConstant( 1.0 / PI )
@@ -223,15 +195,14 @@ namespace S3D
   }
 
 
-  beam material_glowing::BRDF( threeVector, beam beam_in, const interaction& ) const
+  spectrum material_glowing::BRDF( threeVector, const interaction& ) const
   {
     DEBUG_LOG( "Glowing Lambertian scattering" );
 
-    beam the_beam = beam_in * _albedo * _BRDFConstant;
-    colour brdf = _albedo * _BRDFConstant;
-    DEBUG_STREAM << "BRDF Value = " << brdf.getRed() << ", " << brdf.getGreen() << ", " << brdf.getBlue();
+    spectrum brdf = _albedo * _BRDFConstant;
+    DEBUG_STREAM << "BRDF Value = " << brdf.red() << ", " << brdf.green() << ", " << brdf.blue();
 
-    return the_beam;
+    return brdf;
   }
 
 

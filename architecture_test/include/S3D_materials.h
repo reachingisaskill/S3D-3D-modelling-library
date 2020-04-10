@@ -5,7 +5,7 @@
 #include "S3D_material_base.h"
 
 #include "S3D_vector.h"
-#include "S3D_beam.h"
+#include "S3D_spectrum.h"
 #include "S3D_interaction.h"
 
 
@@ -15,20 +15,20 @@ namespace S3D
   class material_simple : public material_base
   {
     private:
-      colour _colour;
+      spectrum _colour;
       double _brdf_const;
 
     protected:
     public:
-      material_simple( colour );
+      material_simple( spectrum );
 
       virtual double getTransmissionProb( const interaction& ) const { return 0.0; }
 
       virtual double getReflectionProb( const interaction& ) const { return 0.0; }
 
-      virtual colour getColour( surfacemap ) const;
+      virtual spectrum getColour( surfacemap ) const;
 
-      virtual beam BRDF( threeVector, beam, const interaction& ) const;
+      virtual spectrum BRDF( threeVector, const interaction& ) const;
   };
 
 
@@ -38,7 +38,7 @@ namespace S3D
   class material_phong : public material_base
   {
     private:
-      colour _ambient_coef;
+      spectrum _albedo;
       double _diffuse_coef;
       double _specular_coef;
       double _shininess_factor;
@@ -46,16 +46,16 @@ namespace S3D
     protected:
 
     public:
-      // Ambient colour, Diffuse coef, Specular Coef, Shininess.
-      material_phong( colour, double, double, double );
+      // Ambient spectrum, Diffuse coef, Specular Coef, Shininess.
+      material_phong( spectrum, double, double, double );
 
       virtual double getTransmissionProb( const interaction& ) const { return 0.0; }
 
       virtual double getReflectionProb( const interaction& ) const { return 0.0; }
 
-      virtual colour getColour( surfacemap ) const { return this->_ambient_coef; }
+      virtual spectrum getColour( surfacemap ) const { return this->_albedo; }
 
-      virtual beam BRDF( threeVector, beam, const interaction& ) const;
+      virtual spectrum BRDF( threeVector, const interaction& ) const;
   };
 
 
@@ -65,7 +65,7 @@ namespace S3D
   class material_blinn : public material_base
   {
     private:
-      colour _ambient_coef;
+      spectrum _albedo;
       double _diffuse_coef;
       double _specular_coef;
       double _shininess_factor;
@@ -73,16 +73,16 @@ namespace S3D
     protected:
 
     public:
-      // Ambient colour, Diffuse coef, Specular Coef, Shininess.
-      material_blinn( colour, double, double, double );
+      // Ambient spectrum, Diffuse coef, Specular Coef, Shininess.
+      material_blinn( spectrum, double, double, double );
 
       virtual double getTransmissionProb( const interaction& ) const { return 0.0; }
 
       virtual double getReflectionProb( const interaction& ) const { return 0.0; }
 
-      virtual colour getColour( surfacemap ) const { return this->_ambient_coef; }
+      virtual spectrum getColour( surfacemap ) const { return this->_albedo; }
 
-      virtual beam BRDF( threeVector, beam, const interaction& ) const;
+      virtual spectrum BRDF( threeVector, const interaction& ) const;
   };
 
 
@@ -92,21 +92,22 @@ namespace S3D
   class material_glass : public material_base
   {
     private:
-      colour _colour;
+      spectrum _albedo;
 
     protected:
 
     public:
       // Colour, Diffuse coef, Specular Coef, Shininess.
-      material_glass( colour );
+      material_glass( spectrum );
 
       virtual double getTransmissionProb( const interaction& ) const; // Return the fresnel coefficients
 
       virtual double getReflectionProb( const interaction& ) const; // Return the fresnel coefficients
 
-      virtual colour getColour( surfacemap ) const { return this->_colour; }
+      virtual spectrum getColour( surfacemap ) const { return this->_albedo; }
 
-      virtual beam BRDF( threeVector, beam, const interaction& ) const;
+      // Use the base class varient - defaults to specular
+//      virtual spectrum BRDF( threeVector, const interaction& ) const;
   };
 
 
@@ -116,21 +117,22 @@ namespace S3D
   class material_mirror : public material_base
   {
     private:
-      colour _colour;
+      spectrum _albedo;
 
     protected:
 
     public:
       // Colour, Diffuse coef, Specular Coef, Shininess.
-      material_mirror( colour );
+      material_mirror( spectrum );
 
       virtual double getTransmissionProb( const interaction& ) const { return 0.0; }
 
       virtual double getReflectionProb( const interaction& ) const { return 1.0; }
 
-      virtual colour getColour( surfacemap ) const { return this->_colour; }
+      virtual spectrum getColour( surfacemap ) const { return this->_albedo; }
 
-      virtual beam BRDF( threeVector, beam, const interaction& ) const;
+      // Use the base class varient - defaults to specular
+//      virtual spectrum BRDF( threeVector, const interaction& ) const;
   };
 
 
@@ -140,21 +142,21 @@ namespace S3D
   class material_lambertian : public material_base
   {
     private:
-      colour _albedo;
+      spectrum _albedo;
       double _BRDFConstant;
 
     protected:
 
     public:
-      material_lambertian( colour );
+      material_lambertian( spectrum );
 
       virtual double getTransmissionProb( const interaction& ) const { return 0.0; }
 
       virtual double getReflectionProb( const interaction& ) const { return 1.0; }
 
-      virtual colour getColour( surfacemap ) const { return this->_albedo; }
+      virtual spectrum getColour( surfacemap ) const { return this->_albedo; }
 
-      virtual beam BRDF( threeVector, beam, const interaction& ) const;
+      virtual spectrum BRDF( threeVector, const interaction& ) const;
 
       virtual threeVector sampleReflection( const interaction& ) const;
 
@@ -167,22 +169,22 @@ namespace S3D
   class material_lightsource : public material_base
   {
     private:
-      colour _colour;
+      spectrum _colour;
 
     protected:
 
     public:
-      material_lightsource( colour, double );
+      material_lightsource( spectrum, double );
 
       virtual double getTransmissionProb( const interaction& ) const { return 0.0; }
 
       virtual double getReflectionProb( const interaction& ) const { return 0.0; }
 
-      virtual colour getColour( surfacemap ) const { return this->_colour; }
+      virtual spectrum getColour( surfacemap ) const { return this->_colour; }
 
-      virtual beam BRDF( threeVector, beam, const interaction& ) const;
+      virtual spectrum BRDF( threeVector, const interaction& ) const;
 
-      virtual threeVector sampleReflection( const interaction& ) const;
+      virtual spectrum BTDF( threeVector, const interaction& ) const;
 
   };
 
@@ -193,23 +195,23 @@ namespace S3D
   class material_glowing : public material_base
   {
     private:
-      colour _colour;
-      colour _albedo;
+      spectrum _colour;
+      spectrum _albedo;
       double _BRDFConstant;
 
     protected:
 
     public:
       // Colour, albedo, emission
-      material_glowing( colour, colour, double );
+      material_glowing( spectrum, spectrum, double );
 
       virtual double getTransmissionProb( const interaction& ) const { return 0.0; }
 
       virtual double getReflectionProb( const interaction& ) const { return 1.0; }
 
-      virtual colour getColour( surfacemap ) const { return this->_colour; }
+      virtual spectrum getColour( surfacemap ) const { return this->_colour; }
 
-      virtual beam BRDF( threeVector, beam, const interaction& ) const;
+      virtual spectrum BRDF( threeVector, const interaction& ) const;
 
       virtual threeVector sampleReflection( const interaction& ) const;
 

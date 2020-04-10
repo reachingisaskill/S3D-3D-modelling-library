@@ -4,7 +4,7 @@
 
 #include "S3D_vector.h"
 #include "S3D_point.h"
-#include "S3D_beam.h"
+#include "S3D_spectrum.h"
 #include "S3D_interaction.h"
 #include "S3D_frame.h"
 #include "S3D_tracer_base.h"
@@ -19,7 +19,7 @@ namespace S3D
 
     protected:
       // Recursive implementation
-      virtual beam _traceRay( point start, threeVector direction, unsigned int depth=0 );
+      virtual spectrum _traceRay( point start, threeVector direction, unsigned int depth=0 );
 
     public:
       tracer_recursive();
@@ -29,7 +29,7 @@ namespace S3D
       void setMaxDepth( unsigned int d ) { _maxDepth = d; }
 
       // Called by the camera - primary interface to ray tracing
-      virtual beam traceRay( point start, threeVector direction );
+      virtual spectrum traceRay( point start, threeVector direction );
 
   };
 

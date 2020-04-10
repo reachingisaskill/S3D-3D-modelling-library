@@ -32,10 +32,10 @@ int main( int, char** )
 
 
   INFO_LOG( "Making basic material" );
-  S3D::material_base* mat = (S3D::material_base*) new S3D::material_simple( S3D::colour( 1.0, 0.0, 0.0 ) );
+  S3D::material_base* mat = (S3D::material_base*) new S3D::material_simple( S3D::spectrum( 1.0, 0.0, 0.0 ) );
   mat->setRefractiveIndex( 1.5 );
   man->addMaterial( "simple", mat );
-  S3D::material_base* world_mat = (S3D::material_base*) new S3D::material_simple( S3D::colour( 0.0, 0.3, 0.8 ) );
+  S3D::material_base* world_mat = (S3D::material_base*) new S3D::material_simple( S3D::spectrum( 0.0, 0.3, 0.8 ) );
   man->addMaterial( "room", world_mat );
 
 
@@ -362,7 +362,7 @@ int main( int, char** )
     square_plane* sqp2 = new square_plane( mat, 1.0, 1.0 );
     sqp2->setPosition( point( 0.0, 5.0, 0.0 ) );
     sqp2->setRotation( rotation( unit_threeVector_x, 2.0*PI/3.0 ) );
-    man->addObject( (object_base*) sqp );
+    man->addObject( (object_base*) sqp2 );
 
     unsigned int counter1 = 0;
     unsigned int counter2 = 0;

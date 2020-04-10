@@ -5,7 +5,7 @@
 #include "S3D_vector.h"
 #include "S3D_point.h"
 #include "S3D_line.h"
-#include "S3D_beam.h"
+#include "S3D_spectrum.h"
 #include "S3D_interaction.h"
 #include "S3D_manager.h"
 
@@ -51,17 +51,17 @@ namespace S3D
       virtual void setup();
 
       // Called by the camera - primary interface to ray tracing
-      virtual beam traceRay( point start, threeVector direction ) = 0;
+      virtual spectrum traceRay( point start, threeVector direction ) = 0;
 
       // Estimate the light emitted from and object that is seen at an interaction point.
-      virtual beam sampleLight( const object_base*, const interaction& );
+      virtual spectrum sampleLight( const object_base*, const interaction& );
 
       // Estimate the light received at an interaction point from all sources of light in the scene.
       // No. Samples, interaction vertex
-      virtual beam sampleAllLights( const interaction& );
+      virtual spectrum sampleAllLights( const interaction& );
 
       // Trace a "shadow ray" or a specific light ray from a light source
-      virtual beam traceLightSample( beam, point, const interaction& );
+      virtual spectrum traceLightSample( spectrum, point, const interaction& );
 
       // Can one point directly see anpther?
       virtual bool isVisible( point start, point end, threeVector Normal ) const;

@@ -46,7 +46,7 @@ class nVector
   friend nVector< 4, T > makeFourVector<>( T, T, T, T );
 
   private:
-    T* _components;
+    T _components[N];
 
   public:
     explicit nVector();
@@ -112,15 +112,50 @@ class nVector
 //////////////////////////////////////////////////////////////////////
 
 
+//template < unsigned long int N, typename T >
+//nVector< N, T >::nVector() :
+//  _components( new T[ N ] )
+//{
+//}
+//
+//template < unsigned long int N, typename T >
+//nVector< N, T >::nVector( T initVal ) :
+//  _components( new T[ N ] )
+//{
+//  for ( unsigned long int i = 0; i < N; ++i )
+//    _components[i] = initVal;
+//}
+//
+//template < unsigned long int N, typename T >
+//nVector< N, T >::nVector( T* array ) :
+//  _components( new T[ N ] )
+//{
+//  for ( int i = 0; i < N; ++i )
+//    _components[i] = array[i];
+//}
+//
+//
+//template < unsigned long int N, typename T >
+//nVector< N, T >::nVector( const nVector<N, T>& vec ) :
+//  _components( new T[ N ] )
+//{
+//  for ( unsigned long int i = 0; i < N; ++i )
+//  {
+//    T temp = vec._components[i];
+//    this->_components[i] = temp;
+//  }
+//}
+
+
 template < unsigned long int N, typename T >
 nVector< N, T >::nVector() :
-  _components( new T[ N ] )
+  _components()
 {
 }
 
 template < unsigned long int N, typename T >
 nVector< N, T >::nVector( T initVal ) :
-  _components( new T[ N ] )
+  _components()
 {
   for ( unsigned long int i = 0; i < N; ++i )
     _components[i] = initVal;
@@ -128,7 +163,7 @@ nVector< N, T >::nVector( T initVal ) :
 
 template < unsigned long int N, typename T >
 nVector< N, T >::nVector( T* array ) :
-  _components( new T[ N ] )
+  _components()
 {
   for ( int i = 0; i < N; ++i )
     _components[i] = array[i];
@@ -137,7 +172,7 @@ nVector< N, T >::nVector( T* array ) :
 
 template < unsigned long int N, typename T >
 nVector< N, T >::nVector( const nVector<N, T>& vec ) :
-  _components( new T[ N ] )
+  _components()
 {
   for ( unsigned long int i = 0; i < N; ++i )
   {
@@ -194,7 +229,7 @@ nVector< N, T > nVector< N, T >::operator-() const
 template < unsigned long int N, typename T >
 nVector< N, T >::~nVector()
 {
-  delete [] _components;
+//  delete [] _components;
 }
 
 

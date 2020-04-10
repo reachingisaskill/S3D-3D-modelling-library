@@ -3,7 +3,7 @@
 #define __S3D__MATERIAL_BASE_H__
 
 #include "S3D_base.h"
-#include "S3D_beam.h"
+#include "S3D_spectrum.h"
 #include "S3D_defs.h"
 #include "S3D_texture.h"
 
@@ -31,27 +31,34 @@ namespace S3D
       double getRefractiveIndex() const { return _refractiveIndex; }
       void setRefractiveIndex( double i ) { _refractiveIndex = i; }
 
+
       virtual double getTransmissionProb( const interaction& ) const = 0;
 
       virtual double getReflectionProb( const interaction& ) const = 0;
 
-      // Returns the colour of a point on the container surface, parameterized by some surface mapping object
-      virtual colour getColour( surfacemap ) const = 0;
+
+      // Returns the albedo spectrum of a point on the container surface, parameterized by some surface mapping object
+      virtual spectrum getColour( surfacemap ) const = 0;
 
       // Returns the coloured emission of a point on the object surface, parameterized by the surface mapping object
-      virtual beam getEmission( surfacemap map ) const { return beam( this->getColour( map ), _emittance ); }
+      virtual spectrum getEmission( surfacemap map ) const { return spectrum( this->getColour( map ) ) * _emittance; }
 
       // Handle the light-surface reflection
-      //   incoming direction, beam, inteaction details
-      virtual beam BRDF( threeVector, beam, const interaction& ) const = 0;
+      //   incoming direction, inteaction details
+      virtual spectrum BRDF( threeVector, const interaction& ) const;
 
       // Handle the light-surface transmission
-      //   incoming direction, beam, inteaction details
-      virtual beam BTDF( threeVector, beam b, const interaction& ) const { return b; }
+      //   incoming direction, inteaction details
+      virtual spectrum BTDF( threeVector, const interaction& ) const;
 
+      // Sample the BRDF diststribuion and return a direction.
+      //   defaults to the perfect specular case.
       virtual threeVector sampleReflection( const interaction& ) const;
 
+      // Sample the BTDF diststribuion and return a direction.
+      //   defaults to the perfect specular case.
       virtual threeVector sampleTransmission( const interaction& ) const;
+
 
       void setEmittance( double e ) { _emittance = e; }
 

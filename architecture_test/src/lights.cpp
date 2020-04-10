@@ -18,7 +18,7 @@ namespace S3D
 ////////////////////////////////////////////////////////////////////////////////////////////////////
   // Point Source
 
-  light_pointSource::light_pointSource( colour c, double bri ) :
+  light_pointSource::light_pointSource( spectrum c, double bri ) :
     object_base( new material_lightsource( c, bri ) )
   {
   }
@@ -39,7 +39,7 @@ namespace S3D
 ////////////////////////////////////////////////////////////////////////////////////////////////////
   // Spot Light
 //
-//  light_spotlight::light_spotlight( colour c, double bri, double r ) :
+//  light_spotlight::light_spotlight( spectrum c, double bri, double r ) :
 //    light_base( c, bri / (PI*r*r) ),
 //    _angularStdDev( degreesToRadians( 8.0 ) ),
 //    _radius( std::fabs( r ) ),
@@ -55,15 +55,15 @@ namespace S3D
 //  }
 //
 //
-//  beam light_spotlight::sampleRays( const interaction& inter, const tracer_base* tracer ) const
+//  spectrum light_spotlight::sampleRays( const interaction& inter, const tracer_base* tracer ) const
 //  {
-//    beam b_in( this->_getColour(), this->_getRadiance() );
+//    spectrum b_in( this->_getColour(), this->_getRadiance() );
 //    unsigned int numSamples = 1 + manager::getInstance()->getLightSampleRate() / this->getArea();
 //    b_in *= 1.0 / numSamples;
 //    threeVector direction = _getDirection();
 //    double gaus_const = 1.0 / ( _angularStdDev * std::sqrt( 2.0 * PI ) );
 //
-//    beam b_out( 0.0, 0.0, 0.0 );
+//    spectrum b_out( 0.0, 0.0, 0.0 );
 //    for ( unsigned int i = 0; i < numSamples; ++i )
 //    {
 //      twoVector plane_pos = random::uniformCircularPlane( _radius );

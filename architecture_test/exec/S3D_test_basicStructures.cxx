@@ -7,6 +7,7 @@
 #include "S3D_cameras.h"
 #include "S3D_defs.h"
 #include "S3D_random.h"
+#include "S3D_convergence.h"
 
 #include "logtastic.h"
 #include "testass.h"
@@ -31,9 +32,9 @@ int main( int, char** )
 
 
   INFO_LOG( "Making basic material" );
-  S3D::material_base* mat = (S3D::material_base*) new S3D::material_simple( S3D::colour( 1.0, 0.0, 0.0 ) );
+  S3D::material_base* mat = (S3D::material_base*) new S3D::material_simple( S3D::spectrum( 1.0, 0.0, 0.0 ) );
   man->addMaterial( "simple", mat );
-  S3D::material_base* world_mat = (S3D::material_base*) new S3D::material_simple( S3D::colour( 0.0, 0.3, 0.8 ) );
+  S3D::material_base* world_mat = (S3D::material_base*) new S3D::material_simple( S3D::spectrum( 0.0, 0.3, 0.8 ) );
   man->addMaterial( "room", world_mat );
 
 
@@ -200,6 +201,55 @@ int main( int, char** )
   }
   ASSERT_EQUAL( counter, (unsigned int)0 );
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+  SECTION( "Utility Functionality" );
+  {
+
+    S3D::convergence_counter c_counter( 5 );
+    S3D::spectrum test_spectrum( 0.0, 0.0, 0.0 );
+
+    ASSERT_TRUE( c_counter( test_spectrum ) );
+    ASSERT_TRUE( c_counter( test_spectrum ) );
+    ASSERT_TRUE( c_counter( test_spectrum ) );
+    ASSERT_TRUE( c_counter( test_spectrum ) );
+    ASSERT_FALSE( c_counter( test_spectrum ) );
+
+    S3D::convergence_variance c_variance( 0.01 );
+
+    ASSERT_TRUE( c_variance( test_spectrum ) );
+    ASSERT_TRUE( c_variance( test_spectrum ) );
+    ASSERT_TRUE( c_variance( test_spectrum ) );
+    ASSERT_TRUE( c_variance( test_spectrum ) );
+    ASSERT_FALSE( c_variance( test_spectrum ) );
+    INFO_STREAM << "C_Variance: " << c_variance.getMeanIntensity() << ", " << c_variance.getFractionalVariance() << ", " << c_variance.getVariance();
+
+
+    c_variance.clear();
+
+    test_spectrum = S3D::spectrum( 1.0, 1.0, 1.0 );
+
+    c_variance( test_spectrum );
+    c_variance( test_spectrum );
+
+    test_spectrum = S3D::spectrum( 5.0, 5.0, 5.0 );
+    c_variance( test_spectrum );
+    c_variance( test_spectrum );
+
+    ASSERT_TRUE( c_variance( test_spectrum ) );
+
+    ASSERT_APPROX_EQUAL( c_variance.getMeanIntensity(), 17.0/5.0 );
+    ASSERT_APPROX_EQUAL( c_variance.getVariance(), 3.84 );
+
+    S3D::spectrum mean_spec = c_variance.getMean();
+    ASSERT_APPROX_EQUAL( mean_spec.red(), 17.0/5.0 );
+    ASSERT_APPROX_EQUAL( mean_spec.green(), 17.0/5.0 );
+    ASSERT_APPROX_EQUAL( mean_spec.blue(), 17.0/5.0 );
+
+
+  }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

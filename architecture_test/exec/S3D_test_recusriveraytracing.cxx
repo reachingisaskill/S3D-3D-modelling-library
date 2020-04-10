@@ -19,8 +19,8 @@ void addSomeShapes();
 int main( int, char** )
 {
   logtastic::setLogFileDirectory( "./test_data/" );
-  logtastic::addLogFile( "architecture_test.log" );
-  logtastic::init( "Testing S3D Manager Functionality", S3D_VERSION_NUMBER );
+  logtastic::addLogFile( "recursive_test.log" );
+  logtastic::init( "Testing S3D Recursive Ray Tracing Functionality", S3D_VERSION_NUMBER );
 
   S3D::manager::createInstance();
 
@@ -28,25 +28,25 @@ int main( int, char** )
 
 
   INFO_LOG( "Making basic material" );
-  S3D::material_base* world_mat = (S3D::material_base*) new S3D::material_phong( S3D::colour( 0.5, 0.5, 0.5 ), 1.0, 0.0, 0 );
+  S3D::material_base* world_mat = (S3D::material_base*) new S3D::material_phong( S3D::spectrum( 0.5, 0.5, 0.5 ), 1.0, 0.0, 0 );
   man->addMaterial( "world", world_mat );
 
-  S3D::material_base* room_mat = (S3D::material_base*) new S3D::material_phong( S3D::colour( 0.5, 0.5, 0.5 ), 0.5, 0.1, 1 );
+  S3D::material_base* room_mat = (S3D::material_base*) new S3D::material_phong( S3D::spectrum( 0.5, 0.5, 0.5 ), 0.5, 0.1, 1 );
   man->addMaterial( "room", room_mat );
 
-  S3D::material_base* light_mat = (S3D::material_base*) new S3D::material_lightsource( S3D::colour( 0.5, 0.5, 0.5 ), 0.1 );
+  S3D::material_base* light_mat = (S3D::material_base*) new S3D::material_lightsource( S3D::spectrum( 0.5, 0.5, 0.5 ), 2.0 );
   man->addMaterial( "light", light_mat );
 
-  S3D::material_base* sph1_mat = (S3D::material_base*) new S3D::material_phong( S3D::colour( 1.0, 0.0, 0.0 ), 0.5, 0.3, 5 );
+  S3D::material_base* sph1_mat = (S3D::material_base*) new S3D::material_phong( S3D::spectrum( 1.0, 0.0, 0.0 ), 0.5, 0.3, 5 );
   man->addMaterial( "sphere", sph1_mat );
 
-  S3D::material_base* sph2_mat = (S3D::material_base*) new S3D::material_blinn( S3D::colour( 1.0, 0.0, 0.0 ), 0.5, 1.0, 50 );
+  S3D::material_base* sph2_mat = (S3D::material_base*) new S3D::material_blinn( S3D::spectrum( 1.0, 0.0, 0.0 ), 0.5, 1.0, 50 );
   man->addMaterial( "sphere_shiny", sph2_mat );
 
-  S3D::material_base* box_mat = (S3D::material_base*) new S3D::material_phong( S3D::colour( 0.0, 0.0, 0.5 ), 0.5, 0.1, 5 );
+  S3D::material_base* box_mat = (S3D::material_base*) new S3D::material_phong( S3D::spectrum( 0.0, 0.0, 0.5 ), 0.5, 0.1, 5 );
   man->addMaterial( "box", box_mat );
 
-  man->setAmbientLight( S3D::beam( 0.02, 0.02, 0.02 ) );
+  man->setAmbientLight( S3D::spectrum( 0.1, 0.1, 0.1 ) );
   man->setLightSampleRate( 10 );
 
 
@@ -97,6 +97,7 @@ int main( int, char** )
 
   INFO_LOG( "Added pinhole camera." );
   S3D::tracer_recursive* tracer = new S3D::tracer_recursive();
+  tracer->setLightSampleRate( 1.0 );
   S3D::camera_base* camera = (S3D::camera_base*) new S3D::camera_pinhole( tracer, S3D::degreesToRadians( 90.0 ) );
   camera->setPosition( S3D::point( 0.0, -15.0, 10.0 ) );
   camera->setRotation( S3D::rotation( S3D::unit_threeVector_x, -S3D::PI/8 ) * S3D::rotation( S3D::unit_threeVector_x, -0.5*S3D::PI ) );
@@ -106,21 +107,21 @@ int main( int, char** )
 
   INFO_LOG( "Adding light sources." );
 
-  S3D::light_pointSource* the_light = new S3D::light_pointSource( S3D::colour( 1.0, 1.0, 1.0 ), 1.0 );
+  S3D::light_pointSource* the_light = new S3D::light_pointSource( S3D::spectrum( 1.0, 1.0, 1.0 ), 1.0 );
   the_light->setPosition( S3D::point( 1.0, 0.0, 20.0 ) );
   man->addObject( (S3D::object_base*)the_light );
 
-  S3D::circular_plane* another_light = new S3D::circular_plane( light_mat, 2.0 );
+  S3D::circular_plane* another_light = new S3D::circular_plane( light_mat, 1.0 );
   another_light->setPosition( S3D::point( -5.0, -5.0, 3.0 ) );
   another_light->setRotation( S3D::rotation( S3D::unit_threeVector_z, -S3D::PI/4 ) * S3D::rotation( S3D::unit_threeVector_x, -S3D::PI/2.0 ) );
   man->addObject( (S3D::object_base*)another_light );
 
-//  S3D::light_base* another_light = (S3D::light_base*) new S3D::light_pointSource( S3D::colour( 0.1, 0.1, 1.0 ),  2000.0 );
+//  S3D::light_base* another_light = (S3D::light_base*) new S3D::light_pointSource( S3D::spectrum( 0.1, 0.1, 1.0 ),  2000.0 );
 //  man->addLight( another_light );
 
   INFO_LOG( "Rendering scene." );
   const S3D::frame* f = man->getFrame();
-  f->dump( std::string("camera_test_image.bmp") );
+  f->dump( std::string("recursive_test_image.bmp") );
 
 
   S3D::manager::killInstance();

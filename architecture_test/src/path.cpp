@@ -13,7 +13,7 @@ namespace S3D
   }
 
 
-  pathvertex::pathvertex( interaction inter, double weight, beam b ) :
+  pathvertex::pathvertex( interaction inter, double weight, spectrum b ) :
     _theInteraction( inter ),
     _weighting( weight ),
     _theBeam( b )

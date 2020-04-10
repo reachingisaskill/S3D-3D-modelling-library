@@ -37,7 +37,6 @@ namespace S3D
       }
       else
       {
-//        _objectList = objectMap[_layer];
         for ( object_base* obj : objectMap[layer] )
         {
           _objectList.insert( obj );
@@ -60,18 +59,20 @@ namespace S3D
       _totalLightArea += light_obj->getSurfaceArea();
     }
 
+
     // Any additional setup
     this->_additionalSetup();
+
 
     _numLightSamples = 1 + _lightSamplesPerArea * _totalLightArea;
     INFO_STREAM << " Total emissive area = " << _totalLightArea << ". Sampling rate = " << _lightSamplesPerArea << ". Light samples per vertex: " << _numLightSamples;
   }
 
 
-  beam tracer_base::sampleLight( const object_base* light_obj, const interaction& inter )
+  spectrum tracer_base::sampleLight( const object_base* light_obj, const interaction& inter )
   {
     double area = inter.getObject()->getSurfaceArea();
-    beam the_beam( 0.0, 0.0, 0.0 );
+    spectrum the_beam( 0.0, 0.0, 0.0 );
     unsigned int n_samples;
     if ( area < epsilon ) // Just in case its a point source
     {
@@ -79,7 +80,7 @@ namespace S3D
     }
     else
     {
-      n_samples = 1 + ( _lightSamplesPerArea / area );
+      n_samples = 1 + ( _lightSamplesPerArea * area );
     }
 
     double scaleFactor = 1.0 / (double)n_samples;
@@ -88,12 +89,14 @@ namespace S3D
     {
       surfacemap light_point = light_obj->sampleSurface();
 
-      if ( isVisible( inter.getPoint(), light_point.getPosition(), inter.getSurfaceNormal() ) )
+      if ( isVisible( light_point.getPosition(), inter.getPoint(), inter.getSurfaceNormal() ) )
       {
         threeVector lightDir = (inter.getPoint() - light_point.getPosition()).norm();
-        beam light_emission = scaleFactor * light_obj->getMaterial()->getEmission( light_point );
+        spectrum light_emission = scaleFactor * light_obj->getMaterial()->getEmission( light_point );
 
-        the_beam += inter.getObject()->getMaterial()->BRDF( lightDir, light_emission, inter );
+        DEBUG_STREAM << "tracer_base::sampleLight() : " << light_emission.red() << ", " << light_emission.green() << ", " << light_emission.blue();
+        // BRDF * Li
+        the_beam += inter.getObject()->getMaterial()->BRDF( lightDir, inter ) * light_emission;
       }
       else 
       {
@@ -105,11 +108,10 @@ namespace S3D
   }
 
 
-  beam tracer_base::sampleAllLights( const interaction& inter )
+  spectrum tracer_base::sampleAllLights( const interaction& inter )
   {
-    beam the_beam( 0.0, 0.0, 0.0 );
+    spectrum the_beam( 0.0, 0.0, 0.0 );
     double scaleFactor = 1.0 / (double)_numLightSamples;
-    double sample_prob_factor = _totalLightArea;
     DEBUG_STREAM << "Sampling all lights. " << _numLightSamples << " samples. Scale factor = " << scaleFactor;
 
     try
@@ -124,15 +126,13 @@ namespace S3D
         if ( isVisible( light_point.getPosition(), inter.getPoint(), inter.getSurfaceNormal() ) )
         {
           threeVector lightDir = (inter.getPoint() - light_point.getPosition());
-          beam light_emission = light_obj->getMaterial()->getEmission( light_point );
+          spectrum light_emission = light_obj->getMaterial()->getEmission( light_point );
 
-//          beam light_received = light_emission * sample_prob_factor;
-//          beam light_received = light_emission * sample_prob_factor * (  std::fabs( lightDir.norm() * light_point.getNormal() / lightDir.square() ) );
-//          the_beam += inter.getObject()->getMaterial()->BRDF( lightDir.norm(), light_received, inter );
 
-          the_beam += inter.getObject()->getMaterial()->BRDF( lightDir.norm(), light_emission, inter );
+          // BRDF * Li * Cos_theta
+          the_beam += inter.getObject()->getMaterial()->BRDF( lightDir.norm(), inter ) * light_emission * ( -inter.getSurfaceNormal() * lightDir );
         }
-        DEBUG_STREAM << "  Current beam = " << the_beam.red() << ", " << the_beam.green() << ", " << the_beam.blue();
+        DEBUG_STREAM << "  Current spectrum = " << the_beam.red() << ", " << the_beam.green() << ", " << the_beam.blue();
       }
     }
     catch( stdexts::exception& e )
@@ -170,17 +170,18 @@ namespace S3D
   }
 
 
-  beam tracer_base::traceLightSample( beam b, point p, const interaction& inter )
+  spectrum tracer_base::traceLightSample( spectrum b, point p, const interaction& inter )
   {
     DEBUG_LOG( "Tracing light sample" );
     if ( isVisible( p, inter.getPoint(), inter.getSurfaceNormal() ) )
     {
       threeVector lightDir = (inter.getPoint() - p).norm();
-      return inter.getObject()->getMaterial()->BRDF( lightDir, b, inter );
+      // BRDF * Li * cos_theta
+      return inter.getObject()->getMaterial()->BRDF( lightDir, inter ) * b * ( -lightDir * inter.getSurfaceNormal() ) ;
     }
     else 
     {
-      return beam( 0.0, 0.0, 0.0 );
+      return spectrum( 0.0, 0.0, 0.0 );
     }
   }
 
@@ -190,7 +191,11 @@ namespace S3D
     threeVector separation = end - start;
 
     DEBUG_STREAM << " tracer_base::isVisible() : " << start.getPosition() << " , " << end.getPosition() << ", " << separation << ". N = " << normal << ". Dot Product = " << separation.norm() * normal;
-    if ( ( separation.norm() * normal ) > 0.0 ) return false; // Travelling backwards through surface.
+    if ( ( separation.norm() * normal ) > 0.0 )
+    {
+      DEBUG_LOG( "  Travelling backwards" );
+      return false; // Travelling backwards through surface.
+    }
 
     line the_beam( start, separation );
     double distanceSq = separation.square();
@@ -205,9 +210,9 @@ namespace S3D
       {
         interaction intersect = (*obj_it)->intersect( the_beam );
 
-//        if ( ( distance - intersect.getDistance() ) > epsilon )
         if ( ( distanceSq - intersect.getDistanceSquared() ) > epsilon )
         {
+          DEBUG_STREAM << "  Intersecting Object: " << (*obj_it);
           return false;
         }
       }

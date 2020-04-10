@@ -14,7 +14,7 @@
 
 
 const double light_samples_per_area = 0.0;
-const double camera_samples_per_pixel = 100.0;
+const double camera_samples_per_pixel = 10.0;
 const double path_kill_prob = 0.1;
 
 int main( int, char** )
@@ -29,38 +29,38 @@ int main( int, char** )
 
 
   INFO_LOG( "Making basic material" );
-  S3D::material_base* world_mat = (S3D::material_base*) new S3D::material_lambertian( S3D::colour( 0.5, 0.5, 0.5 ) );
+  S3D::material_base* world_mat = (S3D::material_base*) new S3D::material_lambertian( S3D::spectrum( 0.5, 0.5, 0.5 ) );
   man->addMaterial( "world", world_mat );
 
-  S3D::material_base* light_mat = (S3D::material_base*) new S3D::material_lightsource( S3D::colour( 1.0, 1.0, 1.0 ), 10.0 );
+  S3D::material_base* light_mat = (S3D::material_base*) new S3D::material_lightsource( S3D::spectrum( 1.0, 1.0, 1.0 ), 10.0 );
   man->addMaterial( "light", light_mat );
 
-  S3D::material_base* blue_light_mat = (S3D::material_base*) new S3D::material_lightsource( S3D::colour( 0.0, 0.0, 1.0 ), 10.0 );
+  S3D::material_base* blue_light_mat = (S3D::material_base*) new S3D::material_lightsource( S3D::spectrum( 0.0, 0.0, 1.0 ), 10.0 );
   man->addMaterial( "blue_light", blue_light_mat );
 
-  S3D::material_base* sph1_mat = (S3D::material_base*) new S3D::material_lambertian( S3D::colour( 0.8, 0.0, 0.0 ) );
+  S3D::material_base* sph1_mat = (S3D::material_base*) new S3D::material_lambertian( S3D::spectrum( 0.8, 0.0, 0.0 ) );
   man->addMaterial( "sphere1", sph1_mat );
 
-  S3D::material_base* white_mat = (S3D::material_base*) new S3D::material_lambertian( S3D::colour( 1.0, 1.0, 1.0 ) );
+  S3D::material_base* white_mat = (S3D::material_base*) new S3D::material_lambertian( S3D::spectrum( 1.0, 1.0, 1.0 ) );
   man->addMaterial( "white", white_mat );
 
-  S3D::material_base* red_mat = (S3D::material_base*) new S3D::material_lambertian( S3D::colour( 1.0, 0.0, 0.0 ) );
+  S3D::material_base* red_mat = (S3D::material_base*) new S3D::material_lambertian( S3D::spectrum( 1.0, 0.0, 0.0 ) );
   man->addMaterial( "red", red_mat );
 
-  S3D::material_base* green_mat = (S3D::material_base*) new S3D::material_lambertian( S3D::colour( 0.0, 1.0, 0.0 ) );
+  S3D::material_base* green_mat = (S3D::material_base*) new S3D::material_lambertian( S3D::spectrum( 0.0, 1.0, 0.0 ) );
   man->addMaterial( "green", green_mat );
 
-  S3D::material_base* blue_mat = (S3D::material_base*) new S3D::material_lambertian( S3D::colour( 0.0, 0.0, 1.0 ) );
+  S3D::material_base* blue_mat = (S3D::material_base*) new S3D::material_lambertian( S3D::spectrum( 0.0, 0.0, 1.0 ) );
   man->addMaterial( "blue", blue_mat );
 
-  S3D::material_base* glass_mat = (S3D::material_base*) new S3D::material_glass( S3D::colour( 0.0, 0.0, 0.0 ) );
+  S3D::material_base* glass_mat = (S3D::material_base*) new S3D::material_glass( S3D::spectrum( 0.0, 0.0, 0.0 ) );
   glass_mat->setRefractiveIndex( 1.5 );
   man->addMaterial( "glass", glass_mat );
 
-  S3D::material_base* mirror_mat = (S3D::material_base*) new S3D::material_mirror( S3D::colour( 0.0, 0.0, 0.0 ) );
+  S3D::material_base* mirror_mat = (S3D::material_base*) new S3D::material_mirror( S3D::spectrum( 0.0, 0.0, 0.0 ) );
   man->addMaterial( "mirror", mirror_mat );
 
-  man->setAmbientLight( S3D::beam( 0.0, 0.0, 0.0 ) );
+  man->setAmbientLight( S3D::spectrum( 0.0, 0.0, 0.0 ) );
   man->setLightSampleRate( light_samples_per_area );
 
 
@@ -152,7 +152,7 @@ int main( int, char** )
 //  another_light->setRotation( S3D::rotation( S3D::unit_threeVector_z, -S3D::PI/4 ) * S3D::rotation( S3D::unit_threeVector_x, -S3D::PI/2.0 ) );
 //  man->addObject( (S3D::object_base*)another_light );
 
-//  S3D::light_base* another_light = (S3D::light_base*) new S3D::light_pointSource( S3D::colour( 0.1, 0.1, 1.0 ),  2000.0 );
+//  S3D::light_base* another_light = (S3D::light_base*) new S3D::light_pointSource( S3D::spectrum( 0.1, 0.1, 1.0 ),  2000.0 );
 //  man->addLight( another_light );
 
 

@@ -4,6 +4,8 @@
 
 #include "S3D_camera_base.h"
 
+#include "S3D_convergence.h"
+
 
 namespace S3D
 {
@@ -82,7 +84,7 @@ namespace S3D
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-  // (Multithreaded) Perspective Camera with random sampling
+  // Perspective Camera with random sampling
 
   class camera_perspective : public camera_base
   {
@@ -104,6 +106,31 @@ namespace S3D
 
       // Make sure its virtual
       virtual ~camera_perspective();
+
+      // Override pure virtual function
+      virtual void shutter();
+  };
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Perspective Camera with random sampling & convergence algorithm
+
+  class camera_convergePerspective : public camera_base
+  {
+    private :
+      double _length; // How far back the focal point is (means the camera "lens" is shorter!)
+      double _width;
+      double _height;
+      convergence_variance _converge;
+
+    protected:
+      void runSample( unsigned int, unsigned int ) const;
+
+    public:
+      // raytracer, FieldofView, width, height, convergence criteria
+      camera_convergePerspective( tracer_base*, double, double, double, double c = 0.1 );
+
+      // Make sure its virtual
+      virtual ~camera_convergePerspective();
 
       // Override pure virtual function
       virtual void shutter();

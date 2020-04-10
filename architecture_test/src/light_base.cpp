@@ -4,7 +4,7 @@
 namespace S3D
 {
 
-  light_base::light_base( colour c, double r ) :
+  light_base::light_base( spectrum c, double r ) :
     _colour( c ),
     _radiance( r )
   {

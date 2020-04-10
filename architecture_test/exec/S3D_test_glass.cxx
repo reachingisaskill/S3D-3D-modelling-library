@@ -15,6 +15,9 @@
 
 void addSomeShapes();
 
+const unsigned int samples_per_pixel = 20;
+const double light_sample_rate = 5.0;
+
 
 int main( int, char** )
 {
@@ -28,33 +31,33 @@ int main( int, char** )
 
 
   INFO_LOG( "Making basic material" );
-  S3D::material_base* world_mat = (S3D::material_base*) new S3D::material_blinn( S3D::colour( 0.5, 0.5, 0.5 ), 1.0, 0.0, 0 );
+  S3D::material_base* world_mat = (S3D::material_base*) new S3D::material_blinn( S3D::spectrum( 0.5, 0.5, 0.5 ), 1.0, 0.0, 0 );
   man->addMaterial( "world", world_mat );
 
-  S3D::material_base* room_mat = (S3D::material_base*) new S3D::material_blinn( S3D::colour( 0.5, 0.5, 0.5 ), 0.5, 0.1, 1 );
+  S3D::material_base* room_mat = (S3D::material_base*) new S3D::material_blinn( S3D::spectrum( 0.5, 0.5, 0.5 ), 0.5, 0.1, 1 );
   man->addMaterial( "room", room_mat );
 
-  S3D::material_base* light_mat = (S3D::material_base*) new S3D::material_lightsource( S3D::colour( 1.0, 1.0, 1.0 ), 1.0 );
+  S3D::material_base* light_mat = (S3D::material_base*) new S3D::material_lightsource( S3D::spectrum( 1.0, 1.0, 1.0 ), 1.0 );
   man->addMaterial( "light", light_mat );
 
-  S3D::material_base* floor_mat = (S3D::material_base*) new S3D::material_blinn( S3D::colour( 0.0, 1.0, 0.2 ), 0.5, 0.1, 1 );
+  S3D::material_base* floor_mat = (S3D::material_base*) new S3D::material_blinn( S3D::spectrum( 0.0, 1.0, 0.2 ), 0.5, 0.1, 1 );
   man->addMaterial( "floor", floor_mat );
 
-  S3D::material_base* sph_mat = (S3D::material_base*) new S3D::material_blinn( S3D::colour( 1.0, 0.0, 0.0 ), 0.5, 1.0, 50 );
+  S3D::material_base* sph_mat = (S3D::material_base*) new S3D::material_blinn( S3D::spectrum( 1.0, 0.0, 0.0 ), 0.5, 1.0, 50 );
   man->addMaterial( "sphere", sph_mat );
 
-  S3D::material_base* blue_mat = (S3D::material_base*) new S3D::material_blinn( S3D::colour( 0.0, 0.0, 1.0 ), 0.5, 1.0, 50 );
+  S3D::material_base* blue_mat = (S3D::material_base*) new S3D::material_blinn( S3D::spectrum( 0.0, 0.0, 1.0 ), 0.5, 1.0, 50 );
   man->addMaterial( "blue", blue_mat );
 
-  S3D::material_base* glass_mat = (S3D::material_base*) new S3D::material_glass( S3D::colour( 0.0, 0.0, 0.0 ) );
-  glass_mat->setRefractiveIndex( 1.3 );
+  S3D::material_base* glass_mat = (S3D::material_base*) new S3D::material_glass( S3D::spectrum( 0.0, 0.0, 0.0 ) );
+  glass_mat->setRefractiveIndex( 1.5 );
   man->addMaterial( "glass", glass_mat );
 
-  S3D::material_base* mirror_mat = (S3D::material_base*) new S3D::material_mirror( S3D::colour( 1.0, 0.0, 0.0 ) );
+  S3D::material_base* mirror_mat = (S3D::material_base*) new S3D::material_mirror( S3D::spectrum( 1.0, 0.0, 0.0 ) );
   man->addMaterial( "mirror", mirror_mat );
 
-  man->setAmbientLight( S3D::beam( 0.02, 0.02, 0.02 ) );
-  man->setLightSampleRate( 10 );
+  man->setAmbientLight( S3D::spectrum( 0.01, 0.01, 0.01 ) );
+  man->setLightSampleRate( light_sample_rate );
 
 
 
@@ -113,10 +116,11 @@ int main( int, char** )
 
   INFO_LOG( "Adding pinhole camera." );
   S3D::tracer_recursive* tracer = new S3D::tracer_recursive();
-  tracer->setMaxDepth( 3 );
+  tracer->setMaxDepth( 5 );
 //  S3D::camera_base* camera = (S3D::camera_base*) new S3D::camera_pinhole( tracer, S3D::degreesToRadians( 90.0 ) );
-  S3D::camera_base* camera = (S3D::camera_base*) new S3D::camera_sampledPinhole( tracer, S3D::degreesToRadians( 90.0 ), 10 );
-  camera->setPosition( S3D::point( 0.0, -15.0, 5.0 ) );
+//  S3D::camera_base* camera = (S3D::camera_base*) new S3D::camera_sampledPinhole( tracer, S3D::degreesToRadians( 90.0 ), samples_per_pixel );
+  S3D::camera_base* camera = (S3D::camera_base*) new S3D::camera_convergePerspective( tracer, S3D::degreesToRadians( 20.0 ), 5.0, 5.0, 0.01 );
+  camera->setPosition( S3D::point( 0.0, -10.0, 5.0 ) );
   camera->setRotation( S3D::rotation( S3D::unit_threeVector_x, -0.5*S3D::PI ) );
   camera->setPixels( 500, 500 );
   man->setCamera( camera );
@@ -138,6 +142,24 @@ int main( int, char** )
   INFO_LOG( "Rendering scene." );
   const S3D::frame* f = man->getFrame();
   f->dump( std::string("glass_test_image.bmp") );
+
+
+//  INFO_LOG( "" );
+//  INFO_LOG( "Tracing a ray -- GLASS" );
+//  INFO_LOG( "" );
+//  tracer->setup();
+//  for ( int i = 0; i < 10; ++i )
+//  {
+//    tracer->traceRay( S3D::point( 0.0, -15.0, 5.0 ), (S3D::point( 0.0, -2.0, 2.1 ) - S3D::point( 0.0, -15.0, 5.0 ) ).norm() );
+//  }
+//  INFO_LOG( "" );
+//  INFO_LOG( "Tracing a ray -- WALL" );
+//  INFO_LOG( "" );
+//
+//  for ( int i = 0; i < 10; ++i )
+//  {
+//    tracer->traceRay( S3D::point( 0.0, -15.0, 5.0 ), (S3D::point( 0.0001, -2.0, 7.0 ) - S3D::point( 0.0, -15.0, 5.0 ) ).norm() );
+//  }
 
 
   S3D::manager::killInstance();

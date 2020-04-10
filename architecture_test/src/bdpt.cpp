@@ -80,9 +80,10 @@ namespace S3D
 //  }
 
 
-  void tracer_bdpt::_buildPath( path& the_path, line the_ray, beam the_beam )
+  void tracer_bdpt::_buildPath( path& the_path, line the_ray, spectrum throughput )
   {
-    double kill_factor = 1.0 - _killProb;
+    double kill_factor = _killProb;
+    double roulette_factor = 1.0 / ( 1.0 - kill_factor );
 
     double current_kill = 1.0;
     unsigned int vertex_count = 0;
@@ -91,8 +92,8 @@ namespace S3D
     {
       do
       {
-        interaction current_intersect = this->getInteraction( the_ray );
-        if ( current_intersect.getObject() == nullptr )
+        interaction inter = this->getInteraction( the_ray );
+        if ( inter.getObject() == nullptr )
           return;
 
 
@@ -103,46 +104,51 @@ namespace S3D
 
         double r1 = random::uniformDouble();
 
-        double prob_r = current_intersect.getObject()->getMaterial()->getReflectionProb( current_intersect );
-        double prob_t = current_intersect.getObject()->getMaterial()->getTransmissionProb( current_intersect );
+        double prob_r = inter.getObject()->getMaterial()->getReflectionProb( inter );
+        double prob_t = inter.getObject()->getMaterial()->getTransmissionProb( inter );
 
         if ( r1 < prob_r ) // Prob of reflection
         {
           DEBUG_LOG( "Reflection." );
-          threeVector direction = current_intersect.getObject()->getMaterial()->sampleReflection( current_intersect ).norm();
+          threeVector direction = inter.getObject()->getMaterial()->sampleReflection( inter ).norm();
 
-          the_beam = (1.0/kill_factor) * current_intersect.getObject()->getMaterial()->BRDF( -direction, the_beam, current_intersect );
+          double attenuation = direction * inter.getSurfaceNormal();
 
-          the_ray = line( current_intersect.getPoint(), direction );
-          DEBUG_STREAM << "New ray: " << current_intersect.getPoint() << " -- " << direction;
+          // Roulette * sample space volume * BRDF * cos_theta
+          throughput = roulette_factor * 2.0*PI * inter.getObject()->getMaterial()->BRDF( -direction, inter ) * attenuation;
+
+          the_ray = line( inter.getPoint(), direction );
+          DEBUG_STREAM << "New ray: " << inter.getPoint() << " -- " << direction;
 
         }
         else if ( r1 < ( prob_r + prob_t ) ) // Prob of transmission
         {
           DEBUG_LOG( "Transmission." );
-          threeVector direction = current_intersect.getObject()->getMaterial()->sampleTransmission( current_intersect ).norm();
+          threeVector direction = inter.getObject()->getMaterial()->sampleTransmission( inter ).norm();
 
-          the_beam = (1.0/kill_factor) * current_intersect.getObject()->getMaterial()->BTDF( -direction, the_beam, current_intersect );
+          double attenuation = direction * inter.getSurfaceNormal();
 
-          the_ray = line( current_intersect.getPoint(), direction );
-          DEBUG_STREAM << "New ray: " << current_intersect.getPoint() << " -- " << direction;
+          // Roulette * sample space volume * BRDF * cos_theta
+          throughput = roulette_factor * 2.0*PI * inter.getObject()->getMaterial()->BTDF( -direction, inter ) * attenuation;
+
+          the_ray = line( inter.getPoint(), direction );
+          DEBUG_STREAM << "New ray: " << inter.getPoint() << " -- " << direction;
         }
         else
         {
           DEBUG_LOG( "Path absorbed." );
-          the_beam = current_intersect.getObject()->getMaterial()->getEmission( current_intersect.getSurfaceMap() );
+          throughput = inter.getObject()->getMaterial()->getEmission( inter.getSurfaceMap() );
           return;
         }
 
 
-        the_path.push_back( pathvertex( current_intersect, 1.0/current_kill, the_beam ) );
+        the_path.push_back( pathvertex( inter, 1.0/current_kill, throughput ) );
 
 
 
-        current_kill *= kill_factor;
         vertex_count += 1;
       }
-      while ( random::uniformDouble() < current_kill );
+      while ( random::uniformDouble() > kill_factor );
       DEBUG_LOG( "Path built." );
     }
     catch( stdexts::exception& e )
@@ -155,7 +161,7 @@ namespace S3D
   }
 
 
-  beam tracer_bdpt::traceRay( point start, threeVector dir )
+  spectrum tracer_bdpt::traceRay( point start, threeVector dir )
   {
     line camera_ray( start, dir );
 
@@ -164,19 +170,19 @@ namespace S3D
 
     try // Load the camera path
     {
-      this->_buildPath( _cameraPath, camera_ray, beam( 1.0, 1.0, 1.0 ) );
+      this->_buildPath( _cameraPath, camera_ray, spectrum( 1.0, 1.0, 1.0 ) );
     }
     catch( stdexts::exception& e )
     {
       std::stringstream ss;
       EX_LOG( e, std::string( "Building camera path" ) );
       std::cerr << ELUCIDATE( e );
-      return beam( 0.0, 0.0, 0.0 );
+      return spectrum( 0.0, 0.0, 0.0 );
     }
 
     if ( _cameraPath.empty() ) // Camera staring into the void.
     {
-      return beam( 0.0, 0.0, 0.0 );
+      return spectrum( 0.0, 0.0, 0.0 );
     }
 
     // Leave this out for testing & comparisons with pathtracing
@@ -194,7 +200,7 @@ namespace S3D
 //      std::stringstream ss;
 //      EX_LOG( e, std::string( "Building light path" );
 //      std::cerr << ELUCIDATE( e );
-//      return beam( 0.0, 0.0, 0.0 );
+//      return spectrum( 0.0, 0.0, 0.0 );
 //    }
 
       const object_base* the_light = this->_chooseLight();
@@ -202,7 +208,7 @@ namespace S3D
       pathvertex last_vertex = (*_cameraPath.rbegin());
       interaction last_interaction = last_vertex.getInteraction();
 
-      beam light_beam = this->sampleLight( the_light, last_interaction );
+      spectrum light_beam = this->sampleLight( the_light, last_interaction );
 
       return light_beam * last_vertex.getBeam();
   }

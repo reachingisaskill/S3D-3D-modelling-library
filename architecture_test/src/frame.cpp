@@ -16,7 +16,7 @@ namespace S3D
     _pixelsY( y ),
     _image( nullptr )
   {
-    _image = new beam[(_pixelsX * _pixelsY)];
+    _image = new spectrum[(_pixelsX * _pixelsY)];
   }
 
 
@@ -25,7 +25,7 @@ namespace S3D
     _pixelsY( f._pixelsY ),
     _image( nullptr )
   {
-    _image = new beam[(_pixelsX * _pixelsY)];
+    _image = new spectrum[(_pixelsX * _pixelsY)];
 
     for ( unsigned int i = 0; i < _pixelsX; ++i )
     {
@@ -52,7 +52,7 @@ namespace S3D
     if ( this->_image != nullptr )
     {
       delete[] _image;
-      _image = new beam[(_pixelsX * _pixelsY)];
+      _image = new spectrum[(_pixelsX * _pixelsY)];
     }
 
     for ( unsigned int i = 0; i < _pixelsX; ++i )
@@ -109,7 +109,7 @@ namespace S3D
     {
       for ( unsigned int j = 0; j < this->_pixelsY; ++j )
       {
-        const beam& b = this->pixel( i, j );
+        const spectrum& b = this->pixel( i, j );
         if ( std::log( 1.0 + b.red() ) > maxIntensity )
           maxIntensity = std::log( 1.0 + b.red() );
         if ( std::log( 1.0 + b.green() ) > maxIntensity )
@@ -123,7 +123,7 @@ namespace S3D
     {
       for ( unsigned int j = 0; j < this->_pixelsY; ++j )
       {
-        const beam& b = this->pixel( i, j );
+        const spectrum& b = this->pixel( i, j );
         bm.setPixel( i, j, stdexts::bitmap::pixel( std::log( 1.0 + b.red() ) / maxIntensity,
                                                    std::log( 1.0 + b.green() ) / maxIntensity,
                                                    std::log( 1.0 + b.blue() ) / maxIntensity ) );
@@ -144,7 +144,7 @@ namespace S3D
 //    {
 //      for ( unsigned int j = 0; j < this->_pixelsY; ++j )
 //      {
-//        const beam& b = this->pixel( i, j );
+//        const spectrum& b = this->pixel( i, j );
 //        if ( b.red() > maxIntensity )
 //          maxIntensity = b.red();
 //        if ( b.green() > maxIntensity )
@@ -158,7 +158,7 @@ namespace S3D
 //    {
 //      for ( unsigned int j = 0; j < this->_pixelsY; ++j )
 //      {
-//        const beam& b = this->pixel( i, j );
+//        const spectrum& b = this->pixel( i, j );
 //        bm.setPixel( i, j, stdexts::bitmap::pixel( b.red()/maxIntensity, b.green()/maxIntensity, b.blue()/maxIntensity ) );
 //      }
 //    }

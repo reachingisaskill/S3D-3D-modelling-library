@@ -5,7 +5,7 @@
 #include "S3D_vector.h"
 #include "S3D_point.h"
 #include "S3D_rotation.h"
-#include "S3D_beam.h"
+#include "S3D_spectrum.h"
 #include "S3D_frame.h"
 #include "S3D_base.h"
 

@@ -37,9 +37,9 @@ int main( int, char** )
 
 
   INFO_LOG( "Making basic material" );
-  S3D::material_base* mat = (S3D::material_base*) new S3D::material_simple( S3D::colour( 1.0, 0.0, 0.0 ) );
+  S3D::material_base* mat = (S3D::material_base*) new S3D::material_simple( S3D::spectrum( 1.0, 0.0, 0.0 ) );
   man->addMaterial( "simple", mat );
-  S3D::material_base* world_mat = (S3D::material_base*) new S3D::material_simple( S3D::colour( 0.0, 0.3, 0.8 ) );
+  S3D::material_base* world_mat = (S3D::material_base*) new S3D::material_simple( S3D::spectrum( 0.0, 0.3, 0.8 ) );
   man->addMaterial( "room", world_mat );
 
 
@@ -70,7 +70,7 @@ int main( int, char** )
   ASSERT_EQUAL( rt.isVisible( p3, p2, (p3-p2) ), true );
   ASSERT_EQUAL( rt.isVisible( p4, p5, (p4-p5) ), false );
 
-//  beam result = rt.traceRay( p4, p5 - p4 );
+//  spectrum result = rt.traceRay( p4, p5 - p4 );
   rt.traceRay( p4, p5 - p4 );
 
 
@@ -83,26 +83,28 @@ int main( int, char** )
   double albedo = 0.3;
   double emittance = 5.0;
 
-  material_base* glowing = new material_glowing( S3D::colour( 1.0, 1.0, 1.0 ), S3D::colour( albedo, albedo, albedo ), emittance );
+  material_base* glowing = new material_glowing( S3D::spectrum( 1.0, 1.0, 1.0 ), S3D::spectrum( albedo, albedo, albedo ), emittance );
   sphere* glowing_sphere = new sphere( glowing, sphere_radius );
   glowing_sphere->setPosition( point( 10.0, 0.0, 0.0 ) );
   man->addObject( (object_base*)glowing_sphere );
+
+  INFO_STREAM << "Analytic solution to the complete sum = " << emittance / ( 1.0 - albedo );
 
   tracer_pathtracer pt;
   pt.setLightSampleRate( 0.0 );
   pt.setMaxDepth( 100 );
   pt.setup();
 
-  beam test1( 0.0, 0.0, 0.0 );
-  beam test2( 0.0, 0.0, 0.0 );
-  beam test3( 0.0, 0.0, 0.0 );
-  beam test4( 0.0, 0.0, 0.0 );
-  beam test5( 0.0, 0.0, 0.0 );
+  spectrum test1( 0.0, 0.0, 0.0 );
+  spectrum test2( 0.0, 0.0, 0.0 );
+  spectrum test3( 0.0, 0.0, 0.0 );
+  spectrum test4( 0.0, 0.0, 0.0 );
+  spectrum test5( 0.0, 0.0, 0.0 );
 
   random::reset();
-  const unsigned int N = 10000;
+  const unsigned int N = 1000;
 
-  pt.setKillProb( 0.1 );
+  pt.setKillProb( 0.01 );
   for ( unsigned int i = 0; i < 100; ++i )
   {
     test1 += (1.0/100) * pt.traceRay( point( 10.0, 0.0, 0.0 ), unit_threeVector_z );
@@ -111,7 +113,7 @@ int main( int, char** )
   ASSERT_APPROX_EQUAL( test1.red(), test1.green() );
   ASSERT_APPROX_EQUAL( test1.green(), test1.blue() );
 
-  pt.setKillProb( 0.1 );
+  pt.setKillProb( 0.001 );
   for ( unsigned int i = 0; i < N; ++i )
   {
     test2 += (1.0/N) * pt.traceRay( point( 10.0, 0.0, 0.0 ), unit_threeVector_z );
@@ -161,9 +163,9 @@ int main( int, char** )
   INFO_STREAM << "Test results:";
   INFO_STREAM << "Test1: Red = " << test1.red() << ", " << test1.green() << ", " << test1.blue();
   INFO_STREAM << "Test2: Red = " << test2.red() << ", " << test2.green() << ", " << test2.blue();
-  INFO_STREAM << "Test3: Red = " << test3.red() << ", " << test3.green() << ", " << test3.blue();
-  INFO_STREAM << "Test4: Red = " << test4.red() << ", " << test4.green() << ", " << test4.blue();
-  INFO_STREAM << "Test5: Red = " << test5.red() << ", " << test5.green() << ", " << test5.blue();
+//  INFO_STREAM << "Test3: Red = " << test3.red() << ", " << test3.green() << ", " << test3.blue();
+//  INFO_STREAM << "Test4: Red = " << test4.red() << ", " << test4.green() << ", " << test4.blue();
+//  INFO_STREAM << "Test5: Red = " << test5.red() << ", " << test5.green() << ", " << test5.blue();
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

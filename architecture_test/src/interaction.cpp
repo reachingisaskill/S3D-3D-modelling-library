@@ -40,27 +40,27 @@ namespace S3D
 
   threeVector interaction::getTransmission() const
   {
-    DEBUG_STREAM << "Calculating transmission vector: " << _theLine->getDirection() << " -- " << _surfaceNormal;
+    DEBUG_STREAM << "interaction::getTransmission() : " << _theLine->getDirection() << " -- " << _surfaceNormal;
 
     double cos = -_theLine->getDirection() * _surfaceNormal;
 
     if ( (1.0 - cos) < epsilon )
     {
-      DEBUG_LOG( "Incoming vector perpendicular." );
+      DEBUG_LOG( "  Incoming vector perpendicular." );
       return _theLine->getDirection();
     }
 
-    double cos_theta_out = 1.0 - _refIndexRatio * _refIndexRatio * cos * cos;
+    double cos_theta_out = 1.0 - _refIndexRatio * _refIndexRatio * ( 1.0 - cos * cos );
 
     if ( cos_theta_out < 0.0 )
     {
-      DEBUG_LOG( "Total internal reflection case." );
+      DEBUG_LOG( "  Total internal reflection case." );
       return this->getReflection(); // Total internal reflection
     }
 
     threeVector out = _refIndexRatio * _theLine->getDirection() + ( _refIndexRatio * cos - std::sqrt( cos_theta_out ) ) * _surfaceNormal;
 
-    DEBUG_STREAM << "Cos theta_1 = " << cos << ", Cos theta_2 = " << -out * _surfaceNormal << ", In dot Out = " << _theLine->getDirection() * out;
+    DEBUG_STREAM << "  Cos theta_1 = " << cos << ", Cos theta_2 = " << -out * _surfaceNormal << ", In dot Out = " << _theLine->getDirection() * out;
     return out;
   }
 

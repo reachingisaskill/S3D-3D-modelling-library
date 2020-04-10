@@ -37,9 +37,9 @@ int main( int, char** )
 
 
   INFO_LOG( "Making basic material" );
-  S3D::material_base* mat = (S3D::material_base*) new S3D::material_simple( S3D::colour( 1.0, 0.0, 0.0 ) );
+  S3D::material_base* mat = (S3D::material_base*) new S3D::material_simple( S3D::spectrum( 1.0, 0.0, 0.0 ) );
   man->addMaterial( "simple", mat );
-  S3D::material_base* world_mat = (S3D::material_base*) new S3D::material_simple( S3D::colour( 0.0, 0.3, 0.8 ) );
+  S3D::material_base* world_mat = (S3D::material_base*) new S3D::material_simple( S3D::spectrum( 0.0, 0.3, 0.8 ) );
   man->addMaterial( "room", world_mat );
 
 
@@ -52,7 +52,7 @@ int main( int, char** )
   double albedo = 0.3;
   double emittance = 5.0;
 
-  material_base* glowing = new material_glowing( S3D::colour( 1.0, 1.0, 1.0 ), S3D::colour( albedo, albedo, albedo ), emittance );
+  material_base* glowing = new material_glowing( S3D::spectrum( 1.0, 1.0, 1.0 ), S3D::spectrum( albedo, albedo, albedo ), emittance );
   sphere* glowing_sphere = new sphere( glowing, sphere_radius );
   glowing_sphere->setPosition( point( 10.0, 0.0, 0.0 ) );
   man->addObject( (object_base*)glowing_sphere );

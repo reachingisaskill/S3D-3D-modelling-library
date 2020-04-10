@@ -16,7 +16,7 @@ namespace S3D
     protected:
     public:
       // Position and brightness
-      light_pointSource( colour, double );
+      light_pointSource( spectrum, double );
 
       virtual double getSurfaceArea() const { return 0.0; }
 
@@ -50,7 +50,7 @@ namespace S3D
 //
 //    public:
 //      // Position, brightness, radius
-//      light_spotlight( colour, double, double );
+//      light_spotlight( spectrum, double, double );
 //
 //      double getSurfaceArea() const { return _area; }
 //

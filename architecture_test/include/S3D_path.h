@@ -3,7 +3,7 @@
 #define __S3D_PATH_H__
 
 #include "S3D_interaction.h"
-#include "S3D_beam.h"
+#include "S3D_spectrum.h"
 
 #include "stdexts.h"
 
@@ -18,15 +18,15 @@ namespace S3D
     private:
       interaction _theInteraction;
       double _weighting;
-      beam _theBeam;
+      spectrum _theBeam;
 
     public:
       pathvertex();
-      pathvertex( interaction, double, beam );
+      pathvertex( interaction, double, spectrum );
 
       interaction getInteraction() const { return _theInteraction; }
       double getWeight() const { return _weighting; }
-      beam getBeam() const { return _theBeam; }
+      spectrum getBeam() const { return _theBeam; }
   };
 
   typedef std::vector< pathvertex > path;

@@ -2,7 +2,7 @@
 #ifndef __S3D__PATHTRACER_H__
 #define __S3D__PATHTRACER_H__
 
-#include "S3D_beam.h"
+#include "S3D_spectrum.h"
 #include "S3D_tracer_base.h"
 
 
@@ -17,7 +17,7 @@ namespace S3D
       double _killProb;
 
     protected:
-      beam _pathTrace( point start, threeVector direction, unsigned int depth = 0 );
+      spectrum _pathTrace( point start, threeVector direction, unsigned int depth = 0 );
 
     public:
       tracer_pathtracer();
@@ -32,7 +32,7 @@ namespace S3D
       void setKillProb( double );
 
       // Interface for camera to trace a single ray
-      virtual beam traceRay( point start, threeVector direction );
+      virtual spectrum traceRay( point start, threeVector direction );
 
   };
 

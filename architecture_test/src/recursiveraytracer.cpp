@@ -1,4 +1,4 @@
-//#define __DEBUG_OFF__
+#define __DEBUG_OFF__
 
 #include "S3D_recursiveraytracer.h"
 
@@ -27,7 +27,7 @@ namespace S3D
   }
 
 
-  beam tracer_recursive::_traceRay( point start, threeVector dir, unsigned int depth )
+  spectrum tracer_recursive::_traceRay( point start, threeVector dir, unsigned int depth )
   {
     line the_ray( start, dir );
 
@@ -45,11 +45,9 @@ namespace S3D
         if ( (*obj_it)->crosses( the_ray ) )
         {
           interaction intersect = (*obj_it)->intersect( the_ray );
-//          double distance = intersect.getDistance();
           double distanceSq = intersect.getDistanceSquared();
 
           if ( ( distanceSq > epsilon ) && ( distanceSq < current_intersect.getDistanceSquared() ) )
-//          if ( ( distance > epsilon ) && ( distance < current_intersect.getDistance() ) )
           {
             current_intersect = intersect;
           }
@@ -64,27 +62,27 @@ namespace S3D
       ss << "Tracing ray from: " << start.getPosition() << " with direction: " << dir << " -- Depth = " << depth;
       EX_LOG( e, ss.str() );
       std::cerr << ELUCIDATE( e );
-      return beam( 0.0, 0.0, 0.0 );
+      return spectrum( 0.0, 0.0, 0.0 );
     }
 
 
     if ( current_intersect.getObject() == nullptr )
     {
       DEBUG_LOG( "No intersecting object found, returning." );
-      return beam( 0.0, 0.0, 0.0 );
+      return spectrum( 0.0, 0.0, 0.0 );
     }
 
 
     DEBUG_STREAM << "Interaction: " << current_intersect.getDistance() << " -- " << current_intersect.getPoint().getPosition() << " | " << current_intersect.getLine().getStart().getPosition() << " - " << current_intersect.getLine().getDirection();
 
-    beam currentBeam( 0.0, 0.0, 0.0 );
+    spectrum currentBeam( 0.0, 0.0, 0.0 );
 
     if ( depth < _maxDepth )
     {
-      DEBUG_LOG( "Checking for recursive rays." );
 
       double prob_t = current_intersect.getObject()->getMaterial()->getTransmissionProb( current_intersect );
       double prob_r = current_intersect.getObject()->getMaterial()->getReflectionProb( current_intersect );
+      DEBUG_STREAM << "Checking for recursive rays: R = " << prob_r << ", T = " << prob_t;
 
       if ( prob_t > epsilon )
       {
@@ -104,6 +102,7 @@ namespace S3D
       DEBUG_LOG( "Max depth reached closing recursion." );
     }
 
+    currentBeam += current_intersect.getObject()->getMaterial()->getEmission( current_intersect.getSurfaceMap() );
 
 
 
@@ -117,7 +116,6 @@ namespace S3D
       while( light_it != light_end )
       {
         DEBUG_LOG( "Sampling Light Source" );
-//        currentBeam += (*light_it)->sampleRays( current_intersect, this );
         currentBeam += sampleLight( (*light_it), current_intersect );
         DEBUG_STREAM << " Current Beam: " << currentBeam.red() << ", " << currentBeam.green() << ", " << currentBeam.blue();
         ++light_it;
@@ -132,7 +130,7 @@ namespace S3D
       ss << "Tracing ray from light source: " << start.getPosition() << " with direction: " << dir;
       EX_LOG( e, ss.str() );
       std::cerr << ELUCIDATE( e );
-      return beam( 0.0, 0.0, 0.0 );
+      return spectrum( 0.0, 0.0, 0.0 );
     }
 
     DEBUG_STREAM << "Returning Current Beam." << currentBeam.red() << ", " << currentBeam.green() << ", " << currentBeam.blue();
@@ -140,8 +138,9 @@ namespace S3D
   }
 
 
-  beam tracer_recursive::traceRay( point start, threeVector dir )
+  spectrum tracer_recursive::traceRay( point start, threeVector dir )
   {
+    DEBUG_LOG( "-- STARTING RAY TRACING --" );
     return this->_traceRay( start, dir ); // Starts the recursive function
   }
 

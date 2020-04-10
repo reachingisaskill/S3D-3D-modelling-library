@@ -4,7 +4,7 @@
 
 #include "S3D_vector.h"
 #include "S3D_rotation.h"
-#include "S3D_beam.h"
+#include "S3D_spectrum.h"
 #include "S3D_base.h"
 #include "S3D_object_base.h"
 #include "S3D_material_base.h"
@@ -63,7 +63,7 @@ namespace S3D
       stdexts::autoPtr<frame> _lastFrame;
 
       unsigned int _lightSamplesPerArea;
-      beam _ambientLight;
+      spectrum _ambientLight;
 
       void _addBase( base* );
       void _removeBase( base* );
@@ -80,8 +80,8 @@ namespace S3D
       const object_base* getWorld() const;
       bool worldContains( point ) const;
 
-      void setAmbientLight( beam b ) { _ambientLight = b; }
-      beam getAmbientLight() const { return _ambientLight; }
+      void setAmbientLight( spectrum b ) { _ambientLight = b; }
+      spectrum getAmbientLight() const { return _ambientLight; }
 
       void setLightSampleRate( unsigned int i ) { _lightSamplesPerArea = i; }
       unsigned int getLightSampleRate() const { return _lightSamplesPerArea; }

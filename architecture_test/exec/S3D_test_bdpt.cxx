@@ -28,31 +28,31 @@ int main( int, char** )
 
 
   INFO_LOG( "Making basic material" );
-  S3D::material_base* world_mat = (S3D::material_base*) new S3D::material_lambertian( S3D::colour( 0.5, 0.5, 0.5 ) );
+  S3D::material_base* world_mat = (S3D::material_base*) new S3D::material_lambertian( S3D::spectrum( 0.5, 0.5, 0.5 ) );
   man->addMaterial( "world", world_mat );
 
-  S3D::material_base* room_mat = (S3D::material_base*) new S3D::material_lambertian( S3D::colour( 0.7, 0.7, 0.7 ) );
+  S3D::material_base* room_mat = (S3D::material_base*) new S3D::material_lambertian( S3D::spectrum( 0.7, 0.7, 0.7 ) );
   man->addMaterial( "room", room_mat );
 
-  S3D::material_base* floor_mat = (S3D::material_base*) new S3D::material_lambertian( S3D::colour( 0.0, 0.7, 0.0 ) );
+  S3D::material_base* floor_mat = (S3D::material_base*) new S3D::material_lambertian( S3D::spectrum( 0.0, 0.7, 0.0 ) );
   man->addMaterial( "floor", floor_mat );
 
-  S3D::material_base* light_mat = (S3D::material_base*) new S3D::material_lightsource( S3D::colour( 1.0, 1.0, 1.0 ), 1.0 );
+  S3D::material_base* light_mat = (S3D::material_base*) new S3D::material_lightsource( S3D::spectrum( 1.0, 1.0, 1.0 ), 1.0 );
   man->addMaterial( "light", light_mat );
 
-  S3D::material_base* sph1_mat = (S3D::material_base*) new S3D::material_lambertian( S3D::colour( 0.8, 0.0, 0.0 ) );
+  S3D::material_base* sph1_mat = (S3D::material_base*) new S3D::material_lambertian( S3D::spectrum( 0.8, 0.0, 0.0 ) );
   man->addMaterial( "sphere1", sph1_mat );
 
-  S3D::material_base* glass_mat = (S3D::material_base*) new S3D::material_glass( S3D::colour( 0.0, 0.0, 0.0 ) );
+  S3D::material_base* glass_mat = (S3D::material_base*) new S3D::material_glass( S3D::spectrum( 0.0, 0.0, 0.0 ) );
   man->addMaterial( "glass", glass_mat );
 
-  S3D::material_base* mirror_mat = (S3D::material_base*) new S3D::material_mirror( S3D::colour( 0.0, 0.0, 0.0 ) );
+  S3D::material_base* mirror_mat = (S3D::material_base*) new S3D::material_mirror( S3D::spectrum( 0.0, 0.0, 0.0 ) );
   man->addMaterial( "mirror", mirror_mat );
 
-  S3D::material_base* box_mat = (S3D::material_base*) new S3D::material_lambertian( S3D::colour( 0.0, 0.0, 0.5 ) );
+  S3D::material_base* box_mat = (S3D::material_base*) new S3D::material_lambertian( S3D::spectrum( 0.0, 0.0, 0.5 ) );
   man->addMaterial( "box", box_mat );
 
-  man->setAmbientLight( S3D::beam( 0.0, 0.0, 0.0 ) );
+  man->setAmbientLight( S3D::spectrum( 0.0, 0.0, 0.0 ) );
   man->setLightSampleRate( light_samples_per_area );
 
 
@@ -134,7 +134,7 @@ int main( int, char** )
 //  another_light->setRotation( S3D::rotation( S3D::unit_threeVector_z, -S3D::PI/4 ) * S3D::rotation( S3D::unit_threeVector_x, -S3D::PI/2.0 ) );
 //  man->addObject( (S3D::object_base*)another_light );
 
-//  S3D::light_base* another_light = (S3D::light_base*) new S3D::light_pointSource( S3D::colour( 0.1, 0.1, 1.0 ),  2000.0 );
+//  S3D::light_base* another_light = (S3D::light_base*) new S3D::light_pointSource( S3D::spectrum( 0.1, 0.1, 1.0 ),  2000.0 );
 //  man->addLight( another_light );
 
   INFO_LOG( "Rendering scene." );

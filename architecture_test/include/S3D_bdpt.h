@@ -2,7 +2,7 @@
 #ifndef __S3D__BIDIRECTIONALPATHTRACER_H__
 #define __S3D__BIDIRECTIONALPATHTRACER_H__
 
-#include "S3D_beam.h"
+#include "S3D_spectrum.h"
 #include "S3D_tracer_base.h"
 #include "S3D_path.h"
 
@@ -22,7 +22,7 @@ namespace S3D
     protected:
       void _additionalSetup();
 
-      void _buildPath( path&, line, beam );
+      void _buildPath( path&, line, spectrum );
 
 //      const object_base* _chooseLight() const;
 
@@ -36,7 +36,7 @@ namespace S3D
       void setKillProb( double );
 
       // Interface for camera to trace a single ray
-      virtual beam traceRay( point start, threeVector direction );
+      virtual spectrum traceRay( point start, threeVector direction );
 
   };
 

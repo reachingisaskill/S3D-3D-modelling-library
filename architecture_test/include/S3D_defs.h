@@ -3,7 +3,7 @@
 #define __SIMULATION_3D__DEFINITIONS_H__
 
 #include "S3D_vector.h"
-#include "S3D_beam.h"
+#include "S3D_spectrum.h"
 
 
 #ifndef S3D_DEFAULT_COLOUR_RED
@@ -19,7 +19,7 @@
 #endif
 
 #ifndef S3D_DEfAULT_COLOUR
-#define S3D_DEFAULT_COLOUR S3D::colour( S3D_DEFAULT_COLOUR_RED, S3D_DEFAULT_COLOUR_GREEN, S3D_DEFAULT_COLOUR_BLUE )
+#define S3D_DEFAULT_COLOUR S3D::spectrum( S3D_DEFAULT_COLOUR_RED, S3D_DEFAULT_COLOUR_GREEN, S3D_DEFAULT_COLOUR_BLUE )
 #endif
 
 
@@ -38,14 +38,14 @@ namespace S3D
 
   const threeVector the_origin = makeThreeVector( 0.0, 0.0, 0.0 );
 
-  const colour colour_red = colour( 1.0, 0.0, 0.0 );
-  const colour colour_green = colour( 0.0, 1.0, 0.0 );
-  const colour colour_blue = colour( 0.0, 0.0, 1.0 );
-  const colour colour_black = colour( 0.0, 0.0, 0.0 );
-  const colour colour_white = colour( 1.0, 1.0, 1.0 );
-  const colour colour_lightGrey = colour( 0.75, 0.75, 0.75 );
-  const colour colour_grey = colour( 0.5, 0.5, 0.5 );
-  const colour colour_darkGrey = colour( 0.25, 0.25, 0.25 );
+  const spectrum colour_red = spectrum( 1.0, 0.0, 0.0 );
+  const spectrum colour_green = spectrum( 0.0, 1.0, 0.0 );
+  const spectrum colour_blue = spectrum( 0.0, 0.0, 1.0 );
+  const spectrum colour_black = spectrum( 0.0, 0.0, 0.0 );
+  const spectrum colour_white = spectrum( 1.0, 1.0, 1.0 );
+  const spectrum colour_lightGrey = spectrum( 0.75, 0.75, 0.75 );
+  const spectrum colour_grey = spectrum( 0.5, 0.5, 0.5 );
+  const spectrum colour_darkGrey = spectrum( 0.25, 0.25, 0.25 );
 
   const double epsilon = 1.0e-9;
 }
