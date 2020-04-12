@@ -2,44 +2,54 @@
 #ifndef __S3D__LINE_H__
 #define __S3D__LINE_H__
 
-#include "S3D_allPoints.h"
+#include "S3D_vector.h"
+#include "S3D_rotation.h"
+#include "S3D_point.h"
 
 
 namespace S3D
 {
 
-  class line : public object_base
+  class line
   {
+    friend point lineIntersection( const line&, const line& );
+
     private:
-      threeVector _direction; // Cached
+      point _position;
+      threeVector _direction;
 
     protected:
-      // virtual print_base* _print() const;
 
       rotation _getRotation( threeVector v );
 
     public:
       // start point and direction
-      line( threeVector, threeVector );
+      line( point, threeVector );
       // Start position and rotation wrt the default vector
-      line( threeVector, rotation );
+      line( point, rotation );
       virtual ~line();
 
-      virtual inline const threeVector& getStart() const { return this->getCenter(); }
-      virtual inline void setStart( threeVector p ) { this->setCenter( p ); }
+      virtual inline const point& getStart() const { return _position; }
+      virtual inline void setStart( point p ) { _position = p; }
 
-      virtual const threeVector& getDirection() const { return _direction; }
+      virtual inline const point& getPosition() const { return _position; }
+      virtual inline void setPosition( point p ) { _position = p; }
 
-      virtual threeVector separation( const line* ) const;
-      virtual double distance( const line* ) const;
+      virtual inline const threeVector& getDirection() const { return _direction; }
+      virtual inline void setDirection( threeVector d ) { _direction = d.norm(); }
 
-      virtual threeVector separation( const threeVector* ) const;
-      virtual double distance( const threeVector* ) const;
+      virtual threeVector separation( const line& ) const;
+      virtual double distance( const line& ) const;
+
+      virtual threeVector separation( const point& ) const;
+      virtual double distance( const point& ) const;
 
       virtual void rotate( rotation );
       virtual void rotateAbout( rotation, threeVector );
   };
 
+
+  point lineIntersection( const line&, const line& );
 }
 
 #endif // __S3D__LINE_H__

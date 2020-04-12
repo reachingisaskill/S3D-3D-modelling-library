@@ -4,10 +4,11 @@
 namespace S3D
 {
 
-  light_interface::light_interface( colour c, double r ) :
+  light_base::light_base( spectrum c, double r ) :
     _colour( c ),
     _radiance( r )
   {
   }
 }
+
 

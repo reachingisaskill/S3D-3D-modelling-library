@@ -2,9 +2,7 @@
 #ifndef __S3D__ROTATION_H__
 #define __S3D__ROTATION_H__
 
-#include "S3D_realVector.h"
-
-#include "S3D_defs.h"
+#include "S3D_vector.h"
 
 
 namespace S3D
@@ -26,6 +24,7 @@ namespace S3D
 
     public:
       rotation();
+      // Specify axis of rotation and angle (rotations applied at the origin)
       rotation( threeVector, double );
       virtual ~rotation();
 
@@ -55,7 +54,9 @@ namespace S3D
   double degreesToRadians( double );
   double radiansToDegrees( double );
 
-  double angle( threeVector, threeVector );
+  double vectorAngle( threeVector, threeVector );
+  threeVector crossProduct( threeVector, threeVector );
+  threeVector findPerpendicular( threeVector );
 
 
   rotation operator-( rotation );

@@ -1,14 +1,20 @@
 
+#include "S3D_manager.h"
+#include "S3D_version.h"
+#include "S3D_primitives.h"
+#include "S3D_materials.h"
+#include "S3D_lights.h"
+#include "S3D_cameras.h"
+#include "S3D_defs.h"
+#include "S3D_random.h"
+#include "S3D_convergence.h"
 
-#define S3D_TEST_FUNCTIONALITY
+#include "logtastic.h"
+#include "testass.h"
 
 #include <iostream>
 #include <iomanip>
 #include <string>
-
-#include "testass.h"
-
-#include "S3D.h"
 
 
 int main( int, char** )
@@ -16,19 +22,27 @@ int main( int, char** )
   testass::control::init( "S3D", "Basic Structures and Classes" );
   testass::control::get()->setVerbosity( testass::control::verb_short );
 
+  logtastic::setLogFileDirectory( "./test_data/" );
+  logtastic::addLogFile( "./basics_test.log" );
+  logtastic::init( "Testing S3D Basics", S3D_VERSION_NUMBER );
+
   S3D::manager::createInstance();
-  S3D::manager::getInstance()->setWorld( new S3D::box( 200, 200, 200, threeVector( 0.0 ), S3D::rotation() ) );
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
+  S3D::manager* man = S3D::manager::getInstance();
 
-  SECTION( "Colour" );
-  
-  S3D::colour col1;
-  S3D::colour col2( 10.0, 20.0, 30.0 );
-  ASSERT_EQUAL( col2.getRed(), 10.0 );
-  ASSERT_EQUAL( col2.getGreen(), 20.0 );
-  ASSERT_EQUAL( col2.getBlue(), 30.0 );
-  ASSERT_EQUAL( col1.getGreen(), 0.3 );
+
+  INFO_LOG( "Making basic material" );
+  S3D::material_base* mat = (S3D::material_base*) new S3D::material_simple( S3D::spectrum( 1.0, 0.0, 0.0 ) );
+  man->addMaterial( "simple", mat );
+  S3D::material_base* world_mat = (S3D::material_base*) new S3D::material_simple( S3D::spectrum( 0.0, 0.3, 0.8 ) );
+  man->addMaterial( "room", world_mat );
+
+
+  INFO_LOG( "Making world sphere" );
+  S3D::object_base* world = (S3D::object_base*) new S3D::sphere( mat, 100.0 );
+  man->setWorld( world, 1 );
+
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -93,94 +107,170 @@ int main( int, char** )
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  SECTION( "Step" );
-  {
-    S3D::step stp1( S3D::the_origin, S3D::unit_threeVector_z );
-    S3D::step stp2( makeThreeVector( 2.0, 1.0, 7.0 ), makeThreeVector( 3.5, 3.6, 12.4 ) );
-    S3D::step stp3( makeThreeVector( 0.0, 0.0, 100.0 ), makeThreeVector( 0.0, 100.0, 0.0 ) );
-
-    ASSERT_EQUAL( stp1.getStart(), S3D::the_origin );
-    ASSERT_EQUAL( stp2.getStart(), makeThreeVector( 2.0, 1.0, 7.0 ) );
-    ASSERT_EQUAL( stp3.getStart(), makeThreeVector( 0.0, 0.0, 100.0 ) );
-
-    ASSERT_EQUAL( stp1.getCenter(), stp1.getPosition() );
-    ASSERT_EQUAL( stp3.getCenter(), makeThreeVector( 0.0, 50.0, 100.0 ) );
-
-    ASSERT_EQUAL( stp1.getDirection(), S3D::unit_threeVector_z );
-    ASSERT_EQUAL( stp2.getDirection(), makeThreeVector( 3.5, 3.6, 12.4 ) );
-    ASSERT_NOT_EQUAL( stp3.getDirection(), stp2.getDirection() );
-
-    stp1.setDirection( S3D::unit_threeVector_y );
-    stp2 = stp3;
-    stp1.setCenter( S3D::the_origin );
-
-    ASSERT_EQUAL( stp1.getDirection(), S3D::unit_threeVector_y );
-    ASSERT_EQUAL( stp2.getStart(), stp3.getStart() );
-    ASSERT_EQUAL( stp2.getPosition(), stp3.getPosition() );
-    ASSERT_EQUAL( stp2.getDirection(), stp3.getDirection() );
-
-    stp3.setStart( makeThreeVector( 0.3, 0.1, 30.0 ) );
-
-    ASSERT_EQUAL( stp3.getStart(), makeThreeVector( 0.3, 0.1, 30.0 ) );
-    ASSERT_EQUAL( stp1.getStart(), makeThreeVector( 0.0, -0.5, 0.0 ) );
-  }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
   SECTION( "Point" );
 
-  S3D::point* p1 = S3D::addObject( new S3D::point( 0.0, 0.0, 0.0 ) );
-  ASSERT_EQUAL( p1->getCenter()[0], 0.0 );
-  ASSERT_EQUAL( p1->getCenter()[1], 0.0 );
-  ASSERT_EQUAL( p1->getCenter()[2], 0.0 );
+  S3D::point p1( 0.0, 0.0, 0.0 );
+  ASSERT_EQUAL( p1[0], 0.0 );
+  ASSERT_EQUAL( p1[1], 0.0 );
+  ASSERT_EQUAL( p1[2], 0.0 );
 
-  S3D::point* p2 = S3D::addObject( new S3D::point( makeThreeVector( 1.0, 2.0, 3.0 ) ) );
-  ASSERT_EQUAL( p2->getCenter()[0], 1.0 );
-  ASSERT_EQUAL( p2->getCenter()[1], 2.0 );
-  ASSERT_EQUAL( p2->getCenter()[2], 3.0 );
+  S3D::point p2( makeThreeVector( 1.0, 2.0, 3.0 ) );
+  ASSERT_EQUAL( p2[0], 1.0 );
+  ASSERT_EQUAL( p2[1], 2.0 );
+  ASSERT_EQUAL( p2[2], 3.0 );
 
-  S3D::point* p3 = S3D::addObject( new S3D::point( 15.7 ) );
-  ASSERT_EQUAL( p3->getCenter()[0], 15.7 );
-  ASSERT_EQUAL( p3->getCenter()[1], 15.7 );
-  ASSERT_EQUAL( p3->getCenter()[2], 15.7 );
+  S3D::point p3( 15.7 );
+  ASSERT_EQUAL( p3[0], 15.7 );
+  ASSERT_EQUAL( p3[1], 15.7 );
+  ASSERT_EQUAL( p3[2], 15.7 );
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
   SECTION( "Line" );
 
-  S3D::line* l1 = S3D::addObject( new S3D::line( makeThreeVector( 1.0, 2.0, 3.0 ), makeThreeVector( 1.0, 1.0, 10.0 ) ) );
-  S3D::line* l2 = S3D::addObject( new S3D::line( makeThreeVector( 1.0, 2.0, 4.0 ), makeThreeVector( 1.0, 1.0, 10.0 ) ) );
-  ASSERT_EQUAL( l1->getStart(), makeThreeVector( 1.0, 2.0, 3.0 ) );
-  ASSERT_EQUAL( l1->getDirection(), makeThreeVector( 1.0, 1.0, 10.0 ).norm() );
-  ASSERT_EQUAL( l2->getStart(), makeThreeVector( 1.0, 2.0, 4.0 ) );
-  ASSERT_EQUAL( l2->getDirection(), makeThreeVector( 1.0, 1.0, 10.0 ).norm() );
-  ASSERT_APPROX_EQUAL( l1->getDirection().mod(), 1.0 );
-  ASSERT_APPROX_EQUAL( l2->getDirection().mod(), 1.0 );
-  ASSERT_EQUAL( l1->getDirection(), l2->getDirection() );
-  ASSERT_APPROX_EQUAL( l1->distance( l2 ), 0.1400280084 );
+  S3D::line l1( S3D::point( 1.0, 2.0, 3.0 ), makeThreeVector( 1.0, 1.0, 10.0 ) );
+  S3D::line l2( S3D::point( 1.0, 2.0, 4.0 ), makeThreeVector( 1.0, 1.0, 10.0 ) );
+  ASSERT_EQUAL( l1.getStart(), S3D::point( 1.0, 2.0, 3.0 ) );
+  ASSERT_EQUAL( l1.getDirection(), makeThreeVector( 1.0, 1.0, 10.0 ).norm() );
+  ASSERT_EQUAL( l2.getStart(), S3D::point( 1.0, 2.0, 4.0 ) );
+  ASSERT_EQUAL( l2.getDirection(), makeThreeVector( 1.0, 1.0, 10.0 ).norm() );
+  ASSERT_APPROX_EQUAL( l1.getDirection().mod(), 1.0 );
+  ASSERT_APPROX_EQUAL( l2.getDirection().mod(), 1.0 );
+  ASSERT_EQUAL( l1.getDirection(), l2.getDirection() );
+  ASSERT_APPROX_EQUAL( l1.distance( l2 ), 0.1400280084 );
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
   SECTION( "Surface" );
 
   threeVector test = makeThreeVector( 1.0, -1.0, std::sqrt(2.0) ).norm();
-  S3D::test_surface* s1 = S3D::addObject( new S3D::test_surface( threeVector( 0.0 ), S3D::rotation( makeThreeVector( 1.0, 1.0, 0.0 ), 0.25*S3D::PI ) ) );
+  S3D::surface s0( S3D::point( 0.0 ), S3D::rotation());
+  S3D::surface s1( S3D::point( 0.0 ), S3D::rotation( makeThreeVector( 1.0, 1.0, 0.0 ), 0.25*S3D::PI ) );
+  S3D::surface s2( S3D::point( 1.0, 10.0, 3.0 ), S3D::rotation( makeThreeVector( 0.0, 1.0, 0.0 ), 0.5*S3D::PI ) );
 
-  ASSERT_EQUAL( s1->getCenter(), threeVector( 0.0 ) );
-  ASSERT_APPROX_EQUAL( s1->getDirection()[0], test[0] );
-  ASSERT_APPROX_EQUAL( s1->getDirection()[1], test[1] );
-  ASSERT_APPROX_EQUAL( s1->getDirection()[2], test[2] );
-  ASSERT_EQUAL( s1->inFront( makeThreeVector( 1.0, 2.0, 3.0 ) ), false );
-  ASSERT_EQUAL( s1->crosses( l2 ), false );
-  
+  ASSERT_EQUAL( s0.getNormal(), S3D::unit_threeVector_z );
+  ASSERT_EQUAL( s0.inFront( S3D::point( 0.0, 0.0, 1.0 ) ), true );
+  ASSERT_EQUAL( s0.inFront( S3D::point( 0.0, 0.0, -1.0 ) ), false );
+  ASSERT_EQUAL( s1.getPosition().getPosition(), makeThreeVector( 0.0, 0.0, 0.0 ) );
+  ASSERT_APPROX_EQUAL( s1.getNormal()[0], test[0] );
+  ASSERT_APPROX_EQUAL( s1.getNormal()[1], test[1] );
+  ASSERT_APPROX_EQUAL( s1.getNormal()[2], test[2] );
+  ASSERT_EQUAL( s1.inFront( S3D::point( 1.0, 2.0, -3.0 ) ), false );
+  ASSERT_EQUAL( s1.crosses( l2 ), false );
+  ASSERT_EQUAL( s2.inFront( S3D::point( 10.0, 0.0, 0.0 ) ), true );
+  ASSERT_EQUAL( s2.inFront( S3D::point( 1.0-S3D::epsilon, 0.0, 0.0 ) ), false );
+
+  S3D::line l3( S3D::point( 0.0, 0.0, 1.0 ), makeThreeVector( 0.0, 0.0, -1.0 ) );
+  ASSERT_TRUE( s1.crosses( l3 ) );
+
+  S3D::line l4( S3D::point( 0.0, 0.0, 1.0 ), makeThreeVector( 0.0, 0.0, 1.0 ) );
+  ASSERT_FALSE( s1.crosses( l4 ) );
+
+  S3D::point inter1 = s1.intersect( l3 );
+  ASSERT_APPROX_EQUAL( inter1[0], 0.0 );
+  ASSERT_APPROX_EQUAL( inter1[1], 0.0 );
+  ASSERT_APPROX_EQUAL( inter1[2], 0.0 );
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  SECTION( "Simple Shapes" );
+  SECTION( "Random Samples ");
 
-  S3D::test_simple_shape* sh1 = S3D::addObject( new S3D::test_simple_shape( 0, 1.0 ) );
-  ASSERT_EQUAL( sh1->crosses( l1 ), false );
-  ASSERT_EQUAL( sh1->contains( threeVector( 0.0 ) ), false );
-  ASSERT_EQUAL( sh1->Contains( makeThreeVector( 1.0, 2.0, 3.0 ) ), false );
+  threeVector direction = S3D::unit_threeVector_x;
+
+  unsigned int counter = 0;
+  for ( unsigned int i = 0; i < 1000000; ++i ) // Sample the directions.
+  {
+    threeVector test = S3D::random::uniformHemisphere( direction );
+
+    if ( ( test * direction ) < 0.0 ) // if going backwards
+      counter += 1;
+  }
+  ASSERT_EQUAL( counter, (unsigned int)0 );
+
+
+  direction = S3D::rotation( S3D::unit_threeVector_z, 0.325 ).rotateVector( direction );
+
+  counter = 0;
+  for ( unsigned int i = 0; i < 1000000; ++i ) // Sample the directions.
+  {
+    threeVector test = S3D::random::uniformHemisphere( direction );
+
+    if ( ( test * direction ) < 0.0 ) // if going backwards
+      counter += 1;
+  }
+  ASSERT_EQUAL( counter, (unsigned int)0 );
+
+  S3D::random::halton h2( 2 );
+  S3D::random::halton h3( 3 );
+
+  ASSERT_APPROX_EQUAL( h2.sample(), 1.0/2.0 );
+  ASSERT_APPROX_EQUAL( h2.sample(), 1.0/4.0 );
+  ASSERT_APPROX_EQUAL( h2.sample(), 3.0/4.0 );
+  ASSERT_APPROX_EQUAL( h2.sample(), 1.0/8.0 );
+  ASSERT_APPROX_EQUAL( h2.sample(), 5.0/8.0 );
+  ASSERT_APPROX_EQUAL( h2.sample(), 3.0/8.0 );
+  ASSERT_APPROX_EQUAL( h2.sample(), 7.0/8.0 );
+  ASSERT_APPROX_EQUAL( h2.sample(), 1.0/16.0 );
+
+  ASSERT_APPROX_EQUAL( h3.sample(), 1.0/3.0 );
+  ASSERT_APPROX_EQUAL( h3.sample(), 2.0/3.0 );
+  ASSERT_APPROX_EQUAL( h3.sample(), 1.0/9.0 );
+  ASSERT_APPROX_EQUAL( h3.sample(), 4.0/9.0 );
+  ASSERT_APPROX_EQUAL( h3.sample(), 7.0/9.0 );
+  ASSERT_APPROX_EQUAL( h3.sample(), 2.0/9.0 );
+  ASSERT_APPROX_EQUAL( h3.sample(), 5.0/9.0 );
+  ASSERT_APPROX_EQUAL( h3.sample(), 8.0/9.0 );
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+  SECTION( "Utility Functionality" );
+  {
+
+    S3D::convergence_counter c_counter( 5 );
+    S3D::spectrum test_spectrum( 0.0, 0.0, 0.0 );
+
+    ASSERT_TRUE( c_counter( test_spectrum ) );
+    ASSERT_TRUE( c_counter( test_spectrum ) );
+    ASSERT_TRUE( c_counter( test_spectrum ) );
+    ASSERT_TRUE( c_counter( test_spectrum ) );
+    ASSERT_FALSE( c_counter( test_spectrum ) );
+
+    S3D::convergence_error c_variance( 0.01 );
+
+    ASSERT_TRUE( c_variance( test_spectrum ) );
+    ASSERT_TRUE( c_variance( test_spectrum ) );
+    ASSERT_TRUE( c_variance( test_spectrum ) );
+    ASSERT_TRUE( c_variance( test_spectrum ) );
+    ASSERT_FALSE( c_variance( test_spectrum ) );
+    INFO_STREAM << "C_Variance: " << c_variance.getMeanIntensity() << ", " << c_variance.getFractionalVariance() << ", " << c_variance.getVariance();
+
+
+    c_variance.clear();
+
+    test_spectrum = S3D::spectrum( 1.0, 1.0, 1.0 );
+
+    c_variance( test_spectrum );
+    c_variance( test_spectrum );
+
+    test_spectrum = S3D::spectrum( 5.0, 5.0, 5.0 );
+    c_variance( test_spectrum );
+    c_variance( test_spectrum );
+
+    ASSERT_TRUE( c_variance( test_spectrum ) );
+
+    ASSERT_APPROX_EQUAL( c_variance.getMeanIntensity(), 17.0/5.0 );
+    ASSERT_APPROX_EQUAL( c_variance.getVariance(), 3.84 );
+
+    S3D::spectrum mean_spec = c_variance.getMean();
+    ASSERT_APPROX_EQUAL( mean_spec.red(), 17.0/5.0 );
+    ASSERT_APPROX_EQUAL( mean_spec.green(), 17.0/5.0 );
+    ASSERT_APPROX_EQUAL( mean_spec.blue(), 17.0/5.0 );
+
+
+  }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -192,7 +282,7 @@ int main( int, char** )
   S3D::manager::killInstance();
 
   testass::control::kill();
-  std::cout << std::endl;
+  logtastic::stop();
   return 0;
 }
 

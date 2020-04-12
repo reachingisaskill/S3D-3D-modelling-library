@@ -1,74 +1,75 @@
 
-#ifndef __SURFACE_H__
-#define __SURFACE_H__
+#ifndef __S3D__SURFACE_H__
+#define __S3D__SURFACE_H__
 
 
-#include "S3D_allLines.h"
+#include "S3D_vector.h"
+#include "S3D_point.h"
+#include "S3D_line.h"
+#include "S3D_rotation.h"
 
 
 namespace S3D
 {
 
-  class surface : public object_base
+  // Infinite surface
+  class surface
   {
+    friend line surfaceIntersection( const surface&, const surface& );
+    friend point surfaceIntersection( const surface&, const line& );
+
     private:
+      point _position;
       threeVector _normal;
+      rotation _rotation;
 
     protected:
-      surface( threeVector, rotation );
 
     public:
+      // Default constructor
+      surface();
+
+      surface( point, rotation );
+//      surface( point, threeVector );
+
       virtual ~surface();
 
-      virtual const threeVector& getDirection() const { return _normal; }
+      virtual const point& getPosition() const { return _position; }
+      virtual void setPosition( const point& p ) { _position = p; }
 
-      virtual inline bool inFront( threeVector vec ) const { return this->inFront( &vec ); }
-      virtual inline bool InFront( threeVector vec ) const { return this->InFront( &vec ); };
-      virtual bool inFront( const threeVector* ) const;
-      virtual bool InFront( const threeVector* ) const;
+      virtual const threeVector& getNormal() const { return _normal; }
+      virtual void setNormal( const threeVector& );
 
-      virtual double area() const = 0;
+      virtual const rotation& getRotation() const { return _rotation; }
+      virtual void setRotation( const rotation& );
 
-      virtual bool contains( const threeVector* v ) const { return ! this->InFront( v ); }
-      virtual bool Contains( const threeVector* v ) const { return ! this->inFront( v ); }
+      // Total area of the surface (infinite surface set to zero.)
+      virtual double getArea() const { return 0.0; }
 
-      virtual double distance( const threeVector* ) const = 0;
-      virtual double distance( const line* ) const = 0;
-      virtual bool crosses( const ray* ) const = 0;
-      virtual bool crosses( const line* ) const = 0;
-      virtual threeVector intersect( const line* ) const = 0;
+      virtual bool inFront( const point& ) const;
+
+      // Shortest distance from point to surface
+      virtual double distance( const point& ) const;
+      // Distance from start of line to surface
+      virtual double distance( const line& ) const;
+
+      virtual bool crosses( const line& ) const;
+      virtual point intersect( const line& ) const;
+
+      // Returns the X-Y vector of the location of intersect in the plane of the surface.
+      virtual twoVector planarIntersect( const line& );
+
+      virtual point sampleSurface() const;
 
       virtual void rotate( rotation );
-      virtual void rotateAbout( rotation, threeVector );
+      virtual void rotateAbout( rotation, point );
   };
 
 
-
-
-
-
-
-
-#ifdef S3D_TEST_FUNCTIONALITY
-
-  class test_surface : public surface
-  {
-    private:
-
-    public:
-      test_surface( threeVector p, rotation r ) : surface( p, r ) {}
-
-      virtual double area() const { return 0.0; }
-      virtual double distance( const threeVector* ) const { return 0.0; }
-      virtual double distance( const line* ) const { return 0.0; }
-      virtual bool crosses( const ray* ) const { return false; }
-      virtual bool crosses( const line* ) const { return false; }
-      virtual threeVector intersect( const line* ) const { return threeVector( 0.0 ); }
-  };
-
-#endif
-
+  // Declarations
+  line surfaceIntersection( const surface&, const surface& );
+  point surfaceIntersection( const surface&, const line& );
 }
 
-#endif // __SURFACE_H__
+#endif // __S3D__SURFACE_H__
 

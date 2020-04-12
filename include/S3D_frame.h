@@ -2,7 +2,7 @@
 #ifndef __S3D__FRAME_H__
 #define __S3D__FRAME_H__
 
-#include "S3D_beam.h"
+#include "S3D_spectrum.h"
 
 #include <string>
 
@@ -15,7 +15,7 @@ namespace S3D
     private:
       unsigned int _pixelsX;
       unsigned int _pixelsY;
-      beam* _image;
+      spectrum* _image;
 
       unsigned int _pixelNum( unsigned int x, unsigned int y ) const;
 
@@ -26,8 +26,10 @@ namespace S3D
       frame( unsigned int, unsigned int );
 
       frame( const frame& );
+      frame( frame&& );
 
       virtual frame& operator=( const frame& );
+      virtual frame& operator=( frame&& );
 
       virtual ~frame();
 
@@ -35,8 +37,8 @@ namespace S3D
       unsigned int numPixelsY() const { return this->_pixelsY; }
 
       // Return a reference to a specific pixel
-      beam& pixel( unsigned int x, unsigned int y ) { return _image[ _pixelNum( x, y ) ]; }
-      const beam& pixel( unsigned int x, unsigned int y ) const { return _image[ _pixelNum( x, y ) ]; }
+      spectrum& pixel( unsigned int x, unsigned int y ) { return _image[ _pixelNum( x, y ) ]; }
+      const spectrum& pixel( unsigned int x, unsigned int y ) const { return _image[ _pixelNum( x, y ) ]; }
 
       // Save the frame to a bmp image
       void dump( std::string ) const;

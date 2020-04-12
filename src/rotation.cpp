@@ -1,6 +1,8 @@
 
 #include "S3D_rotation.h"
 
+#include "S3D_defs.h"
+
 #include <cmath>
 
 
@@ -177,10 +179,30 @@ namespace S3D
     return ( rad / PI ) * 180.0;
   }
 
-  double angle( threeVector v1, threeVector v2 )
+  double vectorAngle( threeVector v1, threeVector v2 )
   {
     double product = v1 * v2;
     return std::acos( product / ( v1.mod() * v2.mod() ) );
+  }
+
+  threeVector crossProduct( threeVector v1, threeVector v2 )
+  {
+    threeVector result( makeThreeVector( v1[1]*v2[2] - v1[2]*v2[1],
+                                        -v1[0]*v2[2] + v1[2]*v2[0],
+                                         v1[0]*v2[1] - v1[1]*v2[0] ) );
+    return result;
+  }
+
+  threeVector findPerpendicular( threeVector v1 )
+  {
+    if ( ( std::fabs( v1.norm() * unit_threeVector_z)  - 1.0 ) < epsilon )
+    {
+      return unit_threeVector_x;
+    }
+    else
+    {
+      return crossProduct( v1, unit_threeVector_z ).norm();
+    }
   }
 
 }

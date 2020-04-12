@@ -2,63 +2,46 @@
 #ifndef __S3D__CAMERA_H__
 #define __S3D__CAMERA_H__
 
-#include "S3D_realVector.h"
+#include "S3D_vector.h"
+#include "S3D_point.h"
 #include "S3D_rotation.h"
-#include "S3D_beam.h"
+#include "S3D_spectrum.h"
 #include "S3D_frame.h"
-#include "S3D_raytracer.h"
+#include "S3D_base.h"
 
 #include "stdexts.h"
 
 namespace S3D
 {
+  class tracer_base;
 
-  class camera_base
+  class camera_base : public base
   {
     private:
-      threeVector _position;
-      rotation _rotation;
       double _fieldOfView;
       unsigned int _pixelsX;
       unsigned int _pixelsY;
       frame* _frame;
-      rayTracer* _rayTracer;
+      tracer_base* _rayTracer;
 
     protected:
       void _setFrame( frame* f ) { _frame = f; }
-      rayTracer* _getRayTracer() { return this->_rayTracer; }
+      tracer_base* _getRayTracer() { return this->_rayTracer; }
 
     public:
-      // Position, Direction, FieldOfView
-      camera_base( threeVector, rotation, double=0.0 );
-
-      // Copy constructor (does not copy the frame object!)
-      camera_base( const camera_base& );
-
-      // Move constructor (moves the frame object!)
-      camera_base( camera_base&& ) noexcept;
-
-      // Assignment operator (does not copy the frame object!)
-      camera_base& operator=( const camera_base& );
-
-      // Move assignment operator (moves the frame object!)
-      camera_base& operator=( camera_base&& );
+      // Ray Tracer, FieldOfView
+      camera_base( tracer_base*, double=0.0 );
 
       virtual ~camera_base();
 
       // Set the rayTracer object - takes ownership
-      void setRayTracer( rayTracer* );
+      void setRayTracer( tracer_base* );
 
       // Set the size of the frame
       virtual void setPixels( unsigned int x, unsigned int y );
       unsigned int getPixelsX() const { return _pixelsX; }
       unsigned int getPixelsY() const { return _pixelsY; }
 
-      virtual inline const threeVector& getPosition() const { return this->_position; }
-      virtual inline void setPosition( threeVector pos ) { this->_position = pos; }
-
-      virtual inline const rotation& getRotation() const { return this->_rotation; }
-      virtual inline void setRotation( rotation rot ) { this->_rotation = rot; }
 
       virtual inline double getFieldOfView() const { return this->_fieldOfView; }
       virtual inline void setFieldOfView( double fov ) { this->_fieldOfView = fov; }

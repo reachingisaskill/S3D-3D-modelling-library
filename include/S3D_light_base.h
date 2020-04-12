@@ -2,30 +2,33 @@
 #ifndef __S3D__LIGHT_BASE_H__
 #define __S3D__LIGHT_BASE_H__
 
-#include "S3D_beam.h"
-#include "S3D_raytracer.h"
-
+#include "S3D_vector.h"
+#include "S3D_rotation.h"
+#include "S3D_base.h"
+#include "S3D_spectrum.h"
+#include "S3D_interaction.h"
 
 namespace S3D
 {
+  class tracer_base;
 
-  // Define the interface for light sources
-  class light_interface
+  class light_base : public base
   {
     private:
-      colour _colour;
+      spectrum _colour;
       double _radiance;
 
     protected:
       // Colour and radiance (flux per unit area, per solid angle)
-      light_interface( colour, double );
+      light_base( spectrum, double );
 
-      double _getRadiance() const { return _radiance; }
+      const double& _getRadiance() const { return _radiance; }
+      const spectrum& _getColour() const { return _colour; }
 
     public:
+      // Call the light tracing routines, sampling the emitted rays.
+      virtual spectrum sampleRays( const interaction&, const tracer_base* ) const = 0;
 
-      // Calculate the total flux per unit area received at a point in space
-      virtual beam calculateFlux( threeVector, const rayTracer* ) const = 0;
   };
 }
 
