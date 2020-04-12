@@ -12,6 +12,14 @@ namespace S3D
   }
 
 
+  spectrum::spectrum( double val ) :
+    _red( val ),
+    _green( val ),
+    _blue( val )
+  {
+  }
+
+
   spectrum::spectrum( double red, double green, double blue ) :
     _red( red ),
     _green( green ),

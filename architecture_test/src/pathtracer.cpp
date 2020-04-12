@@ -49,8 +49,26 @@ namespace S3D
   spectrum tracer_pathtracer::_pathTrace( point start, threeVector dir, unsigned int depth )
   {
     line the_ray( start, dir );
-    double kill_factor = ( depth < 3 ? 0.0 : _killProb );
+    double kill_factor = ( depth <= 5 ? 0.0 : _killProb );
     double roulette_factor = 1.0 / ( 1.0 - kill_factor );
+    spectrum currentBeam( 0.0 );
+
+
+
+    if ( (random::uniformDouble() < kill_factor) )
+    {
+      DEBUG_LOG( "End of path reached closing recursion." );
+      return currentBeam;
+    }
+
+    if ( depth >= _maxDepth )
+    {
+      WARN_LOG( "Path reached maximum depth" );
+      return currentBeam;
+    }
+
+
+
 
     interaction inter;
     try
@@ -68,80 +86,73 @@ namespace S3D
 
     if ( inter.getObject() == nullptr )
     {
-      return spectrum( 0.0, 0.0, 0.0 );
+      return currentBeam;
     }
-
 
     DEBUG_STREAM << "Interaction: " << inter.getObject() << " -- " << inter.getDistance() << " -- " << inter.getPoint().getPosition() << " | " << roulette_factor;
 
 
-    spectrum currentBeam( 0.0, 0.0, 0.0 );
 
-    if ( random::uniformDouble() > _killProb )
+    double r1 = random::uniformDouble();
+
+    double prob_r = inter.getObject()->getMaterial()->getReflectionProb( inter );
+    double prob_t = inter.getObject()->getMaterial()->getTransmissionProb( inter );
+
+    DEBUG_STREAM <<  "Checking for recursive rays. Rand = " << r1 << ". Prob R = " << prob_r << ". Prob T = " << prob_t;
+
+
+    if ( r1 < prob_r ) // Prob of reflection
     {
-      double r1 = random::uniformDouble();
+      DEBUG_LOG( "Launching recursive reflected ray." );
+      threeVector direction = inter.getObject()->getMaterial()->sampleReflection( inter ).norm();
 
-      double prob_r = inter.getObject()->getMaterial()->getReflectionProb( inter );
-      double prob_t = inter.getObject()->getMaterial()->getTransmissionProb( inter );
+      spectrum incoming = this->_pathTrace( inter.getPoint(), direction, depth + 1 );
+      DEBUG_STREAM << "Returned recursive ray at object: " << inter.getObject();
 
-      DEBUG_STREAM <<  "Checking for recursive rays. Rand = " << r1 << ". Prob R = " << prob_r << ". Prob T = " << prob_t;
+      double attenuation = direction * inter.getSurfaceNormal();
 
+      // Normalised by the volume of the sample space : sample space * BRDF * Li * cos_theta
+      currentBeam = 2.0*PI * inter.getObject()->getMaterial()->BRDF( -direction, inter ) * incoming * attenuation;
+    }
+    else if ( r1 < ( prob_r + prob_t ) )
+    {
+      DEBUG_LOG( "Launching recursive transmitted ray." );
+      threeVector direction = inter.getObject()->getMaterial()->sampleTransmission( inter ).norm();
 
-      if ( r1 < prob_r ) // Prob of reflection
-      {
-        DEBUG_LOG( "Launching recursive reflected ray." );
-        threeVector direction = inter.getObject()->getMaterial()->sampleReflection( inter ).norm();
+      spectrum incoming = this->_pathTrace( inter.getPoint(), direction, depth + 1 );
+      DEBUG_STREAM << "Returned recursive ray at object: " << inter.getObject();
 
-        spectrum incoming = this->_pathTrace( inter.getPoint(), direction, depth + 1 );
-        DEBUG_STREAM << "Returned recursive ray at object: " << inter.getObject();
+      double attenuation = direction * inter.getSurfaceNormal();
 
-        double attenuation = direction * inter.getSurfaceNormal();
-
-        // Normalised by the volume of the sample space : roulette * sample space * BRDF * Li * cos_theta
-        currentBeam = roulette_factor * 2.0*PI * inter.getObject()->getMaterial()->BRDF( -direction, inter ) * incoming * attenuation;
-      }
-      else if ( r1 < ( prob_r + prob_t ) )
-      {
-        DEBUG_LOG( "Launching recursive transmitted ray." );
-        threeVector direction = inter.getObject()->getMaterial()->sampleTransmission( inter ).norm();
-
-        spectrum incoming = this->_pathTrace( inter.getPoint(), direction, depth + 1 );
-        DEBUG_STREAM << "Returned recursive ray at object: " << inter.getObject();
-
-        double attenuation = direction * inter.getSurfaceNormal();
-
-        currentBeam = roulette_factor * 2.0*PI * inter.getObject()->getMaterial()->BTDF( -direction, inter ) * incoming * attenuation;
-      }
-      else
-      {
-        DEBUG_LOG( "Path absorbed. Closing recursion" );
-        currentBeam = spectrum( 0.0, 0.0, 0.0 );
-      }
+      currentBeam = roulette_factor * 2.0*PI * inter.getObject()->getMaterial()->BTDF( -direction, inter ) * incoming * attenuation;
     }
     else
     {
-      DEBUG_LOG( "End of path reached closing recursion." );
-      return spectrum( 0.0, 0.0, 0.0 );
+      DEBUG_LOG( "Path absorbed. Closing recursion" );
+      spectrum emission = inter.getObject()->getMaterial()->getEmission( inter.getSurfaceMap() );
+      currentBeam += roulette_factor*emission;
+      return currentBeam;
     }
 
 
-    // Standard path tracing - just sample the emission from the vertex and return.
-    spectrum emission = inter.getObject()->getMaterial()->getEmission( inter.getSurfaceMap() );
-    DEBUG_STREAM << "Adding emission from current intersection : " << emission.red() << ", " << emission.green() << ", " << emission.blue();
-    currentBeam += roulette_factor * emission;
+
+//    // Standard path tracing - just sample the emission from the vertex and return.
+//    spectrum emission = inter.getObject()->getMaterial()->getEmission( inter.getSurfaceMap() );
+//    currentBeam += emission;
 
 
 
-//    // Add light from other light sources.
-//    DEBUG_STREAM << "Tracing Lights to object: " << inter.getObject();
-//    currentBeam += roulette_factor*sampleAllLights( inter );
-//
-//    if ( depth == 0 ) // If the first hit is a light, include its contribution manually
-//    {
-//      currentBeam += inter.getObject()->getMaterial()->getEmission( inter.getSurfaceMap() );
-//    }
-//
+    // Add light from other light sources.
+    DEBUG_STREAM << "Tracing Lights to object: " << inter.getObject();
+    currentBeam += sampleAllLights( inter );
 
+    if ( depth == 0 ) // If the first hit is a light, include its contribution manually
+    {
+      currentBeam += inter.getObject()->getMaterial()->getEmission( inter.getSurfaceMap() );
+    }
+
+
+    currentBeam *= roulette_factor;
     DEBUG_STREAM << "Returning Current Beam." << currentBeam.red() << ", " << currentBeam.green() << ", " << currentBeam.blue();
     return currentBeam;
   }

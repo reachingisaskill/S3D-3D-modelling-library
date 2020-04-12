@@ -104,6 +104,57 @@ namespace S3D
       return direction.rotateVector( makeThreeVector( r * std::cos( theta ), r * std::sin( theta ), r1 ) );
     }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Halton Sequance
+
+    halton::halton( unsigned int base ) :
+      _base( base ),
+      _count( 0 ),
+      _Nn( 0.0 ),
+      _Dn( 1.0 )
+    {
+    }
+
+
+    double halton::sample()
+    {
+      double x = _Dn - _Nn;
+
+//      if ( x == 1.0 )
+      if ( (x - 1.0) < epsilon )
+      {
+        _Nn = 1.0;
+        _Dn *= _base;
+      }
+      else
+      {
+        double y = _Dn / _base;
+        while ( x <= y ) y /= _base;
+        _Nn = ( 1.0 + _base ) * y - x;
+      }
+
+      return _Nn / _Dn;
+    }
+
+
+    // WARN: Untested
+//    double halton::sample()
+//    {
+//      int i = ++_count;
+//
+//      double f = 1.0;
+//      double r = 0.0;
+//
+//      while ( i > 0 )
+//      {
+//        f = f/_base;
+//        r = r + f*( i % _base );
+//        i = i/_base;
+//      }
+//
+//      return r;
+//    }
+
   }
 }
 

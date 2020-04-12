@@ -25,6 +25,9 @@ namespace S3D
     public:
       spectrum();
 
+      // Initialise uniform distribution
+      explicit spectrum( double );
+
       // Initialise with the spectral fluxes
       spectrum( double, double, double );
 

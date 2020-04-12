@@ -46,26 +46,29 @@ namespace S3D
   };
 
 
-  class convergence_variance : public convergence_base
+  class convergence_error : public convergence_base
   {
     private:
       double _limit;
       double _mean;
       double _sumSquares;
       unsigned int _min;
+      unsigned int _max;
 
     protected:
       virtual bool _isConverging( const spectrum& );
       virtual void _clear();
 
     public:
-      convergence_variance( double, unsigned int min = 5 );
+      convergence_error( double, unsigned int min = 5 );
 
       void setMinSamples( unsigned int );
+      void setMaxSamples( unsigned int );
 
       double getMeanIntensity() const { return _mean; }
       double getVariance() const { return _sumSquares / this->getCount(); }
       double getFractionalVariance() const;
+      double getError() const;
   };
 }
 

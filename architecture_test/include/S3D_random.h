@@ -24,6 +24,26 @@ namespace S3D
     threeVector uniformHemisphere( threeVector );
 
     threeVector uniformHemisphere( rotation );
+
+
+    class halton
+    {
+      private:
+        unsigned int _base;
+        unsigned long int _count;
+
+        double _Nn;
+        double _Dn;
+
+      public:
+        // Specify the x & y 2D bases.
+        halton( unsigned int );
+
+        double sample();
+
+        void reset() { _count = 0; }
+    };
+
   }
 }
 

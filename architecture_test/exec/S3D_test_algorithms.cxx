@@ -241,8 +241,8 @@ int main( int, char** )
 
 
   n_samples = 10000;
-  unsigned int n_vertices = 10000;
-  double kill = 0.01;
+  unsigned int n_vertices = 1000000;
+  double kill = 0.001;
 
   sum = 0.0;
   sum1 = 0.0;
@@ -253,22 +253,23 @@ int main( int, char** )
     double scale = 1.0;
     scale = 1.0 / ( 1.0 - kill );
 
-    for ( unsigned int n = 0; n < n_vertices; ++n )
+    while( random::uniformDouble() >= kill )
     {
-      double test = random::uniformDouble();
-      if ( test < kill ) break;
+//      double test = random::uniformDouble();
+//      if ( test < kill ) break;
 
       threeVector direction = random::uniformHemisphere( normal );
       double cos_theta = std::fabs(direction * normal);
 
       path_sum = scale*(emittance + 2.0*PI*path_sum*(albedo/PI)*cos_theta);
     }
+
     threeVector direction = random::uniformHemisphere( normal );
     double cos_theta = std::fabs(direction * normal);
 
-    sum += 2.0*PI*path_sum*(albedo/PI)*cos_theta;
+    sum += emittance + 2.0*PI*path_sum*(albedo/PI)*cos_theta;
   }
-  INFO_STREAM << "Path Tracing 3 Predicted : " << emittance + (sum / n_samples);
+  INFO_STREAM << "Path Tracing 3 Predicted : " << (sum / n_samples);
 
 
 

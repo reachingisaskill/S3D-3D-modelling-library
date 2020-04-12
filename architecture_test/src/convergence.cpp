@@ -55,16 +55,17 @@ namespace S3D
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  convergence_variance::convergence_variance( double limit, unsigned int min ) :
+  convergence_error::convergence_error( double limit, unsigned int min ) :
     _limit( limit*limit ), // Square the limit to avoid a sqrt() call
     _mean( 0.0 ),
     _sumSquares( 0.0 ),
-    _min( min )
+    _min( min ),
+    _max( (unsigned int)-1 )
   {
   }
 
 
-  bool convergence_variance::_isConverging( const spectrum& beam )
+  bool convergence_error::_isConverging( const spectrum& beam )
   {
 //    double val = beam.mod();
     double val = beam.mean();
@@ -77,6 +78,9 @@ namespace S3D
 
     if ( count < _min ) // Make at least "min" measurements
       return true;
+
+    if ( count >= _max ) // Time to stop
+      return false;
 
 
     if ( _mean < epsilon ) // Fractional variance is undefined
@@ -91,13 +95,19 @@ namespace S3D
   }
 
 
-  void convergence_variance::setMinSamples( unsigned int i )
+  void convergence_error::setMinSamples( unsigned int i )
   {
     _min = i;
   }
 
 
-  double convergence_variance::getFractionalVariance() const
+  void convergence_error::setMaxSamples( unsigned int i )
+  {
+    _max = i;
+  }
+
+
+  double convergence_error::getFractionalVariance() const
   {
     if ( _mean < epsilon ) // Fractional variance is undefined
       return 0.0;
@@ -106,7 +116,14 @@ namespace S3D
   }
 
 
-  void convergence_variance::_clear()
+  double convergence_error::getError() const
+  {
+    double variance = _sumSquares / ( _mean * _mean * this->getCount() * this->getCount() );
+    return std::sqrt( variance );
+  }
+
+
+  void convergence_error::_clear()
   {
     _mean = 0.0;
     _sumSquares = 0.0;

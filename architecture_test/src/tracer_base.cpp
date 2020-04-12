@@ -129,7 +129,7 @@ namespace S3D
           spectrum light_emission = light_obj->getMaterial()->getEmission( light_point );
 
 
-          // BRDF * Li * Cos_theta
+          // samplespace volume * BRDF * Li * Cos_theta
           the_beam += inter.getObject()->getMaterial()->BRDF( lightDir.norm(), inter ) * light_emission * ( -inter.getSurfaceNormal() * lightDir );
         }
         DEBUG_STREAM << "  Current spectrum = " << the_beam.red() << ", " << the_beam.green() << ", " << the_beam.blue();

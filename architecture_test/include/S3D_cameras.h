@@ -5,6 +5,7 @@
 #include "S3D_camera_base.h"
 
 #include "S3D_convergence.h"
+#include "S3D_random.h"
 
 
 namespace S3D
@@ -120,7 +121,9 @@ namespace S3D
       double _length; // How far back the focal point is (means the camera "lens" is shorter!)
       double _width;
       double _height;
-      convergence_variance _converge;
+      convergence_error _converge;
+      random::halton _hX;
+      random::halton _hY;
 
     protected:
       void runSample( unsigned int, unsigned int ) const;
@@ -131,6 +134,9 @@ namespace S3D
 
       // Make sure its virtual
       virtual ~camera_convergePerspective();
+
+      // Hard limit just in case
+      void setMaxSamples( unsigned int i ) { _converge.setMaxSamples( i ); }
 
       // Override pure virtual function
       virtual void shutter();

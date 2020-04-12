@@ -217,7 +217,9 @@ namespace S3D
     camera_base( rt, fov ),
     _width( width ),
     _height( height ),
-    _converge( c )
+    _converge( c ),
+    _hX( 2 ),
+    _hY( 3 )
   {
   }
 
@@ -245,8 +247,8 @@ namespace S3D
         _converge.clear();
         do
         {
-          double pixel_x = (double)i + random::uniformDouble();
-          double pixel_y = (double)j + random::uniformDouble();
+          double pixel_x = (double)i + _hX.sample();
+          double pixel_y = (double)j + _hY.sample();
 
           threeVector startPos = makeThreeVector( ( ( pixel_x - 0.5*pX ) / pX ) * _width, ( ( pixel_y - 0.5*pY ) / pY ) * _height, 0.0 );
 

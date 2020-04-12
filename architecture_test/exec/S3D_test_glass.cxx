@@ -17,6 +17,7 @@ void addSomeShapes();
 
 const unsigned int samples_per_pixel = 20;
 const double light_sample_rate = 5.0;
+const double convergence_error = 0.1;
 
 
 int main( int, char** )
@@ -119,7 +120,7 @@ int main( int, char** )
   tracer->setMaxDepth( 5 );
 //  S3D::camera_base* camera = (S3D::camera_base*) new S3D::camera_pinhole( tracer, S3D::degreesToRadians( 90.0 ) );
 //  S3D::camera_base* camera = (S3D::camera_base*) new S3D::camera_sampledPinhole( tracer, S3D::degreesToRadians( 90.0 ), samples_per_pixel );
-  S3D::camera_base* camera = (S3D::camera_base*) new S3D::camera_convergePerspective( tracer, S3D::degreesToRadians( 20.0 ), 5.0, 5.0, 0.01 );
+  S3D::camera_base* camera = (S3D::camera_base*) new S3D::camera_convergePerspective( tracer, S3D::degreesToRadians( 20.0 ), 5.0, 5.0, convergence_error );
   camera->setPosition( S3D::point( 0.0, -10.0, 5.0 ) );
   camera->setRotation( S3D::rotation( S3D::unit_threeVector_x, -0.5*S3D::PI ) );
   camera->setPixels( 500, 500 );

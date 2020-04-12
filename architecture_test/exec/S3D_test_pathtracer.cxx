@@ -13,9 +13,9 @@
 #include <iostream>
 
 
-const double light_samples_per_area = 0.0;
+const double light_samples_per_area = 1.0;
 const double camera_samples_per_pixel = 10.0;
-const double path_kill_prob = 0.1;
+const double path_kill_prob = 0.01;
 
 int main( int, char** )
 {
@@ -38,19 +38,19 @@ int main( int, char** )
   S3D::material_base* blue_light_mat = (S3D::material_base*) new S3D::material_lightsource( S3D::spectrum( 0.0, 0.0, 1.0 ), 10.0 );
   man->addMaterial( "blue_light", blue_light_mat );
 
-  S3D::material_base* sph1_mat = (S3D::material_base*) new S3D::material_lambertian( S3D::spectrum( 0.8, 0.0, 0.0 ) );
+  S3D::material_base* sph1_mat = (S3D::material_base*) new S3D::material_lambertian( S3D::spectrum( 0.3, 0.0, 0.0 ) );
   man->addMaterial( "sphere1", sph1_mat );
 
-  S3D::material_base* white_mat = (S3D::material_base*) new S3D::material_lambertian( S3D::spectrum( 1.0, 1.0, 1.0 ) );
+  S3D::material_base* white_mat = (S3D::material_base*) new S3D::material_lambertian( S3D::spectrum( 0.3, 0.3, 0.3 ) );
   man->addMaterial( "white", white_mat );
 
-  S3D::material_base* red_mat = (S3D::material_base*) new S3D::material_lambertian( S3D::spectrum( 1.0, 0.0, 0.0 ) );
+  S3D::material_base* red_mat = (S3D::material_base*) new S3D::material_lambertian( S3D::spectrum( 0.3, 0.0, 0.0 ) );
   man->addMaterial( "red", red_mat );
 
-  S3D::material_base* green_mat = (S3D::material_base*) new S3D::material_lambertian( S3D::spectrum( 0.0, 1.0, 0.0 ) );
+  S3D::material_base* green_mat = (S3D::material_base*) new S3D::material_lambertian( S3D::spectrum( 0.0, 0.3, 0.0 ) );
   man->addMaterial( "green", green_mat );
 
-  S3D::material_base* blue_mat = (S3D::material_base*) new S3D::material_lambertian( S3D::spectrum( 0.0, 0.0, 1.0 ) );
+  S3D::material_base* blue_mat = (S3D::material_base*) new S3D::material_lambertian( S3D::spectrum( 0.0, 0.0, 0.3 ) );
   man->addMaterial( "blue", blue_mat );
 
   S3D::material_base* glass_mat = (S3D::material_base*) new S3D::material_glass( S3D::spectrum( 0.0, 0.0, 0.0 ) );
@@ -169,7 +169,7 @@ int main( int, char** )
 
   INFO_LOG( "Adding perspective camera." );
   S3D::tracer_pathtracer* tracer = new S3D::tracer_pathtracer();
-  tracer->setMaxDepth( 100 );
+  tracer->setMaxDepth( 1000 );
   tracer->setKillProb( path_kill_prob );
   S3D::camera_perspective* camera = new S3D::camera_perspective( tracer, S3D::degreesToRadians( 10 ), 10.0, 10.0 );
   camera->setSampleRate( camera_samples_per_pixel );

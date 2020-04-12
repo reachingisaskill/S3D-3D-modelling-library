@@ -9,6 +9,7 @@
 #include "S3D_pathtracer.h"
 #include "S3D_random.h"
 #include "S3D_defs.h"
+#include "S3D_convergence.h"
 
 #include "logtastic.h"
 #include "testass.h"
@@ -88,23 +89,24 @@ int main( int, char** )
   glowing_sphere->setPosition( point( 10.0, 0.0, 0.0 ) );
   man->addObject( (object_base*)glowing_sphere );
 
-  INFO_STREAM << "Analytic solution to the complete sum = " << emittance / ( 1.0 - albedo );
+  double analytic_solution = emittance / ( 1.0 - albedo );
+  INFO_STREAM << "Analytic solution to the complete sum = " << analytic_solution;
 
   tracer_pathtracer pt;
   pt.setLightSampleRate( 0.0 );
-  pt.setMaxDepth( 100 );
+  pt.setMaxDepth( 1000 );
   pt.setup();
 
-  spectrum test1( 0.0, 0.0, 0.0 );
-  spectrum test2( 0.0, 0.0, 0.0 );
-  spectrum test3( 0.0, 0.0, 0.0 );
-  spectrum test4( 0.0, 0.0, 0.0 );
-  spectrum test5( 0.0, 0.0, 0.0 );
+  spectrum test1( 0.0 );
+  spectrum test2( 0.0 );
+  spectrum test3( 0.0 );
+  spectrum test4( 0.0 );
+  spectrum test5( 0.0 );
 
   random::reset();
   const unsigned int N = 1000;
 
-  pt.setKillProb( 0.01 );
+  pt.setKillProb( 0.1 );
   for ( unsigned int i = 0; i < 100; ++i )
   {
     test1 += (1.0/100) * pt.traceRay( point( 10.0, 0.0, 0.0 ), unit_threeVector_z );
@@ -113,7 +115,7 @@ int main( int, char** )
   ASSERT_APPROX_EQUAL( test1.red(), test1.green() );
   ASSERT_APPROX_EQUAL( test1.green(), test1.blue() );
 
-  pt.setKillProb( 0.001 );
+  pt.setKillProb( 0.01 );
   for ( unsigned int i = 0; i < N; ++i )
   {
     test2 += (1.0/N) * pt.traceRay( point( 10.0, 0.0, 0.0 ), unit_threeVector_z );
@@ -121,6 +123,7 @@ int main( int, char** )
 
   ASSERT_APPROX_EQUAL( test2.red(), test2.green() );
   ASSERT_APPROX_EQUAL( test2.green(), test2.blue() );
+
 
 //  pt.setKillProb( 0.0 );
 //  for ( unsigned int i = 0; i < N; ++i )
@@ -166,6 +169,32 @@ int main( int, char** )
 //  INFO_STREAM << "Test3: Red = " << test3.red() << ", " << test3.green() << ", " << test3.blue();
 //  INFO_STREAM << "Test4: Red = " << test4.red() << ", " << test4.green() << ", " << test4.blue();
 //  INFO_STREAM << "Test5: Red = " << test5.red() << ", " << test5.green() << ", " << test5.blue();
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  SECTION( "Convergence Tests" );
+  INFO_LOG( "Running Convergence Test" );
+
+  pt.setKillProb( 0.1 );
+  pt.setMaxDepth( 1000 );
+
+  spectrum test_converge( 0.0 );
+  convergence_error converge( 0.01 );
+
+  do
+  {
+    test_converge = pt.traceRay( point( 10.0, 0.0, 0.0 ), unit_threeVector_z );
+  } while ( converge( test_converge ) );
+
+  INFO_STREAM << "Test complete. Final Error = " << converge.getError() << ". Value = " << converge.getMean().mean();
+  INFO_STREAM << "Final Variance = " << converge.getVariance() << ". Fractional Variance = " << converge.getFractionalVariance();
+
+  ASSERT_APPROX_EQUAL( test_converge.red(), test_converge.green() );
+  ASSERT_APPROX_EQUAL( test_converge.green(), test_converge.blue() );
+
+  ASSERT_LESSTHAN( std::fabs( converge.getMean().mean() - analytic_solution ) / analytic_solution, 0.05 );
+
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

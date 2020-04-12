@@ -31,6 +31,13 @@ namespace S3D
     }
     INFO_LOG( "Removed Object pointers" );
 
+    // Remove Camera
+    if ( _theCamera != nullptr )
+    {
+      delete _theCamera;
+    }
+    INFO_LOG( "Removed Camera Object" );
+
     // Remove pointers to lights
     for ( LightMapT::iterator mapIt = _lights.begin(); mapIt != _lights.end(); ++mapIt )
     {

@@ -201,6 +201,27 @@ int main( int, char** )
   }
   ASSERT_EQUAL( counter, (unsigned int)0 );
 
+  S3D::random::halton h2( 2 );
+  S3D::random::halton h3( 3 );
+
+  ASSERT_APPROX_EQUAL( h2.sample(), 1.0/2.0 );
+  ASSERT_APPROX_EQUAL( h2.sample(), 1.0/4.0 );
+  ASSERT_APPROX_EQUAL( h2.sample(), 3.0/4.0 );
+  ASSERT_APPROX_EQUAL( h2.sample(), 1.0/8.0 );
+  ASSERT_APPROX_EQUAL( h2.sample(), 5.0/8.0 );
+  ASSERT_APPROX_EQUAL( h2.sample(), 3.0/8.0 );
+  ASSERT_APPROX_EQUAL( h2.sample(), 7.0/8.0 );
+  ASSERT_APPROX_EQUAL( h2.sample(), 1.0/16.0 );
+
+  ASSERT_APPROX_EQUAL( h3.sample(), 1.0/3.0 );
+  ASSERT_APPROX_EQUAL( h3.sample(), 2.0/3.0 );
+  ASSERT_APPROX_EQUAL( h3.sample(), 1.0/9.0 );
+  ASSERT_APPROX_EQUAL( h3.sample(), 4.0/9.0 );
+  ASSERT_APPROX_EQUAL( h3.sample(), 7.0/9.0 );
+  ASSERT_APPROX_EQUAL( h3.sample(), 2.0/9.0 );
+  ASSERT_APPROX_EQUAL( h3.sample(), 5.0/9.0 );
+  ASSERT_APPROX_EQUAL( h3.sample(), 8.0/9.0 );
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -217,7 +238,7 @@ int main( int, char** )
     ASSERT_TRUE( c_counter( test_spectrum ) );
     ASSERT_FALSE( c_counter( test_spectrum ) );
 
-    S3D::convergence_variance c_variance( 0.01 );
+    S3D::convergence_error c_variance( 0.01 );
 
     ASSERT_TRUE( c_variance( test_spectrum ) );
     ASSERT_TRUE( c_variance( test_spectrum ) );
