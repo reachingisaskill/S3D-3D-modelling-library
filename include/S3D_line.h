@@ -1,6 +1,6 @@
 
-#ifndef __S3D__LINE_H__
-#define __S3D__LINE_H__
+#ifndef S3D_LINE_H_
+#define S3D_LINE_H_
 
 #include "S3D_vector.h"
 #include "S3D_rotation.h"
@@ -52,5 +52,5 @@ namespace S3D
   point lineIntersection( const line&, const line& );
 }
 
-#endif // __S3D__LINE_H__
+#endif // S3D_LINE_H_
 

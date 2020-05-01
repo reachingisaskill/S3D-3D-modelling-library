@@ -1,6 +1,6 @@
 
-#ifndef __S3D__INTERACTION_H__
-#define __S3D__INTERACTION_H__
+#ifndef S3D_INTERACTION_H_
+#define S3D_INTERACTION_H_
 
 #include "S3D_vector.h"
 #include "S3D_line.h"
@@ -57,5 +57,5 @@ namespace S3D
 
 }
 
-#endif // __S3D__INTERACTION_H__
+#endif // S3D_INTERACTION_H_
 

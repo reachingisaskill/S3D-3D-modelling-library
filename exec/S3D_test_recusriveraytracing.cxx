@@ -18,9 +18,10 @@ void addSomeShapes();
 
 int main( int, char** )
 {
+  logtastic::init();
   logtastic::setLogFileDirectory( "./test_data/" );
   logtastic::addLogFile( "recursive_test.log" );
-  logtastic::init( "Testing S3D Recursive Ray Tracing Functionality", S3D_VERSION_NUMBER );
+  logtastic::start( "Testing S3D Recursive Ray Tracing Functionality", S3D_VERSION_NUMBER );
 
   S3D::manager::createInstance();
 

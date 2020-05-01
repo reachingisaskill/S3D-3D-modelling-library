@@ -1,6 +1,6 @@
 
-#ifndef __S3D__CONVERGENCE_H__
-#define __S3D__CONVERGENCE_H__
+#ifndef S3D_CONVERGENCE_H_
+#define S3D_CONVERGENCE_H_
 
 #include "S3D_spectrum.h"
 
@@ -72,5 +72,5 @@ namespace S3D
   };
 }
 
-#endif // __S3D__CONVERGENCE_H__
+#endif // S3D_CONVERGENCE_H_
 

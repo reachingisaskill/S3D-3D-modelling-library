@@ -1,4 +1,4 @@
-#define __DEBUG_OFF__
+#define LOGTASTIC_DEBUG_OFF
 
 #include "S3D_material_base.h"
 
@@ -18,6 +18,18 @@ namespace S3D
   }
 
 
+  threeVector material_base::sampleEmission( const interaction& inter ) const
+  {
+    return random::uniformHemisphere( inter.getSurfaceNormal() );
+  }
+
+
+  spectrum material_base::getExitantRadiance( const interaction& inter ) const
+  {
+    return _emittance * this->getColour( inter.getSurfaceMap() );
+  }
+
+
   threeVector material_base::sampleReflection( const interaction& inter ) const
   {
     return inter.getReflection();
@@ -30,29 +42,36 @@ namespace S3D
   }
   
 
-  spectrum material_base::BRDF( threeVector direction, const interaction& inter ) const
+  double material_base::BRDF( threeVector direction, const interaction& inter ) const
   {
     DEBUG_LOG( "material_base::BRDF() : Only reflection is perfectly specular" );
     DEBUG_STREAM << "   Dot product = " << direction * inter.getReflection();
 
     // Dot product should always be negative
-    if ( ( 1.0 + direction * inter.getReflection() ) < epsilon )
-      return spectrum( 1.0, 1.0, 1.0 );
+    if ( ( 1.0 + direction * inter.getReflection() ) < epsilon ) // Basically a delta function...
+      return 1.0;
     else
-      return spectrum( 0.0, 0.0, 0.0 );
+      return 0.0;
   }
 
 
-  spectrum material_base::BTDF( threeVector direction, const interaction& inter ) const
+  double material_base::BTDF( threeVector direction, const interaction& inter ) const
   {
     DEBUG_LOG( "material_base::BTDF() : Only transmission is perfectly specular" );
     DEBUG_STREAM << "   Dot product = " << direction * inter.getReflection();
 
     // Dot product should always be positive
-    if ( ( 1.0 - direction * inter.getTransmission() ) < epsilon )
-      return spectrum( 1.0, 1.0, 1.0 );
+    if ( ( 1.0 - direction * inter.getTransmission() ) < epsilon ) // Basically a delta function...
+      return 1.0;
     else
-      return spectrum( 0.0, 0.0, 0.0 );
+      return 0.0;
+  }
+
+
+  spectrum material_base::scatter( threeVector direction, const interaction& inter ) const
+  {
+    spectrum result = this->getColour( inter.getSurfaceMap() ) * this->BRDF( direction, inter );
+    return result;
   }
 
 }

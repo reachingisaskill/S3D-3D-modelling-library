@@ -14,14 +14,15 @@
 
 
 const double light_samples_per_area = 1.0;
-const double camera_samples_per_pixel = 10.0;
-const double path_kill_prob = 0.01;
+const double camera_samples_per_pixel = 1000.0;
+const double path_kill_prob = 0.1;
 
 int main( int, char** )
 {
+  logtastic::init();
   logtastic::setLogFileDirectory( "./test_data/" );
   logtastic::addLogFile( "pathtracer_test.log" );
-  logtastic::init( "Testing S3D Path Tracer Functionality", S3D_VERSION_NUMBER );
+  logtastic::start( "Testing S3D Path Tracer Functionality", S3D_VERSION_NUMBER );
 
   S3D::manager::createInstance();
 

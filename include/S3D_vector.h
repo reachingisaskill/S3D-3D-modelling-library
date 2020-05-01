@@ -1,6 +1,6 @@
 
-#ifndef __S3D__VECTOR_H__
-#define __S3D__VECTOR_H__
+#ifndef S3D_VECTOR_H_
+#define S3D_VECTOR_H_
 
 //#include "logtastic.h"
 
@@ -462,5 +462,5 @@ std::ostream& operator<< ( std::ostream& out, nVector< NN, TT > vec )
 
 //////////////////////////////////////////////////////////////////////
 
-#endif // __S3D__VECTOR_H__
+#endif // S3D_VECTOR_H_
 

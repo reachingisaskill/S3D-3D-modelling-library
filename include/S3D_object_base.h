@@ -1,6 +1,6 @@
 
-#ifndef __S3D__OBJECT_BASE_H__
-#define __S3D__OBJECT_BASE_H__
+#ifndef S3D_OBJECT_BASE_H_
+#define S3D_OBJECT_BASE_H_
 
 #include "S3D_base.h"
 #include "S3D_material_base.h"
@@ -52,5 +52,5 @@ namespace S3D
   };
 }
 
-#endif // __S3D__OBJECT_BASE_H__
+#endif // S3D_OBJECT_BASE_H_
 

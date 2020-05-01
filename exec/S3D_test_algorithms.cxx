@@ -26,10 +26,11 @@ int main( int, char** )
   testass::control::init( "S3D", "Testing The Basic Algorithms" );
   testass::control::get()->setVerbosity( testass::control::verb_short );
 
+  logtastic::init();
   logtastic::setLogFileDirectory( "./test_data/" );
   logtastic::addLogFile( "./algorithms_test.log" );
   logtastic::setPrintToScreenLimit( logtastic::error );
-  logtastic::init( "Testing S3D Algorithms", S3D_VERSION_NUMBER );
+  logtastic::start( "Testing S3D Algorithms", S3D_VERSION_NUMBER );
 
   S3D::manager::createInstance();
 
@@ -255,8 +256,6 @@ int main( int, char** )
 
     while( random::uniformDouble() >= kill )
     {
-//      double test = random::uniformDouble();
-//      if ( test < kill ) break;
 
       threeVector direction = random::uniformHemisphere( normal );
       double cos_theta = std::fabs(direction * normal);

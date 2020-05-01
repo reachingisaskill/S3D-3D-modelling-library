@@ -1,4 +1,4 @@
-#define __DEBUG_OFF__
+#define LOGTASTIC_DEBUG_OFF
 
 #include "S3D_tracer_base.h"
 
@@ -69,7 +69,7 @@ namespace S3D
   }
 
 
-  spectrum tracer_base::sampleLight( const object_base* light_obj, const interaction& inter )
+  spectrum tracer_base::sampleLightScatter( const object_base* light_obj, const interaction& inter )
   {
     double area = inter.getObject()->getSurfaceArea();
     spectrum the_beam( 0.0, 0.0, 0.0 );
@@ -92,11 +92,12 @@ namespace S3D
       if ( isVisible( light_point.getPosition(), inter.getPoint(), inter.getSurfaceNormal() ) )
       {
         threeVector lightDir = (inter.getPoint() - light_point.getPosition()).norm();
-        spectrum light_emission = scaleFactor * light_obj->getMaterial()->getEmission( light_point );
+        interaction light_inter = light_obj->intersect( line( inter.getPoint(), -lightDir ) );
+        spectrum light_emission = light_obj->getMaterial()->getExitantRadiance( light_inter );
 
         DEBUG_STREAM << "tracer_base::sampleLight() : " << light_emission.red() << ", " << light_emission.green() << ", " << light_emission.blue();
         // BRDF * Li
-        the_beam += inter.getObject()->getMaterial()->BRDF( lightDir, inter ) * light_emission;
+        the_beam += inter.getObject()->getMaterial()->scatter( lightDir, inter ) * light_emission;
       }
       else 
       {
@@ -126,7 +127,48 @@ namespace S3D
         if ( isVisible( light_point.getPosition(), inter.getPoint(), inter.getSurfaceNormal() ) )
         {
           threeVector lightDir = (inter.getPoint() - light_point.getPosition());
-          spectrum light_emission = light_obj->getMaterial()->getEmission( light_point );
+          interaction light_inter = light_obj->intersect( line( inter.getPoint(), -lightDir ) );
+          spectrum light_emission = light_obj->getMaterial()->getExitantRadiance( light_inter );
+
+
+          // samplespace volume * BRDF * Li * Cos_theta
+          the_beam += inter.getObject()->getMaterial()->BRDF( lightDir.norm(), inter ) * light_emission * ( -inter.getSurfaceNormal() * lightDir );
+        }
+        DEBUG_STREAM << "  Current spectrum = " << the_beam.red() << ", " << the_beam.green() << ", " << the_beam.blue();
+      }
+    }
+    catch( stdexts::exception& e )
+    {
+      std::stringstream ss;
+      ss << "Sampling all lights for intersection: " << inter.getPoint().getPosition() << ". Normal = " << inter.getSurfaceNormal();
+      EX_LOG( e, ss.str() );
+      RETHROW( e );
+    }
+
+    return scaleFactor * the_beam;
+  }
+
+
+  spectrum tracer_base::directLighting( const interaction& inter )
+  {
+    spectrum the_beam( 0.0, 0.0, 0.0 );
+    double scaleFactor = 1.0 / (double)_numLightSamples;
+    DEBUG_STREAM << "Sampling all lights. " << _numLightSamples << " samples. Scale factor = " << scaleFactor;
+
+    try
+    {
+      for ( unsigned int n = 0; n < _numLightSamples; ++n )
+      {
+        const object_base* light_obj = this->_chooseLight();
+        DEBUG_STREAM << "  Current Light: " << light_obj;
+
+        surfacemap light_point = light_obj->sampleSurface();
+
+        if ( isVisible( light_point.getPosition(), inter.getPoint(), inter.getSurfaceNormal() ) )
+        {
+          threeVector lightDir = (inter.getPoint() - light_point.getPosition());
+          interaction light_inter = light_obj->intersect( line( inter.getPoint(), -lightDir ) );
+          spectrum light_emission = light_obj->getMaterial()->getExitantRadiance( light_inter );
 
 
           // samplespace volume * BRDF * Li * Cos_theta

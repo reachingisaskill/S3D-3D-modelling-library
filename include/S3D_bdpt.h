@@ -1,6 +1,6 @@
 
-#ifndef __S3D__BIDIRECTIONALPATHTRACER_H__
-#define __S3D__BIDIRECTIONALPATHTRACER_H__
+#ifndef S3D_BIDIRECTIONALPATHTRACER_H_
+#define S3D_BIDIRECTIONALPATHTRACER_H_
 
 #include "S3D_spectrum.h"
 #include "S3D_tracer_base.h"
@@ -14,6 +14,7 @@ namespace S3D
   class tracer_bdpt : public tracer_base
   {
     private:
+      unsigned int _maxDepth;
       double _killProb;
 
       path _lightPath;
@@ -32,6 +33,9 @@ namespace S3D
       virtual ~tracer_bdpt();
 
 
+      // Set hard limit on the number of interactions
+      void setMaxDepth( unsigned int d ) { _maxDepth = d; }
+
       // Monte Carle path end probability
       void setKillProb( double );
 
@@ -44,5 +48,5 @@ namespace S3D
 
 
 
-#endif // __S3D__BIDIRECTIONALPATHTRACER_H__
+#endif // S3D_BIDIRECTIONALPATHTRACER_H_
 

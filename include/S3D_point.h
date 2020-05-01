@@ -1,6 +1,6 @@
 
-#ifndef __S3D__POINT_H__
-#define __S3D__POINT_H__
+#ifndef S3D_POINT_H_
+#define S3D_POINT_H_
 
 #include "S3D_vector.h"
 
@@ -39,5 +39,5 @@ namespace S3D
   std::ostream& operator<< ( std::ostream&, point );
 }
 
-#endif // __S3D__POINT_H__
+#endif // S3D_POINT_H_
 

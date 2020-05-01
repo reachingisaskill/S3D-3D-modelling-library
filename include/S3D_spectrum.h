@@ -1,6 +1,6 @@
 
-#ifndef __S3D__BEAM_H__
-#define __S3D__BEAM_H__
+#ifndef S3D_BEAM_H_
+#define S3D_BEAM_H_
 
 #include <cmath>
 
@@ -57,5 +57,5 @@ namespace S3D
   spectrum operator*( double d, const spectrum& b );
 }
 
-#endif // __S3D__BEAM_H__
+#endif // S3D_BEAM_H_
 

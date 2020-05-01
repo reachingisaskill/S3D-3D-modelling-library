@@ -1,6 +1,6 @@
 
-#ifndef __S3D__LIGHTS_H__
-#define __S3D__LIGHTS_H__
+#ifndef S3D_LIGHTS_H_
+#define S3D_LIGHTS_H_
 
 #include "S3D_light_base.h"
 
@@ -73,5 +73,5 @@ namespace S3D
 
 }
 
-#endif // __S3D__LIGHTS_H__
+#endif // S3D_LIGHTS_H_
 

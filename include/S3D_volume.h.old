@@ -1,6 +1,6 @@
 
-#ifndef __S3D__VOLUME_H__
-#define __S3D__VOLUME_H__
+#ifndef S3D_VOLUME_H_
+#define S3D_VOLUME_H_
 
 #include "S3D_allSurfaces.h"
 
@@ -103,4 +103,4 @@ namespace S3D
 #endif
 }
 
-#endif // __S3D__VOLUME_H__
+#endif // S3D_VOLUME_H_

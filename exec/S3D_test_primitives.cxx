@@ -22,9 +22,10 @@ int main( int, char** )
   testass::control::init( "S3D", "Primitive Shape Tests" );
   testass::control::get()->setVerbosity( testass::control::verb_short );
 
+  logtastic::init();
   logtastic::setLogFileDirectory( "./test_data/" );
   logtastic::addLogFile( "./primitives_test.log" );
-  logtastic::init( "Testing S3D Primitives", S3D_VERSION_NUMBER );
+  logtastic::start( "Testing S3D Primitives", S3D_VERSION_NUMBER );
 
   S3D::manager::createInstance();
 

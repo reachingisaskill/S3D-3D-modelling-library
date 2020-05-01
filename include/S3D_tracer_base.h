@@ -1,6 +1,6 @@
 
-#ifndef __S3D__TRACER_BASE_H__
-#define __S3D__TRACER_BASE_H__
+#ifndef S3D_TRACER_BASE_H_
+#define S3D_TRACER_BASE_H_
 
 #include "S3D_vector.h"
 #include "S3D_point.h"
@@ -44,6 +44,8 @@ namespace S3D
       // Override in derived classes to be called during setup proceedure.
       virtual void _additionalSetup() {}
 
+      unsigned int _getNumLightSamples() const { return _numLightSamples; }
+
     public:
       virtual ~tracer_base() {}
 
@@ -54,11 +56,16 @@ namespace S3D
       virtual spectrum traceRay( point start, threeVector direction ) = 0;
 
       // Estimate the light emitted from and object that is seen at an interaction point.
-      virtual spectrum sampleLight( const object_base*, const interaction& );
+      virtual spectrum sampleLightScatter( const object_base*, const interaction& );
 
       // Estimate the light received at an interaction point from all sources of light in the scene.
       // No. Samples, interaction vertex
       virtual spectrum sampleAllLights( const interaction& );
+
+      // Estimate the direct light integral
+      // interaction vertex
+      virtual spectrum directLighting( const interaction& );
+
 
       // Trace a "shadow ray" or a specific light ray from a light source
       virtual spectrum traceLightSample( spectrum, point, const interaction& );
@@ -79,5 +86,5 @@ namespace S3D
   };
 }
 
-#endif // __S3D__TRACER_BASE_H__
+#endif // S3D_TRACER_BASE_H_
 

@@ -7,6 +7,7 @@
 #include "S3D_cameras.h"
 #include "S3D_recursiveraytracer.h"
 #include "S3D_pathtracer.h"
+#include "S3D_bdpt.h"
 #include "S3D_random.h"
 #include "S3D_defs.h"
 #include "S3D_convergence.h"
@@ -27,10 +28,11 @@ int main( int, char** )
   testass::control::init( "S3D", "Testing The Ray Tracer" );
   testass::control::get()->setVerbosity( testass::control::verb_short );
 
+  logtastic::init();
   logtastic::setLogFileDirectory( "./test_data/" );
   logtastic::addLogFile( "./raytracer_test.log" );
   logtastic::setPrintToScreenLimit( logtastic::error );
-  logtastic::init( "Testing S3D Basics", S3D_VERSION_NUMBER );
+  logtastic::start( "Testing S3D Basics", S3D_VERSION_NUMBER );
 
   S3D::manager::createInstance();
 
@@ -80,6 +82,8 @@ int main( int, char** )
 
   SECTION( "Bias and Consistency" );
 
+  random::reset();
+
   double sphere_radius = 5.0;
   double albedo = 0.3;
   double emittance = 5.0;
@@ -97,32 +101,32 @@ int main( int, char** )
   pt.setMaxDepth( 1000 );
   pt.setup();
 
-  spectrum test1( 0.0 );
-  spectrum test2( 0.0 );
-  spectrum test3( 0.0 );
-  spectrum test4( 0.0 );
-  spectrum test5( 0.0 );
-
-  random::reset();
-  const unsigned int N = 1000;
-
-  pt.setKillProb( 0.1 );
-  for ( unsigned int i = 0; i < 100; ++i )
-  {
-    test1 += (1.0/100) * pt.traceRay( point( 10.0, 0.0, 0.0 ), unit_threeVector_z );
-  }
-
-  ASSERT_APPROX_EQUAL( test1.red(), test1.green() );
-  ASSERT_APPROX_EQUAL( test1.green(), test1.blue() );
-
-  pt.setKillProb( 0.01 );
-  for ( unsigned int i = 0; i < N; ++i )
-  {
-    test2 += (1.0/N) * pt.traceRay( point( 10.0, 0.0, 0.0 ), unit_threeVector_z );
-  }
-
-  ASSERT_APPROX_EQUAL( test2.red(), test2.green() );
-  ASSERT_APPROX_EQUAL( test2.green(), test2.blue() );
+//  spectrum test1( 0.0 );
+//  spectrum test2( 0.0 );
+//  spectrum test3( 0.0 );
+//  spectrum test4( 0.0 );
+//  spectrum test5( 0.0 );
+//
+//  random::reset();
+//  const unsigned int N = 1000;
+//
+//  pt.setKillProb( 0.1 );
+//  for ( unsigned int i = 0; i < 100; ++i )
+//  {
+//    test1 += (1.0/100) * pt.traceRay( point( 10.0, 0.0, 0.0 ), unit_threeVector_z );
+//  }
+//
+//  ASSERT_APPROX_EQUAL( test1.red(), test1.green() );
+//  ASSERT_APPROX_EQUAL( test1.green(), test1.blue() );
+//
+//  pt.setKillProb( 0.01 );
+//  for ( unsigned int i = 0; i < N; ++i )
+//  {
+//    test2 += (1.0/N) * pt.traceRay( point( 10.0, 0.0, 0.0 ), unit_threeVector_z );
+//  }
+//
+//  ASSERT_APPROX_EQUAL( test2.red(), test2.green() );
+//  ASSERT_APPROX_EQUAL( test2.green(), test2.blue() );
 
 
 //  pt.setKillProb( 0.0 );
@@ -163,9 +167,9 @@ int main( int, char** )
 //  ASSERT_LESSTHAN( std::fabs( test3.red() - test4.red() )/ test3.red(), 0.02 );
 //  ASSERT_LESSTHAN( std::fabs( test4.red() - test5.red() )/ test4.red(), 0.02 );
 
-  INFO_STREAM << "Test results:";
-  INFO_STREAM << "Test1: Red = " << test1.red() << ", " << test1.green() << ", " << test1.blue();
-  INFO_STREAM << "Test2: Red = " << test2.red() << ", " << test2.green() << ", " << test2.blue();
+//  INFO_STREAM << "Test results:";
+//  INFO_STREAM << "Test1: Red = " << test1.red() << ", " << test1.green() << ", " << test1.blue();
+//  INFO_STREAM << "Test2: Red = " << test2.red() << ", " << test2.green() << ", " << test2.blue();
 //  INFO_STREAM << "Test3: Red = " << test3.red() << ", " << test3.green() << ", " << test3.blue();
 //  INFO_STREAM << "Test4: Red = " << test4.red() << ", " << test4.green() << ", " << test4.blue();
 //  INFO_STREAM << "Test5: Red = " << test5.red() << ", " << test5.green() << ", " << test5.blue();
@@ -175,25 +179,56 @@ int main( int, char** )
 
   SECTION( "Convergence Tests" );
   INFO_LOG( "Running Convergence Test" );
+//  INFO_LOG( "Path Tracing" );
+//
+//  pt.setKillProb( 0.01 );
+//  pt.setMaxDepth( 1000 );
+//
+//  spectrum test_converge( 0.0 );
+//
+//  convergence_error converge( 0.01 );
+//  converge.setMaxSamples( 100000 );
+//
+//  do
+//  {
+//    test_converge = pt.traceRay( point( 10.0, 0.0, 0.0 ), unit_threeVector_z );
+//  } while ( converge( test_converge ) );
+//
+//  INFO_STREAM << "Test complete. Final Error = " << converge.getError() << ". Value = " << converge.getMean().mean();
+//  INFO_STREAM << "Final Variance = " << converge.getVariance() << ". Fractional Variance = " << converge.getFractionalVariance();
+//
+//  ASSERT_APPROX_EQUAL( test_converge.red(), test_converge.green() );
+//  ASSERT_APPROX_EQUAL( test_converge.green(), test_converge.blue() );
+//
+//  ASSERT_LESSTHAN( std::fabs( converge.getMean().mean() - analytic_solution ) / analytic_solution, 0.05 );
 
-  pt.setKillProb( 0.1 );
-  pt.setMaxDepth( 1000 );
 
-  spectrum test_converge( 0.0 );
-  convergence_error converge( 0.01 );
+
+  INFO_LOG( "Bi Directional Path Tracing" );
+
+  tracer_bdpt bdt;
+  bdt.setup();
+
+  bdt.setKillProb( 0.01 );
+  bdt.setMaxDepth( 1000 );
+
+  spectrum bdpt_test_converge( 0.0 );
+
+  convergence_error bdpt_converge( 0.01 );
+  bdpt_converge.setMaxSamples( 100000 );
 
   do
   {
-    test_converge = pt.traceRay( point( 10.0, 0.0, 0.0 ), unit_threeVector_z );
-  } while ( converge( test_converge ) );
+    bdpt_test_converge = bdt.traceRay( point( 10.0, 0.0, 0.0 ), unit_threeVector_z );
+  } while ( bdpt_converge( bdpt_test_converge ) );
 
-  INFO_STREAM << "Test complete. Final Error = " << converge.getError() << ". Value = " << converge.getMean().mean();
-  INFO_STREAM << "Final Variance = " << converge.getVariance() << ". Fractional Variance = " << converge.getFractionalVariance();
+  INFO_STREAM << "Test complete. Final Error = " << bdpt_converge.getError() << ". Value = " << bdpt_converge.getMean().mean();
+  INFO_STREAM << "Final Variance = " << bdpt_converge.getVariance() << ". Fractional Variance = " << bdpt_converge.getFractionalVariance();
 
-  ASSERT_APPROX_EQUAL( test_converge.red(), test_converge.green() );
-  ASSERT_APPROX_EQUAL( test_converge.green(), test_converge.blue() );
+  ASSERT_APPROX_EQUAL( bdpt_test_converge.red(), bdpt_test_converge.green() );
+  ASSERT_APPROX_EQUAL( bdpt_test_converge.green(), bdpt_test_converge.blue() );
 
-  ASSERT_LESSTHAN( std::fabs( converge.getMean().mean() - analytic_solution ) / analytic_solution, 0.05 );
+  ASSERT_LESSTHAN( std::fabs( bdpt_converge.getMean().mean() - analytic_solution ) / analytic_solution, 0.05 );
 
 
 

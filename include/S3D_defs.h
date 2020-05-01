@@ -1,6 +1,6 @@
 
-#ifndef __SIMULATION_3D__DEFINITIONS_H__
-#define __SIMULATION_3D__DEFINITIONS_H__
+#ifndef _SIMULATION_3D_DEFINITIONS_H_
+#define _SIMULATION_3D_DEFINITIONS_H_
 
 #include "S3D_vector.h"
 #include "S3D_spectrum.h"
@@ -51,5 +51,5 @@ namespace S3D
 }
 
 
-#endif // __SIMULATION_3D__DEFINITIONS_H__
+#endif // _SIMULATION_3D_DEFINITIONS_H_
 

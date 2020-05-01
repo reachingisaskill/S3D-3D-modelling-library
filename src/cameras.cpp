@@ -47,6 +47,8 @@ namespace S3D
 
         f->pixel( i, j ) = b;
       }
+
+      INFO_STREAM << "Calculating Pixel Values : " << (100.0*double(i)/double(pX)) << "% Complete";
     }
     this->_setFrame( f );
   }
@@ -93,6 +95,8 @@ namespace S3D
 
         f->pixel( i, j ) = b;
       }
+
+      INFO_STREAM << "Calculating Pixel Values : " << (100.0*double(i)/double(pX)) << "% Complete";
     }
     this->_setFrame( f );
   }
@@ -145,6 +149,8 @@ namespace S3D
 
         f->pixel( i, j ) = b *  ( 1.0 / _sampleRate );
       }
+
+      INFO_STREAM << "Calculating Pixel Values : " << (100.0*double(i)/double(pX)) << "% Complete";
     }
     this->_setFrame( f );
   }
@@ -205,6 +211,8 @@ namespace S3D
 
         f->pixel( i, j ) = b *  ( 1.0 / _sampleRate );
       }
+
+      INFO_STREAM << "Calculating Pixel Values : " << (100.0*double(i)/double(pX)) << "% Complete";
     }
     this->_setFrame( f );
   }

@@ -22,9 +22,10 @@ const double convergence_error = 0.1;
 
 int main( int, char** )
 {
+  logtastic::init();
   logtastic::setLogFileDirectory( "./test_data/" );
   logtastic::addLogFile( "glass_test.log" );
-  logtastic::init( "Testing S3D Glass Model", S3D_VERSION_NUMBER );
+  logtastic::start( "Testing S3D Glass Model", S3D_VERSION_NUMBER );
 
   S3D::manager::createInstance();
 

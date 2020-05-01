@@ -1,6 +1,6 @@
 
-#ifndef __S3D__SURFACES_H__
-#define __S3D__SURFACES_H__
+#ifndef S3D_SURFACES_H_
+#define S3D_SURFACES_H_
 
 #include "S3D_surface.h"
 #include "S3D_defs.h"
@@ -60,5 +60,5 @@ namespace S3D
   };
 }
 
-#endif // __S3D__SURFACES_H__
+#endif // S3D_SURFACES_H_
 

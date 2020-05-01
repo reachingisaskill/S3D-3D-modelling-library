@@ -1,6 +1,6 @@
 
-#ifndef __S3D__PRIMITIVES_H__
-#define __S3D__PRIMITIVES_H__
+#ifndef S3D_PRIMITIVES_H_
+#define S3D_PRIMITIVES_H_
 
 #include "S3D_point.h"
 #include "S3D_line.h"
@@ -157,4 +157,4 @@ namespace S3D
 
 }
 
-#endif // __S3D__PRIMITIVES_H__
+#endif // S3D_PRIMITIVES_H_

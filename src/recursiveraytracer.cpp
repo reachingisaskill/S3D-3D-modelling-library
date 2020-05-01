@@ -1,4 +1,4 @@
-#define __DEBUG_OFF__
+#define LOGTASTIC_DEBUG_OFF
 
 #include "S3D_recursiveraytracer.h"
 
@@ -102,7 +102,8 @@ namespace S3D
       DEBUG_LOG( "Max depth reached closing recursion." );
     }
 
-    currentBeam += current_intersect.getObject()->getMaterial()->getEmission( current_intersect.getSurfaceMap() );
+    spectrum colour = current_intersect.getObject()->getMaterial()->getColour( current_intersect.getSurfaceMap() );
+    currentBeam += current_intersect.getObject()->getMaterial()->getEmission( current_intersect.getSurfaceMap() ) * colour;
 
 
 
@@ -116,7 +117,7 @@ namespace S3D
       while( light_it != light_end )
       {
         DEBUG_LOG( "Sampling Light Source" );
-        currentBeam += sampleLight( (*light_it), current_intersect );
+        currentBeam += sampleLightScatter( (*light_it), current_intersect );
         DEBUG_STREAM << " Current Beam: " << currentBeam.red() << ", " << currentBeam.green() << ", " << currentBeam.blue();
         ++light_it;
       }

@@ -1,4 +1,4 @@
-#define __DEBUG_OFF__
+#define LOGTASTIC_DEBUG_OFF
 
 #include "S3D_pathtracer.h"
 
@@ -55,21 +55,6 @@ namespace S3D
 
 
 
-    if ( (random::uniformDouble() < kill_factor) )
-    {
-      DEBUG_LOG( "End of path reached closing recursion." );
-      return currentBeam;
-    }
-
-    if ( depth >= _maxDepth )
-    {
-      WARN_LOG( "Path reached maximum depth" );
-      return currentBeam;
-    }
-
-
-
-
     interaction inter;
     try
     {
@@ -93,6 +78,24 @@ namespace S3D
 
 
 
+    currentBeam = roulette_factor * inter.getObject()->getMaterial()->getExitantRadiance( inter );
+    DEBUG_STREAM << " EMITTANCE: Roulette = " << roulette_factor << ", Lo = " << inter.getObject()->getMaterial()->getExitantRadiance( inter ).red();
+
+
+    if ( (random::uniformDouble() < kill_factor) )
+    {
+      DEBUG_LOG( "End of path reached closing recursion." );
+      return currentBeam;
+    }
+
+    if ( depth >= _maxDepth )
+    {
+      WARN_LOG( "Path reached maximum depth" );
+      return currentBeam;
+    }
+
+
+
     double r1 = random::uniformDouble();
 
     double prob_r = inter.getObject()->getMaterial()->getReflectionProb( inter );
@@ -111,8 +114,11 @@ namespace S3D
 
       double attenuation = direction * inter.getSurfaceNormal();
 
-      // Normalised by the volume of the sample space : sample space * BRDF * Li * cos_theta
-      currentBeam = 2.0*PI * inter.getObject()->getMaterial()->BRDF( -direction, inter ) * incoming * attenuation;
+      // Normalised by the volume of the sample space : sample space * BRDF * Li * cos_theta * albedo
+      spectrum colour = inter.getObject()->getMaterial()->getColour( inter.getSurfaceMap() );
+      currentBeam += roulette_factor * 2.0*PI * inter.getObject()->getMaterial()->BRDF( -direction, inter ) * incoming * attenuation * colour;
+
+      DEBUG_STREAM << " REFLECTION: Roulette = " << roulette_factor << ", BRDF = " << inter.getObject()->getMaterial()->BRDF( -direction, inter ) << ", Li = " << incoming.red() << ", cos_theta = " << attenuation << ", albedo = " << colour.red();
     }
     else if ( r1 < ( prob_r + prob_t ) )
     {
@@ -123,36 +129,61 @@ namespace S3D
       DEBUG_STREAM << "Returned recursive ray at object: " << inter.getObject();
 
       double attenuation = direction * inter.getSurfaceNormal();
+      spectrum colour = inter.getObject()->getMaterial()->getColour( inter.getSurfaceMap() );
+      currentBeam += roulette_factor * 2.0*PI * inter.getObject()->getMaterial()->BTDF( -direction, inter ) * incoming * attenuation * colour;
 
-      currentBeam = roulette_factor * 2.0*PI * inter.getObject()->getMaterial()->BTDF( -direction, inter ) * incoming * attenuation;
+      DEBUG_STREAM << " TRANSMISSION: Roulette = " << roulette_factor << ", BTDF = " << inter.getObject()->getMaterial()->BTDF( -direction, inter ) << ", Li = " << incoming.red() << ", cos_theta = " << attenuation << ", albedo = " << colour.red();
     }
     else
     {
       DEBUG_LOG( "Path absorbed. Closing recursion" );
-      spectrum emission = inter.getObject()->getMaterial()->getEmission( inter.getSurfaceMap() );
-      currentBeam += roulette_factor*emission;
-      return currentBeam;
     }
 
 
 
-//    // Standard path tracing - just sample the emission from the vertex and return.
-//    spectrum emission = inter.getObject()->getMaterial()->getEmission( inter.getSurfaceMap() );
-//    currentBeam += emission;
+
+    // Standard path tracing - just sample the emission from the vertex and return.
+//    currentBeam += roulette_factor * inter.getObject()->getMaterial()->getExitantRadiance( inter );
+//    DEBUG_STREAM << " EMITTANCE: Roulette = " << roulette_factor << ", Lo = " << inter.getObject()->getMaterial()->getExitantRadiance( inter ).red();
 
 
 
-    // Add light from other light sources.
-    DEBUG_STREAM << "Tracing Lights to object: " << inter.getObject();
-    currentBeam += sampleAllLights( inter );
 
-    if ( depth == 0 ) // If the first hit is a light, include its contribution manually
-    {
-      currentBeam += inter.getObject()->getMaterial()->getEmission( inter.getSurfaceMap() );
-    }
+//    // Add light from other light sources.
+//    DEBUG_STREAM << "Tracing Lights to object: " << inter.getObject();
+//    currentBeam += directLighting( inter );
+
+//    const object_base* light_obj = this->_chooseLight();
+//    DEBUG_STREAM << "  Current Light: " << light_obj;
+//
+//    surfacemap light_point = light_obj->sampleSurface();
+//    unsigned int numLightSamples = this->_getNumLightSamples();
+//
+//    for ( unsigned int n = 0; n < numLightSamples; ++n )
+//    {
+//      surfacemap light_point = light_obj->sampleSurface();
+//
+//      if ( isVisible( light_point.getPosition(), inter.getPoint(), inter.getSurfaceNormal() ) )
+//      {
+//        threeVector lightDir = (inter.getPoint() - light_point.getPosition());
+//        spectrum light_emission = light_obj->getMaterial()->getEmission( light_point );
+//
+//
+//        // samplespace volume * BRDF * Li * Cos_theta
+//        currentBeam += ( roulette_factor / (double)numLightSamples ) * inter.getObject()->getMaterial()->BRDF( lightDir.norm(), inter ) * light_emission * ( -inter.getSurfaceNormal() * lightDir );
+//      }
+//    }
 
 
-    currentBeam *= roulette_factor;
+
+
+//    if ( depth == 0 ) // If the first hit is a light, include its contribution manually
+//    {
+//      spectrum colour = inter.getObject()->getMaterial()->getColour( inter.getSurfaceMap() );
+//      currentBeam += inter.getObject()->getMaterial()->getEmission( inter.getSurfaceMap() ) * colour;
+//    }
+
+
     DEBUG_STREAM << "Returning Current Beam." << currentBeam.red() << ", " << currentBeam.green() << ", " << currentBeam.blue();
     return currentBeam;
   }

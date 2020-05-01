@@ -1,6 +1,6 @@
 
-#ifndef __S3D__LIGHT_BASE_H__
-#define __S3D__LIGHT_BASE_H__
+#ifndef S3D_LIGHT_BASE_H_
+#define S3D_LIGHT_BASE_H_
 
 #include "S3D_vector.h"
 #include "S3D_rotation.h"
@@ -32,5 +32,5 @@ namespace S3D
   };
 }
 
-#endif // __S3D__LIGHT_BASE_H__
+#endif // S3D_LIGHT_BASE_H_
 

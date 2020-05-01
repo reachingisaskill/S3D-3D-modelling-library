@@ -19,9 +19,10 @@ void addSomeShapes();
 
 int main( int, char** )
 {
+  logtastic::init();
   logtastic::setLogFileDirectory( "./test_data/" );
   logtastic::addLogFile( "architecture_test.log" );
-  logtastic::init( "Testing S3D Architecture", S3D_VERSION_NUMBER );
+  logtastic::start( "Testing S3D Architecture", S3D_VERSION_NUMBER );
 
   S3D::manager::createInstance();
 

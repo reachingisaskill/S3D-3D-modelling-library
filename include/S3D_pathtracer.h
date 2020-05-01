@@ -1,6 +1,6 @@
 
-#ifndef __S3D__PATHTRACER_H__
-#define __S3D__PATHTRACER_H__
+#ifndef S3D_PATHTRACER_H_
+#define S3D_PATHTRACER_H_
 
 #include "S3D_spectrum.h"
 #include "S3D_tracer_base.h"
@@ -40,5 +40,5 @@ namespace S3D
 
 
 
-#endif // __S3D__PATHTRACER_H__
+#endif // S3D_PATHTRACER_H_
 

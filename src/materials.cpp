@@ -1,4 +1,4 @@
-#define __DEBUG_OFF__
+#define LOGTASTIC_DEBUG_OFF
 
 #include "S3D_materials.h"
 
@@ -27,9 +27,15 @@ namespace S3D
   }
 
 
-  spectrum material_simple::BRDF( threeVector, const interaction&) const
+  double material_simple::BRDF( threeVector, const interaction& ) const
   {
-    return _brdf_const * _colour;
+    return _brdf_const;
+  }
+
+
+  spectrum material_simple::scatter( threeVector, const interaction& ) const
+  {
+    return _colour * _brdf_const;
   }
 
 
@@ -45,7 +51,7 @@ namespace S3D
   }
 
 
-  spectrum material_phong::BRDF( threeVector incomingDir, const interaction& inter ) const
+  spectrum material_phong::scatter( threeVector incomingDir, const interaction& inter ) const
   {
     double L_dot_N = incomingDir * inter.getSurfaceNormal();
     threeVector R = incomingDir - 2.0*inter.getSurfaceNormal() * L_dot_N;
@@ -64,6 +70,7 @@ namespace S3D
     return coefficient;
   }
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
   // Phong-Blinn Model
 
@@ -76,7 +83,7 @@ namespace S3D
   }
 
 
-  spectrum material_blinn::BRDF( threeVector incomingDir, const interaction& inter ) const
+  spectrum material_blinn::scatter( threeVector incomingDir, const interaction& inter ) const
   {
     double L_dot_N = incomingDir * inter.getSurfaceNormal();
     threeVector H = ( -inter.getLine().getDirection() - incomingDir ).norm();
@@ -142,14 +149,10 @@ namespace S3D
   }
 
 
-  spectrum material_lambertian::BRDF( threeVector, const interaction& ) const
+  double material_lambertian::BRDF( threeVector, const interaction& ) const
   {
     DEBUG_LOG( "Lambertian scattering" );
-
-    spectrum coefficient = _albedo * _BRDFConstant;
-    DEBUG_STREAM << "Albedo component: " << coefficient.red() << ", " << coefficient.green() << ", " << coefficient.blue();
-
-    return coefficient;
+    return _BRDFConstant;
   }
 
 
@@ -169,17 +172,17 @@ namespace S3D
   }
 
 
-  spectrum material_lightsource::BRDF( threeVector, const interaction& ) const
+  double material_lightsource::BRDF( threeVector, const interaction& ) const
   {
     DEBUG_LOG( "Perfect light source acting as a perfect black." );
-    return spectrum( 0.0, 0.0, 0.0 );
+    return 0.0;
   }
 
 
-  spectrum material_lightsource::BTDF( threeVector, const interaction& ) const
+  double material_lightsource::BTDF( threeVector, const interaction& ) const
   {
     DEBUG_LOG( "Perfect light source acting as a perfect black." );
-    return spectrum( 0.0, 0.0, 0.0 );
+    return 0.0;
   }
 
 
@@ -195,14 +198,10 @@ namespace S3D
   }
 
 
-  spectrum material_glowing::BRDF( threeVector, const interaction& ) const
+  double material_glowing::BRDF( threeVector, const interaction& ) const
   {
     DEBUG_LOG( "Glowing Lambertian scattering" );
-
-    spectrum brdf = _albedo * _BRDFConstant;
-    DEBUG_STREAM << "BRDF Value = " << brdf.red() << ", " << brdf.green() << ", " << brdf.blue();
-
-    return brdf;
+    return _BRDFConstant;
   }
 
 

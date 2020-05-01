@@ -1,6 +1,6 @@
 
-#ifndef __S3D__MATERIALS_H__
-#define __S3D__MATERIALS_H__
+#ifndef S3D_MATERIALS_H_
+#define S3D_MATERIALS_H_
 
 #include "S3D_material_base.h"
 
@@ -28,7 +28,9 @@ namespace S3D
 
       virtual spectrum getColour( surfacemap ) const;
 
-      virtual spectrum BRDF( threeVector, const interaction& ) const;
+      virtual double BRDF( threeVector, const interaction& ) const;
+
+      virtual spectrum scatter( threeVector, const interaction& ) const;
   };
 
 
@@ -55,7 +57,7 @@ namespace S3D
 
       virtual spectrum getColour( surfacemap ) const { return this->_albedo; }
 
-      virtual spectrum BRDF( threeVector, const interaction& ) const;
+      virtual spectrum scatter( threeVector, const interaction& ) const;
   };
 
 
@@ -82,7 +84,7 @@ namespace S3D
 
       virtual spectrum getColour( surfacemap ) const { return this->_albedo; }
 
-      virtual spectrum BRDF( threeVector, const interaction& ) const;
+      virtual spectrum scatter( threeVector, const interaction& ) const;
   };
 
 
@@ -107,7 +109,7 @@ namespace S3D
       virtual spectrum getColour( surfacemap ) const { return this->_albedo; }
 
       // Use the base class varient - defaults to specular
-//      virtual spectrum BRDF( threeVector, const interaction& ) const;
+//      virtual double BRDF( threeVector, const interaction& ) const;
   };
 
 
@@ -132,7 +134,7 @@ namespace S3D
       virtual spectrum getColour( surfacemap ) const { return this->_albedo; }
 
       // Use the base class varient - defaults to specular
-//      virtual spectrum BRDF( threeVector, const interaction& ) const;
+//      virtual double BRDF( threeVector, const interaction& ) const;
   };
 
 
@@ -156,7 +158,7 @@ namespace S3D
 
       virtual spectrum getColour( surfacemap ) const { return this->_albedo; }
 
-      virtual spectrum BRDF( threeVector, const interaction& ) const;
+      virtual double BRDF( threeVector, const interaction& ) const;
 
       virtual threeVector sampleReflection( const interaction& ) const;
 
@@ -182,9 +184,9 @@ namespace S3D
 
       virtual spectrum getColour( surfacemap ) const { return this->_colour; }
 
-      virtual spectrum BRDF( threeVector, const interaction& ) const;
+      virtual double BRDF( threeVector, const interaction& ) const;
 
-      virtual spectrum BTDF( threeVector, const interaction& ) const;
+      virtual double BTDF( threeVector, const interaction& ) const;
 
   };
 
@@ -209,9 +211,11 @@ namespace S3D
 
       virtual double getReflectionProb( const interaction& ) const { return 1.0; }
 
-      virtual spectrum getColour( surfacemap ) const { return this->_colour; }
+      virtual spectrum getColour( surfacemap ) const { return this->_albedo; }
 
-      virtual spectrum BRDF( threeVector, const interaction& ) const;
+      virtual spectrum getExitantRadiance( const interaction& ) const { return _colour * this->getEmittance(); }
+
+      virtual double BRDF( threeVector, const interaction& ) const;
 
       virtual threeVector sampleReflection( const interaction& ) const;
 
@@ -222,5 +226,5 @@ namespace S3D
 
 }
 
-#endif // __S3D__MATERIALS_H__
+#endif // S3D_MATERIALS_H_
 
